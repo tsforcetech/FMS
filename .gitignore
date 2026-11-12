@@ -4,6 +4,7 @@ dist/
 .env.*
 !.env.example
 !.env.emulator.example
+!.env.live.example
 .firebase/
 *-debug.log
 *.log

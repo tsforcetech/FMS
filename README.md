@@ -51,7 +51,7 @@ npm run test:rules
 
 ## Next steps
 
-Read [Firebase setup](docs/firebase-setup.md) to connect a user-selected Spark project. Real project configuration, Console provisioning and live verification remain separate from emulator results. Never put service-account keys in this repository or frontend.
+The owner-selected Firebase project is `facilityos-43386`; its public web configuration is in `.env.live.example`. Read [Firebase setup](docs/firebase-setup.md) for the intentional live build steps. Authentication/Firestore setup, owner provisioning and live verification remain pending and separate from emulator results. Never put service-account keys in this repository or frontend.
 
 See [source audit](docs/source-audit.md), [architecture](docs/architecture/architecture.md), [schema](docs/database/database-schema.md), [security](docs/security/security.md), [UX contract](docs/ux-contract.md), [roadmap](docs/development-roadmap.md) and [verification report](docs/phase0-report.md).
 
