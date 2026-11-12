@@ -1,0 +1,26 @@
+name: Phase 0 checks
+on:
+  push:
+    branches: [main, feature/phase0-foundation]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run check
+      - run: npm run test:rules
+# No deployment job; deployment needs a separately approved project and URL.

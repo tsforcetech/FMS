@@ -1,0 +1,1 @@
+Blaze only, deferred. Future trusted scheduler, idempotent task generation, immutable audit events, notification orchestration and file validation. No Functions SDK, deployment entrypoint or runtime configured in Phase 0.
