@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signedIn(){return request.auth != null;}
+  function member(companyId){return get(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data;}
+  function activeMember(companyId){return signedIn() && member(companyId).uid == request.auth.uid && member(companyId).companyId == companyId && member(companyId).status == 'active';}
+  function admin(companyId){return activeMember(companyId) && member(companyId).role in ['owner','admin'];}
+  function activeCompany(companyId){return get(/databases/$(database)/documents/companies/$(companyId)).data.status == 'active';}
+  match /users/{uid} {
+   allow get: if signedIn() && request.auth.uid == uid;
+   allow list, create, delete: if false;
+   allow update: if signedIn() && request.auth.uid == uid
+    && request.resource.data.keys().hasOnly(['uid','displayName','schemaVersion','createdAt','updatedAt','createdBy','updatedBy'])
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','updatedAt','updatedBy'])
+    && request.resource.data.uid == uid
+    && request.resource.data.schemaVersion == 1
+    && request.resource.data.displayName is string
+    && request.resource.data.displayName.size() > 0 && request.resource.data.displayName.size() <= 100
+    && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == uid;
+   match /companyAccess/{companyId} {
+    // Discovery hints only. Every company request checks its canonical member document.
+    allow get, list: if signedIn() && request.auth.uid == uid;
+    allow write: if false;
+   }
+  }
+  match /companies/{companyId} {
+   allow get: if admin(companyId) && resource.data.companyId == companyId && resource.data.status == 'active';
+   allow list, write: if false;
+   match /members/{uid} {
+    allow get: if signedIn() && resource.data.uid == uid && resource.data.companyId == companyId
+     && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
+    allow list, write: if false;
+   }
+   match /auditLogs/{eventId} {
+    allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
+    allow list, write: if false;
+   }
+   // Future site-scoped modules remain closed until their own permission tests exist.
+   match /{document=**} {allow read, write: if false;}
+  }
+  match /{document=**} {allow read, write: if false;}
+ }
+}
