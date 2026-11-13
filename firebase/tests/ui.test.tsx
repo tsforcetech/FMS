@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { beforeAll, afterAll, it, expect } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  cleanup,
+  configure,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { initializeApp, deleteApp } from 'firebase/app';
 import {
@@ -22,6 +28,7 @@ import { getAuth as adminAuth } from 'firebase-admin/auth';
 import { getFirestore as adminDb, Timestamp } from 'firebase-admin/firestore';
 import App from '../../apps/admin-web/src/App';
 import type { FirebaseServices } from '../../apps/admin-web/src/firebase';
+configure({ asyncUtilTimeout: 5000 });
 let admin: ReturnType<typeof initAdmin>;
 const client = initializeApp(
   {
@@ -116,14 +123,12 @@ it('protects routes, authenticates, switches companies, denies revoked access an
   await screen.findByRole('heading', { name: 'ui-company-b' });
   expect(screen.queryByRole('heading', { name: 'ui-company-a' })).toBe(null);
   await user.click(screen.getByRole('link', { name: /Companies & sites/ }));
-  await screen.findByRole('heading', { name: 'Coming in Phase 1' });
+  await screen.findByRole('heading', { name: 'Clients' });
   await adminDb(admin)
     .doc('companies/ui-company-b/members/ui-owner')
     .update({ status: 'inactive' });
   await waitFor(() =>
-    expect(screen.queryByRole('heading', { name: 'Coming in Phase 1' })).toBe(
-      null,
-    ),
+    expect(screen.queryByRole('heading', { name: 'Clients' })).toBe(null),
   );
   await user.click(screen.getByLabelText('Profile menu'));
   await user.click(screen.getByRole('button', { name: 'Sign out' }));

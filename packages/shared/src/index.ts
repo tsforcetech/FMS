@@ -31,6 +31,10 @@ export type CompanyRole = z.infer<typeof roleSchema>;
 export const companySchema = z
   .object({
     ...metadata,
+    contactEmail: z.string().max(200).optional(),
+    contactPhone: z.string().max(200).optional(),
+    address: z.string().max(2000).optional(),
+    country: z.string().max(200).optional(),
     companyId: idSchema,
     name: z.string().min(1).max(120),
     status: z.enum(['active', 'suspended', 'archived']),
@@ -121,3 +125,4 @@ export const deferredScheduler: SchedulerGateway = {
   },
 };
 export * from './future';
+export * from './operations';

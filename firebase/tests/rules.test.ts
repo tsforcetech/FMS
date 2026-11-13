@@ -29,7 +29,7 @@ beforeAll(async () => {
   if (process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080')
     throw new Error('Emulator required');
   env = await initializeTestEnvironment({
-    projectId: 'demo-facilityos',
+    projectId: 'demo-facilityos-rules',
     firestore: {
       host: '127.0.0.1',
       port: 8080,
@@ -195,7 +195,7 @@ describe('tenant security rules', () => {
       }),
     );
     await assertFails(
-      getDoc(doc(db('owner-a'), 'companies', 'a', 'sites', 's')),
+      getDoc(doc(db('owner-a'), 'companies', 'a', 'assets', 's')),
     );
   });
   it('allows own membership without exposing other staff', async () => {

@@ -3,9 +3,83 @@ service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn(){return request.auth != null;}
   function member(companyId){return get(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data;}
-  function activeMember(companyId){return signedIn() && member(companyId).uid == request.auth.uid && member(companyId).companyId == companyId && member(companyId).status == 'active';}
-  function admin(companyId){return activeMember(companyId) && member(companyId).role in ['owner','admin'];}
+  function admin(companyId){let m=member(companyId); return signedIn() && m.uid==request.auth.uid && m.companyId==companyId && m.status=='active' && m.role in ['owner','admin'];}
   function activeCompany(companyId){return get(/databases/$(database)/documents/companies/$(companyId)).data.status == 'active';}
+
+  function validZone(zone) {return zone is string && (zone.matches('^(Africa/Abidjan|Africa/Accra|Africa/Addis_Ababa|Africa/Algiers|Africa/Asmera|Africa/Bamako|Africa/Bangui|Africa/Banjul|Africa/Bissau|Africa/Blantyre|Africa/Brazzaville|Africa/Bujumbura|Africa/Cairo|Africa/Casablanca|Africa/Ceuta|Africa/Conakry|Africa/Dakar|Africa/Dar_es_Salaam|Africa/Djibouti|Africa/Douala|Africa/El_Aaiun|Africa/Freetown|Africa/Gaborone|Africa/Harare|Africa/Johannesburg|Africa/Juba|Africa/Kampala|Africa/Khartoum|Africa/Kigali|Africa/Kinshasa|Africa/Lagos|Africa/Libreville|Africa/Lome|Africa/Luanda|Africa/Lubumbashi|Africa/Lusaka|Africa/Malabo|Africa/Maputo|Africa/Maseru|Africa/Mbabane|Africa/Mogadishu|Africa/Monrovia|Africa/Nairobi|Africa/Ndjamena|Africa/Niamey|Africa/Nouakchott|Africa/Ouagadougou|Africa/Porto\\-Novo|Africa/Sao_Tome|Africa/Tripoli|Africa/Tunis|Africa/Windhoek|America/Adak|America/Anchorage|America/Anguilla|America/Antigua|America/Araguaina|America/Argentina/La_Rioja|America/Argentina/Rio_Gallegos|America/Argentina/Salta|America/Argentina/San_Juan|America/Argentina/San_Luis|America/Argentina/Tucuman|America/Argentina/Ushuaia|America/Aruba|America/Asuncion|America/Bahia|America/Bahia_Banderas|America/Barbados|America/Belem|America/Belize|America/Blanc\\-Sablon|America/Boa_Vista|America/Bogota|America/Boise|America/Buenos_Aires|America/Cambridge_Bay|America/Campo_Grande|America/Cancun|America/Caracas|America/Catamarca|America/Cayenne|America/Cayman|America/Chicago|America/Chihuahua|America/Ciudad_Juarez|America/Coral_Harbour|America/Cordoba|America/Costa_Rica|America/Coyhaique|America/Creston|America/Cuiaba|America/Curacao|America/Danmarkshavn|America/Dawson|America/Dawson_Creek|America/Denver|America/Detroit|America/Dominica|America/Edmonton)$') || zone.matches('^(America/Eirunepe|America/El_Salvador|America/Fort_Nelson|America/Fortaleza|America/Glace_Bay|America/Godthab|America/Goose_Bay|America/Grand_Turk|America/Grenada|America/Guadeloupe|America/Guatemala|America/Guayaquil|America/Guyana|America/Halifax|America/Havana|America/Hermosillo|America/Indiana/Knox|America/Indiana/Marengo|America/Indiana/Petersburg|America/Indiana/Tell_City|America/Indiana/Vevay|America/Indiana/Vincennes|America/Indiana/Winamac|America/Indianapolis|America/Inuvik|America/Iqaluit|America/Jamaica|America/Jujuy|America/Juneau|America/Kentucky/Monticello|America/Kralendijk|America/La_Paz|America/Lima|America/Los_Angeles|America/Louisville|America/Lower_Princes|America/Maceio|America/Managua|America/Manaus|America/Marigot|America/Martinique|America/Matamoros|America/Mazatlan|America/Mendoza|America/Menominee|America/Merida|America/Metlakatla|America/Mexico_City|America/Miquelon|America/Moncton|America/Monterrey|America/Montevideo|America/Montserrat|America/Nassau|America/New_York|America/Nome|America/Noronha|America/North_Dakota/Beulah|America/North_Dakota/Center|America/North_Dakota/New_Salem|America/Ojinaga|America/Panama|America/Paramaribo|America/Phoenix|America/Port\\-au\\-Prince|America/Port_of_Spain|America/Porto_Velho|America/Puerto_Rico|America/Punta_Arenas|America/Rankin_Inlet|America/Recife|America/Regina|America/Resolute|America/Rio_Branco|America/Santarem|America/Santiago|America/Santo_Domingo|America/Sao_Paulo|America/Scoresbysund|America/Sitka|America/St_Barthelemy|America/St_Johns|America/St_Kitts|America/St_Lucia|America/St_Thomas|America/St_Vincent|America/Swift_Current|America/Tegucigalpa|America/Thule|America/Tijuana|America/Toronto|America/Tortola|America/Vancouver|America/Whitehorse|America/Winnipeg|America/Yakutat|Antarctica/Casey|Antarctica/Davis|Antarctica/DumontDUrville|Antarctica/Macquarie)$') || zone.matches('^(Antarctica/Mawson|Antarctica/McMurdo|Antarctica/Palmer|Antarctica/Rothera|Antarctica/Syowa|Antarctica/Troll|Antarctica/Vostok|Arctic/Longyearbyen|Asia/Aden|Asia/Almaty|Asia/Amman|Asia/Anadyr|Asia/Aqtau|Asia/Aqtobe|Asia/Ashgabat|Asia/Atyrau|Asia/Baghdad|Asia/Bahrain|Asia/Baku|Asia/Bangkok|Asia/Barnaul|Asia/Beirut|Asia/Bishkek|Asia/Brunei|Asia/Calcutta|Asia/Chita|Asia/Colombo|Asia/Damascus|Asia/Dhaka|Asia/Dili|Asia/Dubai|Asia/Dushanbe|Asia/Famagusta|Asia/Gaza|Asia/Hebron|Asia/Hong_Kong|Asia/Hovd|Asia/Irkutsk|Asia/Jakarta|Asia/Jayapura|Asia/Jerusalem|Asia/Kabul|Asia/Kamchatka|Asia/Karachi|Asia/Katmandu|Asia/Khandyga|Asia/Kolkata|Asia/Krasnoyarsk|Asia/Kuala_Lumpur|Asia/Kuching|Asia/Kuwait|Asia/Macau|Asia/Magadan|Asia/Makassar|Asia/Manila|Asia/Muscat|Asia/Nicosia|Asia/Novokuznetsk|Asia/Novosibirsk|Asia/Omsk|Asia/Oral|Asia/Phnom_Penh|Asia/Pontianak|Asia/Pyongyang|Asia/Qatar|Asia/Qostanay|Asia/Qyzylorda|Asia/Rangoon|Asia/Riyadh|Asia/Saigon|Asia/Sakhalin|Asia/Samarkand|Asia/Seoul|Asia/Shanghai|Asia/Singapore|Asia/Srednekolymsk|Asia/Taipei|Asia/Tashkent|Asia/Tbilisi|Asia/Tehran|Asia/Thimphu|Asia/Tokyo|Asia/Tomsk|Asia/Ulaanbaatar|Asia/Urumqi|Asia/Ust\\-Nera|Asia/Vientiane|Asia/Vladivostok|Asia/Yakutsk|Asia/Yekaterinburg|Asia/Yerevan|Atlantic/Azores|Atlantic/Bermuda|Atlantic/Canary|Atlantic/Cape_Verde|Atlantic/Faeroe|Atlantic/Madeira|Atlantic/Reykjavik|Atlantic/South_Georgia|Atlantic/St_Helena)$') || zone.matches('^(Atlantic/Stanley|Australia/Adelaide|Australia/Brisbane|Australia/Broken_Hill|Australia/Darwin|Australia/Eucla|Australia/Hobart|Australia/Lindeman|Australia/Lord_Howe|Australia/Melbourne|Australia/Perth|Australia/Sydney|Europe/Amsterdam|Europe/Andorra|Europe/Astrakhan|Europe/Athens|Europe/Belgrade|Europe/Berlin|Europe/Bratislava|Europe/Brussels|Europe/Bucharest|Europe/Budapest|Europe/Busingen|Europe/Chisinau|Europe/Copenhagen|Europe/Dublin|Europe/Gibraltar|Europe/Guernsey|Europe/Helsinki|Europe/Isle_of_Man|Europe/Istanbul|Europe/Jersey|Europe/Kaliningrad|Europe/Kiev|Europe/Kirov|Europe/Kyiv|Europe/Lisbon|Europe/Ljubljana|Europe/London|Europe/Luxembourg|Europe/Madrid|Europe/Malta|Europe/Mariehamn|Europe/Minsk|Europe/Monaco|Europe/Moscow|Europe/Oslo|Europe/Paris|Europe/Podgorica|Europe/Prague|Europe/Riga|Europe/Rome|Europe/Samara|Europe/San_Marino|Europe/Sarajevo|Europe/Saratov|Europe/Simferopol|Europe/Skopje|Europe/Sofia|Europe/Stockholm|Europe/Tallinn|Europe/Tirane|Europe/Ulyanovsk|Europe/Vaduz|Europe/Vatican|Europe/Vienna|Europe/Vilnius|Europe/Volgograd|Europe/Warsaw|Europe/Zagreb|Europe/Zurich|Indian/Antananarivo|Indian/Chagos|Indian/Christmas|Indian/Cocos|Indian/Comoro|Indian/Kerguelen|Indian/Mahe|Indian/Maldives|Indian/Mauritius|Indian/Mayotte|Indian/Reunion|Pacific/Apia|Pacific/Auckland|Pacific/Bougainville|Pacific/Chatham|Pacific/Easter|Pacific/Efate|Pacific/Enderbury|Pacific/Fakaofo|Pacific/Fiji|Pacific/Funafuti|Pacific/Galapagos|Pacific/Gambier|Pacific/Guadalcanal|Pacific/Guam|Pacific/Honolulu|Pacific/Kiritimati|Pacific/Kosrae|Pacific/Kwajalein)$') || zone.matches('^(Pacific/Majuro|Pacific/Marquesas|Pacific/Midway|Pacific/Nauru|Pacific/Niue|Pacific/Norfolk|Pacific/Noumea|Pacific/Pago_Pago|Pacific/Palau|Pacific/Pitcairn|Pacific/Ponape|Pacific/Port_Moresby|Pacific/Rarotonga|Pacific/Saipan|Pacific/Tahiti|Pacific/Tarawa|Pacific/Tongatapu|Pacific/Truk|Pacific/Wake|Pacific/Wallis|UTC)$'));}
+  function calendar(value) {
+   let parts=value.split('-');
+   let year=int(parts[0]); let month=int(parts[1]); let day=int(parts[2]);
+   let lastDay=month==2 ? ((year%400==0 || (year%4==0 && year%100!=0))?29:28) : (month in [4,6,9,11]?30:31);
+   return value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$') && year>0 && month>=1 && month<=12 && day>=1 && day<=lastDay;
+  }
+  function optionalContact(d) {return d.get('contactEmail','') is string && d.get('contactEmail','').size()<=200 && d.get('contactPhone','') is string && d.get('contactPhone','').size()<=200 && d.get('address','') is string && d.get('address','').size()<=2000 && d.get('country','') is string && d.get('country','').size()<=200;}
+  function known(k) {return k in ['clients','contracts','sites','locations','facilityTypes','facilities'];}
+  function active(d) {return d.get('status','archived') != 'archived';}
+  function counter(c,k,id) {
+   let d=request.resource.data;
+   let w=d.witnessKind;
+   let field=k=='clients'?'clientId':k=='contracts'?'contractId':k=='sites'?'siteId':k=='facilityTypes'?'typeId':w=='locations'?'parentId':'locationId';
+   let allowed={'clients':['contracts','sites'],'contracts':['sites'],'sites':['locations'],'locations':['locations','facilities'],'facilityTypes':['facilities'],'facilities':[]};
+   let before=exists(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)) ? get(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data : {};
+   let after=getAfter(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data;
+   let was=before.get('status','archived')!='archived' && before.get(field,'')==id && (k!='sites' || before.get('parentId','')=='');
+   let now=after.status!='archived' && after.get(field,'')==id && (k!='sites' || after.get('parentId','')=='');
+   return w in allowed[k] && was!=now
+    && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
+    && d.refCount is int && d.refCount==resource.data.refCount+(now?1:-1) && d.refCount>=0
+    && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+  }
+  function increment(c,k,id,tk,tid,n) {
+   let b=get(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data;
+   let a=getAfter(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data;
+   return a.refCount==b.refCount+n && a.witnessId==id && a.witnessKind==k;
+  }
+  function ref(c,k,id,field,targetKind) {
+   let before=exists(/databases/$(database)/documents/companies/$(c)/$(k)/$(id)) ? get(/databases/$(database)/documents/companies/$(c)/$(k)/$(id)).data : {};
+   let after=request.resource.data;
+   let oldId=active(before) && !(k=='locations' && field=='siteId' && before.get('parentId','')!='') ? before.get(field,'') : '';
+   let newId=active(after) && !(k=='locations' && field=='siteId' && after.get('parentId','')!='') ? after.get(field,'') : '';
+   return (after.status!='archived' || after.get(field,'')==before.get(field,'')) && (newId=='' || active(getAfter(/databases/$(database)/documents/companies/$(c)/$(targetKind)/$(newId)).data))
+    && (newId==oldId || ((oldId=='' || increment(c,k,id,targetKind,oldId,-1)) && (newId=='' || increment(c,k,id,targetKind,newId,1))));
+  }
+  function chain0(parent) {return parent=='';}
+  function chain1(c,id,site,parent) {let d=parent=='' ? {} : getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(parent)).data; return parent=='' || (parent!=id && d.siteId==site && d.status!='archived' && chain0(d.parentId));}
+  function chain2(c,id,site,parent) {let d=parent=='' ? {} : getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(parent)).data; return parent=='' || (parent!=id && d.siteId==site && d.status!='archived' && chain1(c,id,site,d.parentId));}
+  function chain3(c,id,site,parent) {let d=parent=='' ? {} : getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(parent)).data; return parent=='' || (parent!=id && d.siteId==site && d.status!='archived' && chain2(c,id,site,d.parentId));}
+  function chain4(c,id,site,parent) {let d=parent=='' ? {} : getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(parent)).data; return parent=='' || (parent!=id && d.siteId==site && d.status!='archived' && chain3(c,id,site,d.parentId));}
+
+  function relations(c,k,id) {
+   let d=request.resource.data;
+   return (k=='clients' || k=='facilityTypes')
+    || (k=='contracts' && ref(c,k,id,'clientId','clients'))
+    || (k=='sites' && ref(c,k,id,'clientId','clients') && ref(c,k,id,'contractId','contracts') && (!active(d) || d.contractId=='' || getAfter(/databases/$(database)/documents/companies/$(c)/$('contracts')/$(d.contractId)).data.clientId==d.clientId))
+    || (k=='locations' && ref(c,k,id,'siteId','sites') && ref(c,k,id,'parentId','locations') && (!active(d) || chain4(c,id,d.siteId,d.parentId)))
+    || (k=='facilities' && ref(c,k,id,'locationId','locations') && ref(c,k,id,'typeId','facilityTypes') && (!active(d) || getAfter(/databases/$(database)/documents/companies/$(c)/$('locations')/$(d.locationId)).data.siteId==d.siteId));
+  }
+  function business(c,k,id) {
+   let d=request.resource.data;
+   return d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && d.code is string && d.code.matches('^[A-Z0-9][A-Z0-9_-]{0,39}$')
+    && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
+    && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
+    && d.revision is int && d.revision>0
+    && d.witnessKind is string && d.witnessId is string
+    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
+    && shape(k,d) && relations(c,k,id);
+  }
+  function facilityHistory(c,id) {
+   let d=request.resource.data;
+   let h=getAfter(/databases/$(database)/documents/companies/$(c)/facilities/$(id)/history/$(string(d.revision))).data;
+   return h.revision==d.revision && h.condition==d.condition && h.status==d.status && h.actorUid==request.auth.uid && h.occurredAt==request.time;
+  }
+  function shape_clients(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber']) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
+  function shape_contracts(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'startDate', 'endDate', 'serviceDescription']) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
+  function shape_sites(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description']) && d.status in ['active', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
+  function shape_locations(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'parentId', 'locationType', 'floorNumber', 'description']) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
+  function shape_facilityTypes(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'description']) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
+  function shape_facilities(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'locationId', 'typeId', 'condition', 'description']) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
+  function shape(k,d) {return k=='clients' ? shape_clients(d) : k=='contracts' ? shape_contracts(d) : k=='sites' ? shape_sites(d) : k=='locations' ? shape_locations(d) : k=='facilityTypes' ? shape_facilityTypes(d) : k=='facilities' ? shape_facilities(d) : false;}
   match /users/{uid} {
    allow get: if signedIn() && request.auth.uid == uid;
    allow list, create, delete: if false;
@@ -25,7 +99,13 @@ service cloud.firestore {
   }
   match /companies/{companyId} {
    allow get: if admin(companyId) && resource.data.companyId == companyId && resource.data.status == 'active';
-   allow list, write: if false;
+   allow list, create, delete: if false;
+   allow update: if admin(companyId) && activeCompany(companyId)
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','timeZone','contactEmail','contactPhone','address','country','updatedAt','updatedBy'])
+    && request.resource.data.name is string && request.resource.data.name.size()>0 && request.resource.data.name.size()<=120
+    && validZone(request.resource.data.timeZone)
+    && optionalContact(request.resource.data)
+    && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid;
    match /members/{uid} {
     allow get: if signedIn() && resource.data.uid == uid && resource.data.companyId == companyId
      && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
@@ -34,6 +114,51 @@ service cloud.firestore {
    match /auditLogs/{eventId} {
     allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
     allow list, write: if false;
+   }
+
+   match /codeClaims/{claimId} {
+    allow get: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && request.resource.data.keys().hasOnly(['kind','recordId','code','companyId'])
+     && request.resource.data.companyId==companyId && known(request.resource.data.kind)
+     && claimId==request.resource.data.kind+'_'+request.resource.data.code
+     && !exists(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId))
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
+    allow update,delete,list: if false;
+   }
+   match /{kind}/{id} {
+    allow read: if known(kind) && admin(companyId) && activeCompany(companyId);
+    allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
+     && business(companyId,kind,id)
+     && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
+     && request.resource.data.status!='archived' && request.resource.data.revision==1 && request.resource.data.refCount==0
+     && request.resource.data.witnessKind=='' && request.resource.data.witnessId==''
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
+     && (kind!='facilities' || facilityHistory(companyId,id));
+    allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
+     request.resource.data.refCount!=resource.data.refCount ? counter(companyId,kind,id) : (
+      business(companyId,kind,id)
+      && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy
+      && request.resource.data.code==resource.data.code && request.resource.data.revision==resource.data.revision+1
+      && request.resource.data.diff(resource.data).affectedKeys().intersection(['clientId','contractId','siteId','parentId','locationId','typeId'].toSet()).size()<=1
+      && request.resource.data.refCount==resource.data.refCount && request.resource.data.witnessKind==resource.data.witnessKind && request.resource.data.witnessId==resource.data.witnessId
+      && (!(kind in ['locations','facilities']) || request.resource.data.siteId==resource.data.siteId)
+      && (kind!='contracts' || resource.data.refCount==0 || request.resource.data.clientId==resource.data.clientId)
+      && (kind!='facilities' || facilityHistory(companyId,id))
+     ));
+    allow delete: if false;
+   }
+   match /facilities/{facilityId}/history/{eventId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && request.resource.data.keys().hasOnly(['companyId','revision','condition','status','actorUid','occurredAt'])
+     && request.resource.data.companyId==companyId && eventId==string(request.resource.data.revision)
+     && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.revision
+     && (!exists(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)) || request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.revision+1)
+     && request.resource.data.condition==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.condition
+     && request.resource.data.status==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.status
+     && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
+    allow update,delete: if false;
    }
    // Future site-scoped modules remain closed until their own permission tests exist.
    match /{document=**} {allow read, write: if false;}
