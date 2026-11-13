@@ -1,7 +1,7 @@
 name: Publish admin test site
 on:
   push:
-    branches: [feature/phase0-foundation]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
