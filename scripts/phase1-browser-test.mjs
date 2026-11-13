@@ -80,11 +80,15 @@ try {
   }
   async function choose(label, name) {
     await page
+      .locator('form')
       .getByRole('button', {
         name: new RegExp('Choose ' + label.toLowerCase()),
       })
       .click();
-    await page.getByRole('button', { name: new RegExp(name) }).click();
+    await page
+      .locator('form')
+      .getByRole('button', { name: new RegExp(name) })
+      .click();
   }
   async function saved(name) {
     await button(name).click();
@@ -168,6 +172,7 @@ try {
   await page.getByText(/#2 · Fair/).waitFor();
   checks.push('Facility type, facility create/edit and condition history');
   await mkdir('docs/evidence', { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: 'docs/evidence/phase1-desktop.png',
     fullPage: true,
@@ -177,6 +182,7 @@ try {
     ['mobile', 390, 844],
   ]) {
     await page.setViewportSize({ width, height });
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
       path: `docs/evidence/phase1-${name}.png`,
       fullPage: true,

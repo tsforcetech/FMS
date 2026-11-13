@@ -36,7 +36,7 @@ Owners/admins of an active company can use operational modules. Staff and all ot
 ## Current validation
 
 - `npm run check`: passed (lint, TypeScript, 20 unit tests, production build).
-- `npm run test:rules`: passed, 33 tests including all Phase 0 regressions and new operational transaction/security scenarios.
+- `npm run test:rules`: passed, 34 tests including all Phase 0 regressions and new operational transaction/security scenarios.
 - `npm run test:browser`: authored; local Chromium could not launch because the workspace denies its singleton socket. Escalation is disallowed by workspace policy. GitHub CI runs the browser test and uploads screenshots/results; its result must be checked before claiming completion.
 - Tests cover duplicate-code races, tenant isolation, staff denial, stale edits, protected metadata, cycles, invalid parent/site links, archived dependencies, reference-counter tampering, calendar dates, time zones, valid CRUD and facility history.
 - Build warns about the main JavaScript bundle size (~971 KB before gzip); splitting can be improved separately.

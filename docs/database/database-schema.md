@@ -1,5 +1,7 @@
 # Firestore schema v1
 
+**Phase 1 branch:** the authoritative implemented operational schema is [phase1-schema.md](phase1-schema.md). The Phase 0 baseline and future-module proposals below are retained as architectural history; Phase 1 overrides their clients/contracts/sites/locations/facilities proposals. Operational indexes are now defined for the new paginated queries, but have not been deployed.
+
 ## Implemented Phase 0 collections
 
 Document IDs are path keys. `companyId` is a 1–128 character identifier using letters, digits, underscore or hyphen; UID is Firebase Auth's UID. Metadata (M) is required: `schemaVersion: 1`, `createdAt`, `updatedAt` (Firestore Timestamp), `createdBy`, `updatedBy` (actor identifiers). Never store operational timestamps as arbitrary strings.

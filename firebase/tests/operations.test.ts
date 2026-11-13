@@ -437,3 +437,17 @@ it('server rejects impossible dates, unknown zones and missing required fields',
     }),
   );
 });
+it('serializes concurrent parent changes without creating a cycle', async () => {
+  const r = await setup();
+  const other = await create('locations', { siteId: r.site });
+  const results = await Promise.allSettled([
+    edit('locations', r.location, { parentId: other }),
+    edit('locations', other, { parentId: r.location }),
+  ]);
+  expect(results.filter((x) => x.status === 'fulfilled')).toHaveLength(1);
+  const a = await recordById(db, 'a', 'locations', r.location),
+    b = await recordById(db, 'a', 'locations', other);
+  expect(
+    a?.values.parentId === other && b?.values.parentId === r.location,
+  ).toBe(false);
+});
