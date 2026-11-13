@@ -10,6 +10,7 @@ import {
 } from 'react';
 import {
   BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Navigate,
@@ -861,14 +862,16 @@ function Dashboard({ access }: { access: Access }) {
   );
 }
 export default function App({ services }: { services: FirebaseServices }) {
+  const Router =
+    import.meta.env.VITE_ROUTER_MODE === 'hash' ? HashRouter : BrowserRouter;
   return (
-    <BrowserRouter>
+    <Router>
       <SessionProvider services={services}>
         <Routes>
           <Route path="/login" element={<Login services={services} />} />
           <Route path="*" element={<Gate services={services} />} />
         </Routes>
       </SessionProvider>
-    </BrowserRouter>
+    </Router>
   );
 }

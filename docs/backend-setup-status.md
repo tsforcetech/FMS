@@ -18,6 +18,6 @@ Updated 13 November 2026. This status supersedes the earlier setup blockers in t
 ## Remaining
 
 - Complete real browser login/logout, persistence, password-reset delivery and desktop/mobile visual checks.
-- A separate test Hosting deployment still requires target review and approval. No Hosting deployment or production website change has been made.
+- GitHub Pages test publication is now authorized. The workflow builds the admin app with the repository base path and hash routing. Enabling Pages and confirming the deployed login screen remain pending. No Firebase Hosting or reference-website change is included.
 
 Backend provisioning and authenticated backend verification succeeded. Final client acceptance remains pending; Phase 1 has not started.
