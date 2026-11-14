@@ -60,7 +60,14 @@ Existing roles are reused (no new role model). Technicians/staff work on tasks a
 
 ## Release
 
-See the final section of this report after deployment.
+| Step                                                                                          | Status                                                                                                                                                                                                                                                                      |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Firestore rules + 5 new indexes                                                               | **Deployed** to `facilityos-43386` on 15 November 2026 after the emulator suites passed. The released ruleset was read back and matches the repository; all 185 composite indexes READY; billing still disabled (Spark). Live admin screens re-checked under the new rules. |
+| Staff Web publish (`https://tsforcetech.github.io/FMS/staff/`) and Staff access page in admin | **Pending approval**: publishes when the branch is merged to `main` (Pages builds both apps; the admin app at `/FMS/` is not replaced).                                                                                                                                     |
+| Live staff login verification                                                                 | **Pending**: needs a real staff login provisioned with `scripts/provision-staff.mjs` and linked to a real employee in GBH. Not done without the owner's approval.                                                                                                           |
+| Automatic scheduling                                                                          | **Pending activation** (unchanged from Phase 4).                                                                                                                                                                                                                            |
+
+Rollback: redeploy rules and indexes from `391a63b`.
 
 ## Limitations
 
