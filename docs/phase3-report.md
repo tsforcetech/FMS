@@ -76,9 +76,9 @@ Indexes: 28 new composite indexes (147 total of 200), generated and checked by `
 
 ## Deployment status
 
-- Code is on `feature/phase3-tasks-raci-approvals`; **not merged to `main`** (merge requires explicit authorisation) and therefore not on GitHub Pages.
-- **Phase 3 Firestore rules and the 28 new indexes are not deployed.** Before merging: deploy rules and indexes to `facilityos-43386`, wait for READY, then merge so Pages publishes the UI. The new rules only add collections; Phase 0–2 behaviour is unchanged.
-- No isolated test environment exists besides the main-branch Pages site; local emulators were used for all Phase 3 testing.
+- **Firestore rules and indexes deployed** to `facilityos-43386` on 14 November 2026 by the owner's authenticated session. The released rules were read back and match `firebase/firestore.rules` exactly; all 147 composite indexes (119 existing + 28 Phase 3) reported READY. Rollback: redeploy rules and indexes from commit `ea4f077`.
+- Merged to `main` with the owner's approval; GitHub Pages publishes the UI from `main`: https://tsforcetech.github.io/FMS/
+- Approvals need a second owner/admin in a company (no self-approval). Add one through trusted provisioning.
 
 ## Limitations and follow-ups
 
