@@ -15,7 +15,7 @@ Each phase requires implementation, tests and review before the next phase. Do n
 
 ## Current status
 
-Phase 0, Phase 1 and the site/contract correction are merged. Phase 2 (people, assets, inventory) and the admin redesign are implemented and tested; see [phase2-report.md](phase2-report.md). Phase 2 Firestore rules/indexes require operator deployment before Phase 2 modules activate in the live project.
+Phase 0, Phase 1 and the site/contract correction are merged. Phase 2 (people, assets, inventory) and the admin redesign are implemented and tested; see [phase2-report.md](phase2-report.md). Phase 2 Firestore rules and indexes are deployed to the live project (all indexes READY).
 
 ## Phase 0 status
 

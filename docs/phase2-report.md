@@ -61,15 +61,9 @@ New design system (`apps/admin-web/src/theme.css`, `src/ui/kit.tsx`): Plus Jakar
 
 ## Deployment status
 
-- The redesigned app deploys to GitHub Pages from `main`.
-- **Firestore rules and indexes for Phase 2 are not yet deployed** to `facilityos-43386`; this needs an authorised operator. Until then the live app keeps Phase 1 working and shows Phase 2 modules as "pending activation". Deploy with:
-
-  ```sh
-  npx firebase deploy --only firestore:rules,firestore:indexes --project facilityos-43386
-  ```
-
-  Wait until all indexes report READY before using Phase 2 lists.
-
+- The redesigned app is deployed to GitHub Pages from `main` (merge `3f0fe9e`, Pages run 43608774712): https://tsforcetech.github.io/FMS/
+- **Firestore rules and indexes deployed** to `facilityos-43386` on 14 November 2026 by the project owner's authenticated session (`firebase deploy --only firestore:rules,firestore:indexes`). The released rules were read back and match `firebase/firestore.rules` exactly. All 119 composite indexes (30 existing + 89 Phase 2) reported READY.
+- Rollback: redeploy the rules and index file from commit `6e045ea`. Phase 2 collections are additive; Phase 1 data and behaviour are unchanged.
 - The legacy site migration (schema-1 sites) remains **not run**; the dashboard flags any legacy sites for review.
 
 ## Limits and follow-ups

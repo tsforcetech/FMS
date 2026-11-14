@@ -1,3 +1,5 @@
+> Phase 2 update, 14 November 2026: Phase 2 rules and all 119 indexes were deployed to `facilityos-43386` and reported READY. The released rules match the repository. See [Phase 2 report](phase2-report.md).
+
 > Release update, 14 November 2026: Phase 1 was explicitly authorized, merged as `1dd9a95`, and deployed to GitHub Pages. Firebase confirmed rules/index deployment; a subsequent read-only CLI check reported all 23 indexes READY. Statements below about Phase 1 being undeployed are historical. This correction branch has NOT been deployed or migrated.
 
 # Backend setup status
