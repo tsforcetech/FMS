@@ -515,8 +515,9 @@ export async function transitionCase(
     const targetDepartmentId = a.redirects
       ? opts.targetDepartmentId!
       : fresh.targetDepartmentId;
+    const to = a.to || fresh.status;
     tx.update(ref(db, c, record.kind, record.id), {
-      status: a.to,
+      status: to,
       assigneeIds,
       targetDepartmentId,
       ...(a.responds && !fresh.respondedAt
@@ -540,7 +541,7 @@ export async function transitionCase(
         revision,
         action,
         fresh.status,
-        a.to,
+        to,
         uid,
         note,
         assigneeIds,

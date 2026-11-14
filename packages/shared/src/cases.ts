@@ -8,6 +8,7 @@ export type CaseKind = (typeof caseKinds)[number];
 export type CaseAction = {
   label: string;
   from: string[];
+  /** Target status; '' keeps the current status (progress notes). */
   to: string;
   /** Reason/note text required with the action. */
   reason?: boolean;
@@ -103,6 +104,12 @@ export const caseDefinitions: Record<CaseKind, CaseDefinition> = {
         to: 'in_progress',
         reason: true,
         reopens: true,
+      },
+      note: {
+        label: 'Add update',
+        from: ['assigned', 'in_progress', 'on_hold'],
+        to: '',
+        reason: true,
       },
       cancel: {
         label: 'Cancel',
@@ -284,6 +291,8 @@ export const notificationTypes = [
   'sla_breach',
   'maintenance_due',
   'complaint_created',
+  'task_approved',
+  'issue_updated',
 ] as const;
 export type NotificationType = (typeof notificationTypes)[number];
 export const notificationLabels: Record<NotificationType, string> = {
@@ -301,6 +310,8 @@ export const notificationLabels: Record<NotificationType, string> = {
   sla_breach: 'SLA breach',
   maintenance_due: 'Maintenance due',
   complaint_created: 'Complaint registered',
+  task_approved: 'Task approved',
+  issue_updated: 'Issue status updated',
 };
 /** Deterministic notification ID: one notification per event per recipient. */
 export function notificationId(

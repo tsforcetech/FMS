@@ -222,7 +222,8 @@ export function generatedRules() {
           '(' +
           Object.entries(caseDefinitions[k].actions)
             .map(
-              ([id, a]) => `a=='${id}'?(f in ${list(a.from)} && t=='${a.to}'):`,
+              ([id, a]) =>
+                `a=='${id}'?(f in ${list(a.from)} && ${a.to ? `t=='${a.to}'` : 't==f'}):`,
             )
             .join('') +
           'false)',
@@ -332,5 +333,29 @@ export function generatedIndexes(): Index[] {
   add('notifications', [asc('recipientUid'), asc('readAt')]);
   add('stockMovements', [asc('workOrderId'), desc('createdAt')]);
   add('taskExceptions', [asc('siteId'), desc('detectedAt')]);
+  // Phase 5 staff queries (own work, own reports).
+  const contains = (f: string) => ({
+    fieldPath: f,
+    arrayConfig: 'CONTAINS' as const,
+  });
+  out.push(
+    {
+      collectionGroup: 'tasks',
+      queryScope: 'COLLECTION',
+      fields: [contains('assigneeIds'), desc('dueAt')],
+    },
+    {
+      collectionGroup: 'tasks',
+      queryScope: 'COLLECTION',
+      fields: [asc('status'), contains('assigneeIds'), desc('dueAt')],
+    },
+    {
+      collectionGroup: 'workOrders',
+      queryScope: 'COLLECTION',
+      fields: [contains('assigneeIds'), desc('createdAt')],
+    },
+  );
+  add('workOrders', [asc('createdBy'), desc('createdAt')]);
+  add('taskExceptions', [asc('detectedBy'), desc('detectedAt')]);
   return out;
 }

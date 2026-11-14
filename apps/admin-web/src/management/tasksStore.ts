@@ -672,16 +672,22 @@ export async function reportException(
     type: string;
     severity: 'warning' | 'critical';
     description: string;
+    /** Question the issue relates to (optional). */
+    questionId?: string;
   },
+  /** Stable ID generated once per form so a retried report is not duplicated. */
+  presetId?: string,
 ) {
   if (!input.description.trim()) throw new UserError('Describe the issue.');
   if (!openStatuses.includes(task.status))
     throw new UserError('Issues can only be reported on open tasks.');
-  const id = doc(col(db, c, 'taskExceptions')).id;
+  const id = presetId || doc(col(db, c, 'taskExceptions')).id;
+  const target = ref(db, c, 'taskExceptions', id);
+  if (presetId && (await getDoc(target)).exists()) return id;
   const batch = writeBatch(db);
-  batch.set(ref(db, c, 'taskExceptions', id), {
+  batch.set(target, {
     ...exceptionBase(c, task, task.attempt, uid),
-    questionId: '',
+    questionId: (input.questionId || '').slice(0, 16),
     type: input.type,
     severity: input.severity,
     description: input.description.trim().slice(0, 1000),
@@ -773,14 +779,18 @@ export async function reviewTask(
       ),
     );
   });
-  if (decision !== 'approve')
-    await notifySafely(db, c, uid, linkedUids(db, c, task.assigneeIds), {
-      type: decision === 'reject' ? 'task_rejected' : 'task_rework',
-      recordKind: 'tasks',
-      recordId: task.id,
-      eventKey: `a${task.attempt}`,
-      body: `${task.reference} ${task.title}: ${reason.trim().slice(0, 200)}`,
-    });
+  await notifySafely(db, c, uid, linkedUids(db, c, task.assigneeIds), {
+    type:
+      decision === 'approve'
+        ? 'task_approved'
+        : decision === 'reject'
+          ? 'task_rejected'
+          : 'task_rework',
+    recordKind: 'tasks',
+    recordId: task.id,
+    eventKey: `a${task.attempt}`,
+    body: `${task.reference} ${task.title}${reason.trim() ? ': ' + reason.trim().slice(0, 200) : ''}`,
+  });
 }
 
 /* ================================================================ queries */

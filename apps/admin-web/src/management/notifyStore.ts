@@ -141,6 +141,7 @@ export async function adminUids(db: Firestore, c: string) {
     query(
       collection(db, 'companies', c, 'members'),
       where('status', '==', 'active'),
+      where('role', 'in', ['owner', 'admin']),
       limit(100),
     ),
   );

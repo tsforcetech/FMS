@@ -1,4 +1,4 @@
-// Phase 1 + Phase 2 + Phase 3 + Phase 4 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
+// Phase 1 + Phase 2 + Phase 3 + Phase 4 + Phase 5 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
 // Phase 2 people/asset/inventory validators are generated from packages/shared (see rules-generator.ts).
 // Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
 // Operational documents: companyId, schemaVersion=1, code, name, notes, status,
@@ -497,10 +497,66 @@ service cloud.firestore {
   function notificationCreate(c,d){
    return d.keys().hasOnly(['companyId','schemaVersion','recipientUid','type','title','body','recordKind','recordId','createdAt','createdBy','readAt'])
     && d.companyId==c && d.schemaVersion==1 && d.recipientUid is string && activeMember(c,d.recipientUid)
-    && d.type in ['task_assigned','task_due_soon','task_overdue','task_reassigned','task_submitted','task_awaiting_approval','task_rejected','task_rework','work_order_created','work_order_assigned','escalation_raised','sla_breach','maintenance_due','complaint_created']
+    && d.type in ['task_assigned','task_due_soon','task_overdue','task_reassigned','task_submitted','task_awaiting_approval','task_rejected','task_rework','work_order_created','work_order_assigned','escalation_raised','sla_breach','maintenance_due','complaint_created','task_approved','issue_updated']
     && d.title is string && d.title.size()>0 && d.title.size()<=160 && d.body is string && d.body.size()<=500
     && d.recordKind in ['tasks','workOrders','complaints','escalations','recurringSchedules'] && d.recordId is string && d.recordId.matches('^[a-zA-Z0-9_-]{1,128}$')
     && d.createdAt==request.time && d.createdBy==request.auth.uid && d.readAt==null;
+  }
+  // ------------------------------------------------------------------ Phase 5 staff identity and scope
+  // A staff login is linked to exactly one employee per company by an admin (staffLinks/{uid} + employeeLinks/{employeeId}).
+  // Access needs: active membership, active link, active/probation employee and an active company. Document data is passed as arguments.
+  function link(c){return get(/databases/$(database)/documents/companies/$(c)/staffLinks/$(request.auth.uid)).data;}
+  function staffOk(c,m,l){return signedIn() && m.uid==request.auth.uid && m.companyId==c && m.status=='active' && m.role!='customer'
+    && l.uid==request.auth.uid && l.status=='active' && get(/databases/$(database)/documents/companies/$(c)/employees/$(l.employeeId)).data.status in ['active','probation'] && activeCompany(c);}
+  function staff(c){return staffOk(c,member(c),link(c));}
+  function supervisorRole(m){return m.role in ['supervisor','site_manager','department_manager'];}
+  function inScope(l,siteId){return l.allSites==true || siteId in l.siteIds;}
+  function sees(m,l,t){return l.employeeId in t.assigneeIds || (supervisorRole(m) && inScope(l,t.siteId));}
+  function staffView(c,t){return staffViewDoc(c,member(c),link(c),t);}
+  function staffViewDoc(c,m,l,t){return staffOk(c,m,l) && sees(m,l,t);}
+  // Assignees may run their own work in sites still in scope; supervisors may review, assign and reschedule within scope.
+  function staffTaskUpdate(c,id,d,b){return staffActs(c,member(c),link(c),id,d,b);}
+  function staffActs(c,m,l,id,d,b){
+   return staffOk(c,m,l) && inScope(l,b.siteId) && taskUpdate(c,id,d,b)
+    && ((l.employeeId in b.assigneeIds && (d.diff(b).affectedKeys().hasOnly(['draftAnswers','revision','updatedAt','updatedBy'])
+         || getAfter(/databases/$(database)/documents/companies/$(c)/taskEvents/$(id+'_'+string(d.revision))).data.action in ['start','pause','resume','submit','restart']))
+     || (supervisorRole(m) && getAfter(/databases/$(database)/documents/companies/$(c)/taskEvents/$(id+'_'+string(d.revision))).data.action in ['assign','approve','request_rework','reject','reschedule']));
+  }
+  function staffReviewer(c,t){return staffReviewerDoc(c,member(c),link(c),t);}
+  function staffReviewerDoc(c,m,l,t){return staffOk(c,m,l) && supervisorRole(m) && inScope(l,t.siteId);}
+  function staffSeesCase(m,l,x){return l.employeeId in x.assigneeIds || x.createdBy==request.auth.uid || (supervisorRole(m) && inScope(l,x.siteId));}
+  function staffCase(c,x){return staffCaseDoc(c,member(c),link(c),x);}
+  function staffCaseDoc(c,m,l,x){return staffOk(c,m,l) && staffSeesCase(m,l,x);}
+  function staffCaseUpdate(c,k,id,d,b){return staffCaseActs(c,member(c),link(c),k,id,d,b);}
+  function staffCaseActs(c,m,l,k,id,d,b){
+   return staffOk(c,m,l) && inScope(l,b.siteId) && caseUpdate(c,k,id,d,b)
+    && ((supervisorRole(m)) || (k=='workOrders' && l.employeeId in b.assigneeIds
+     && getAfter(/databases/$(database)/documents/companies/$(c)/caseEvents/$(k+'_'+id+'_'+string(d.revision))).data.action in ['start','hold','resume','resolve','note']));
+  }
+  function staffCaseCreate(c,k,id,d){return staffCaseCreateDoc(c,member(c),link(c),k,id,d);}
+  function staffCaseCreateDoc(c,m,l,k,id,d){
+   return staffOk(c,m,l) && inScope(l,d.siteId) && caseCreate(c,k,id,d)
+    && (k=='workOrders' ? d.sourceType in ['staff','task_exception'] : (supervisorRole(m) && k=='escalations'));
+  }
+  function staffMasterRead(c,kind,id,r){return staffMasterDoc(c,member(c),link(c),kind,id,r);}
+  function staffMasterDoc(c,m,l,kind,id,r){
+   return staffOk(c,m,l) && (kind=='sites' ? inScope(l,id)
+    : kind in ['locations','facilities','assets'] ? inScope(l,r.siteId)
+    : kind=='employees' ? (id==l.employeeId || (supervisorRole(m) && inScope(l,r.get('primarySiteId',''))))
+    : kind in ['shiftAssignments','siteAssignments','leaveRecords','teamMembers'] ? r.employeeId==l.employeeId
+    : kind in ['departments','designations','teams','shifts','holidays','taskCategories','slaPolicies']);
+  }
+  function linkShape(c,uid,d){
+   return d.keys().hasOnly(['companyId','schemaVersion','uid','employeeId','siteIds','allSites','status','note','createdAt','createdBy','updatedAt','updatedBy','revision'])
+    && d.companyId==c && d.schemaVersion==1 && d.uid==uid && d.employeeId is string && d.employeeId.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && d.siteIds is list && d.siteIds.size()<=10 && d.allSites is bool && d.status in ['active','revoked'] && d.note is string && d.note.size()<=500
+    && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+  }
+  function linkTarget(c,uid,d){
+   return get(/databases/$(database)/documents/companies/$(c)/members/$(uid)).data.status=='active'
+    && get(/databases/$(database)/documents/companies/$(c)/members/$(uid)).data.role!='customer'
+    && get(/databases/$(database)/documents/companies/$(c)/employees/$(d.employeeId)).data.status in ['active','probation']
+    && getAfter(/databases/$(database)/documents/companies/$(c)/employeeLinks/$(d.employeeId)).data.uid==uid;
   }
   // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.
   // Source: packages/shared/src/operations.ts via rules-generator.ts.
@@ -604,9 +660,9 @@ service cloud.firestore {
   function counterIn_sites(c,id,w,wid){return w=='departments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shifts'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
   function counter_locations(c,id){return counterIn_locations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_locations(c,id,w,wid){return w=='assets'?counter2Move(id,w,'locationId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'locationId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function caseMove(k,a,f,t){return k=='workOrders'?(a=='review'?(f in ['reported'] && t=='reviewed'):a=='assign'?(f in ['reported','reviewed','assigned','on_hold'] && t=='assigned'):a=='start'?(f in ['assigned'] && t=='in_progress'):a=='hold'?(f in ['assigned','in_progress'] && t=='on_hold'):a=='resume'?(f in ['on_hold'] && t=='in_progress'):a=='resolve'?(f in ['in_progress'] && t=='resolved'):a=='verify'?(f in ['resolved'] && t=='verified'):a=='close'?(f in ['resolved','verified'] && t=='closed'):a=='reopen'?(f in ['resolved','verified','closed'] && t=='in_progress'):a=='cancel'?(f in ['reported','reviewed','assigned','on_hold'] && t=='cancelled'):false):k=='complaints'?(a=='assign'?(f in ['open','assigned'] && t=='assigned'):a=='start'?(f in ['assigned'] && t=='in_progress'):a=='resolve'?(f in ['assigned','in_progress'] && t=='resolved'):a=='close'?(f in ['resolved'] && t=='closed'):a=='reopen'?(f in ['resolved','closed'] && t=='in_progress'):a=='cancel'?(f in ['open','assigned'] && t=='cancelled'):false):k=='escalations'?(a=='acknowledge'?(f in ['raised'] && t=='acknowledged'):a=='reassign'?(f in ['raised','acknowledged','in_progress'] && t=='raised'):a=='start'?(f in ['acknowledged'] && t=='in_progress'):a=='resolve'?(f in ['acknowledged','in_progress'] && t=='resolved'):a=='close'?(f in ['resolved'] && t=='closed'):false):false;}
+  function caseMove(k,a,f,t){return k=='workOrders'?(a=='review'?(f in ['reported'] && t=='reviewed'):a=='assign'?(f in ['reported','reviewed','assigned','on_hold'] && t=='assigned'):a=='start'?(f in ['assigned'] && t=='in_progress'):a=='hold'?(f in ['assigned','in_progress'] && t=='on_hold'):a=='resume'?(f in ['on_hold'] && t=='in_progress'):a=='resolve'?(f in ['in_progress'] && t=='resolved'):a=='verify'?(f in ['resolved'] && t=='verified'):a=='close'?(f in ['resolved','verified'] && t=='closed'):a=='reopen'?(f in ['resolved','verified','closed'] && t=='in_progress'):a=='note'?(f in ['assigned','in_progress','on_hold'] && t==f):a=='cancel'?(f in ['reported','reviewed','assigned','on_hold'] && t=='cancelled'):false):k=='complaints'?(a=='assign'?(f in ['open','assigned'] && t=='assigned'):a=='start'?(f in ['assigned'] && t=='in_progress'):a=='resolve'?(f in ['assigned','in_progress'] && t=='resolved'):a=='close'?(f in ['resolved'] && t=='closed'):a=='reopen'?(f in ['resolved','closed'] && t=='in_progress'):a=='cancel'?(f in ['open','assigned'] && t=='cancelled'):false):k=='escalations'?(a=='acknowledge'?(f in ['raised'] && t=='acknowledged'):a=='reassign'?(f in ['raised','acknowledged','in_progress'] && t=='raised'):a=='start'?(f in ['acknowledged'] && t=='in_progress'):a=='resolve'?(f in ['acknowledged','in_progress'] && t=='resolved'):a=='close'?(f in ['resolved'] && t=='closed'):false):false;}
   function caseInitial(k){return k=='workOrders'?'reported':k=='complaints'?'open':k=='escalations'?'raised':'';}
-  function caseReason(k,a){return k=='workOrders'?(a in ['hold','resolve','reopen','cancel']):k=='complaints'?(a in ['resolve','reopen','cancel']):k=='escalations'?(a in ['reassign','resolve']):false;}
+  function caseReason(k,a){return k=='workOrders'?(a in ['hold','resolve','reopen','note','cancel']):k=='complaints'?(a in ['resolve','reopen','cancel']):k=='escalations'?(a in ['reassign','resolve']):false;}
   function caseAssigns(k,a){return k=='workOrders'?(a in ['assign']):k=='complaints'?(a in ['assign']):k=='escalations'?(a in ['acknowledge']):false;}
   function caseRedirects(k,a){return k=='workOrders'?(a in []):k=='complaints'?(a in []):k=='escalations'?(a in ['reassign']):false;}
   function caseResponds(k,a){return k=='workOrders'?(a in ['review','assign','start']):k=='complaints'?(a in ['assign','start','resolve']):k=='escalations'?(a in ['acknowledge','start','resolve']):false;}
@@ -632,7 +688,7 @@ service cloud.firestore {
    }
   }
   match /companies/{companyId} {
-   allow get: if admin(companyId) && resource.data.companyId == companyId && resource.data.status == 'active';
+   allow get: if (admin(companyId) || staff(companyId)) && resource.data.companyId == companyId && resource.data.status == 'active';
    allow list, create, delete: if false;
    allow update: if admin(companyId) && activeCompany(companyId)
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','timeZone','contactEmail','contactPhone','address','country','updatedAt','updatedBy'])
@@ -645,7 +701,33 @@ service cloud.firestore {
      && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
     // Phase 2: owners/admins may list their company's members (read-only). Role changes stay trusted.
     allow list: if admin(companyId) && activeCompany(companyId);
+    // Phase 5: staff may find reviewers (query filtered by role) to notify them; no other member data is exposed.
+    allow list: if staff(companyId) && resource.data.role in ['owner','admin','supervisor','site_manager','department_manager'];
     allow write: if false;
+   }
+   match /staffLinks/{uid} {
+    allow get: if signedIn() && request.auth.uid==uid && resource.data.uid==uid;
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && linkShape(companyId,uid,request.resource.data)
+     && request.resource.data.status=='active' && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
+     && linkTarget(companyId,uid,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && linkShape(companyId,uid,request.resource.data)
+     && request.resource.data.revision==resource.data.revision+1 && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy
+     && request.resource.data.employeeId==resource.data.employeeId
+     && (request.resource.data.status=='revoked' || linkTarget(companyId,uid,request.resource.data));
+    allow delete: if false;
+   }
+   match /employeeLinks/{employeeId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    // One login per employee: the claim can move only away from a revoked link.
+    allow create: if admin(companyId) && activeCompany(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
+     && request.resource.data.companyId==companyId && request.resource.data.employeeId==employeeId
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(request.resource.data.uid)).data.employeeId==employeeId;
+    allow update: if admin(companyId) && activeCompany(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
+     && request.resource.data.companyId==companyId && request.resource.data.employeeId==employeeId
+     && get(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(resource.data.uid)).data.status=='revoked'
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(request.resource.data.uid)).data.employeeId==employeeId;
+    allow delete: if false;
    }
    match /auditLogs/{eventId} {
     allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
@@ -664,6 +746,8 @@ service cloud.firestore {
    }
    match /{kind}/{id} {
     allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
+    allow read: if kind in ['sites','locations','facilities','assets','employees','shiftAssignments','siteAssignments','leaveRecords','teamMembers','departments','designations','teams','shifts','holidays','taskCategories','slaPolicies']
+     && staffMasterRead(companyId,kind,id,resource.data);
     allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
@@ -696,13 +780,19 @@ service cloud.firestore {
    }
    match /tasks/{taskId} {
     allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if staffView(companyId,resource.data);
     allow create: if admin(companyId) && activeCompany(companyId) && taskCreate(companyId,taskId,request.resource.data);
     allow update: if admin(companyId) && activeCompany(companyId) && taskUpdate(companyId,taskId,request.resource.data,resource.data);
+    allow update: if staffTaskUpdate(companyId,taskId,request.resource.data,resource.data);
     allow delete: if false;
    }
    match /taskEvents/{eventId} {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
+     && eventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffView(companyId,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && eventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     allow update,delete: if false;
    }
@@ -710,11 +800,19 @@ service cloud.firestore {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && submissionCreate(companyId,submissionId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
+     && submissionCreate(companyId,submissionId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     allow update,delete: if false;
    }
    match /taskApprovals/{approvalId} {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
+     && approvalCreate(companyId,approvalId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/taskSubmissions/$(approvalId)).data);
+    allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffReviewer(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && approvalCreate(companyId,approvalId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/taskSubmissions/$(approvalId)).data);
     allow update,delete: if false;
    }
@@ -722,7 +820,13 @@ service cloud.firestore {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && exceptionCreate(companyId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow create: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
+     && exceptionCreate(companyId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    // Staff see issues they reported; supervisors see issues in their sites.
+    allow get: if resource==null && staff(companyId);
+    allow read: if staff(companyId) && (resource.data.detectedBy==request.auth.uid || (supervisorRole(member(companyId)) && inScope(link(companyId),resource.data.siteId)));
     allow update: if admin(companyId) && activeCompany(companyId) && exceptionUpdate(request.resource.data,resource.data);
+    allow update: if staffReviewer(companyId,resource.data) && exceptionUpdate(request.resource.data,resource.data);
     allow delete: if false;
    }
    // ---------------------------------------------------------------- Phase 4
@@ -744,13 +848,17 @@ service cloud.firestore {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && caseEventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data);
+    allow get: if staffCase(companyId,get(/databases/$(database)/documents/companies/$(companyId)/$(resource.data.kind)/$(resource.data.caseId)).data);
+    allow create: if staffCase(companyId,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data) && caseEventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data);
     allow update,delete: if false;
    }
    match /notifications/{notificationId} {
     allow read: if signedIn() && resource.data.recipientUid==request.auth.uid && activeMember(companyId,request.auth.uid) && activeCompany(companyId);
     // Senders may only probe that a deterministic ID is still free (prevents duplicates); they never read content.
-    allow get: if resource==null && admin(companyId) && activeCompany(companyId);
+    allow get: if resource==null && (admin(companyId) || staff(companyId)) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId) && notificationCreate(companyId,request.resource.data);
+    allow create: if staff(companyId) && notificationCreate(companyId,request.resource.data)
+     && request.resource.data.type in ['task_submitted','task_awaiting_approval','task_approved','task_rejected','task_rework','task_assigned','task_reassigned','work_order_created','work_order_assigned','escalation_raised','issue_updated'];
     allow update: if signedIn() && resource.data.recipientUid==request.auth.uid && activeMember(companyId,request.auth.uid)
      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']) && resource.data.readAt==null && request.resource.data.readAt==request.time;
     allow delete: if false;
@@ -766,18 +874,30 @@ service cloud.firestore {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'workOrders',caseId,request.resource.data);
     allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'workOrders',caseId,request.resource.data,resource.data);
+    allow read: if staffCase(companyId,resource.data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffCaseCreate(companyId,'workOrders',caseId,request.resource.data);
+    allow update: if staffCaseUpdate(companyId,'workOrders',caseId,request.resource.data,resource.data);
     allow delete: if false;
    }
    match /complaints/{caseId} {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'complaints',caseId,request.resource.data);
     allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'complaints',caseId,request.resource.data,resource.data);
+    allow read: if staffCase(companyId,resource.data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffCaseCreate(companyId,'complaints',caseId,request.resource.data);
+    allow update: if staffCaseUpdate(companyId,'complaints',caseId,request.resource.data,resource.data);
     allow delete: if false;
    }
    match /escalations/{caseId} {
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'escalations',caseId,request.resource.data);
     allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'escalations',caseId,request.resource.data,resource.data);
+    allow read: if staffCase(companyId,resource.data);
+    allow get: if resource==null && staff(companyId);
+    allow create: if staffCaseCreate(companyId,'escalations',caseId,request.resource.data);
+    allow update: if staffCaseUpdate(companyId,'escalations',caseId,request.resource.data,resource.data);
     allow delete: if false;
    }
   // BEGIN GENERATED PHASE 2 MATCHES — do not edit by hand.

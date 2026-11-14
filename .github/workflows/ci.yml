@@ -10,6 +10,7 @@ on:
         feature/phase2-people-assets-inventory,
         feature/phase3-tasks-raci-approvals,
         feature/phase4-scheduling-maintenance,
+        feature/phase5-staff-web,
       ]
   pull_request:
 permissions:
