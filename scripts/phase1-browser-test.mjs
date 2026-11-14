@@ -39,7 +39,7 @@ const vite = spawn(
   },
 );
 const origin = 'http://127.0.0.1:5193';
-const evidence = 'docs/evidence/phase3';
+const evidence = 'docs/evidence/phase4';
 let browser;
 let page;
 const checks = [];
@@ -575,6 +575,175 @@ try {
     'Supervisor rework request, resubmission, approval, timeline, submission history and task dashboard',
   );
 
+  // ---------------------------------------------------------- phase 4 scheduling
+  const toast = (text) =>
+    page.getByText(text, { exact: false }).first().waitFor();
+  await nav('Recurring tasks');
+  await button('New recurring task').first().click();
+  await pick('Task template', 'Daily AC inspection');
+  await drawer().getByText('Version 1').first().waitFor();
+  await drawer().getByLabel('Code').fill('AC-ROUND');
+  await drawer().getByLabel('Schedule name').fill('Morning AC round');
+  await pick('Site', 'Marina Campus');
+  await drawer().getByLabel('Start time').fill('08:30');
+  await drawer().getByLabel('Repeat').selectOption('weekdays');
+  await drawer()
+    .getByText(/^Every weekday \(Mon–Fri\) at 08:30/)
+    .waitFor();
+  await shoot('10-schedule-builder');
+  await button('Create schedule').click();
+  await page
+    .getByRole('heading', { level: 1, name: 'Morning AC round' })
+    .waitFor();
+  await button('Generate now').click();
+  await toast('new occurrence(s)');
+  await page.getByText('Generated tasks').waitFor();
+  await page.locator('.queue-row .code-chip').first().waitFor();
+  await shoot('11-schedule-detail');
+  await button('Generate now').click();
+  await toast('0 new occurrence(s)');
+  checks.push(
+    'Recurring schedule builder, preview, manual generation and idempotent re-run',
+  );
+
+  await nav('Task calendar');
+  await page.locator('.cal-chip').first().waitFor();
+  await shoot('12-calendar-week');
+  for (const v of ['Month', 'Day', 'Agenda', 'Staff', 'Sites']) {
+    await page
+      .getByRole('radio', { name: v, exact: true })
+      .or(button(v))
+      .first()
+      .click();
+    await page.waitForTimeout(300);
+  }
+  await button('Staff').click();
+  await page.getByText('Unassigned queue').first().waitFor();
+  await shoot('12b-calendar-staff');
+  await page
+    .getByRole('radio', { name: 'Week', exact: true })
+    .or(button('Week'))
+    .first()
+    .click();
+  await page
+    .getByRole('radio', { name: 'Month', exact: true })
+    .or(button('Month'))
+    .first()
+    .click();
+  await page.locator('.cal-chip').first().waitFor();
+  await shoot('13-calendar-month');
+  await page
+    .getByRole('radio', { name: 'Week', exact: true })
+    .or(button('Week'))
+    .first()
+    .click();
+  const chip = page.locator('.cal-col .cal-chip[draggable="true"]').first();
+  await chip.waitFor();
+  const target = page.locator('.cal-col').last();
+  await chip.dragTo(target);
+  await page.getByRole('dialog').getByText('This occurrence only').waitFor();
+  await shoot('14-reschedule-scope');
+  await drawer().getByLabel('This occurrence only').check();
+  await button('Reschedule').click();
+  await toast('Task rescheduled.');
+  checks.push(
+    'Calendar day/week/month/agenda/staff/site views and drag-and-drop reschedule with occurrence scope',
+  );
+
+  await nav('Staff workload');
+  await page.getByText('Planned work').first().waitFor();
+  await shoot('15-staff-workload');
+  await nav('Site & team view');
+  await page.getByText('Completion').first().waitFor();
+  checks.push('Staff workload and site/department/team views');
+
+  await nav('Work orders');
+  await button('New work order').click();
+  await drawer().getByLabel('Title').fill('Chiller tripping');
+  await pick('Site', 'Marina Campus');
+  await drawer().getByLabel('Priority').selectOption('high');
+  await button('Create').click();
+  await page
+    .getByRole('heading', { level: 1, name: 'Chiller tripping' })
+    .waitFor();
+  await button('Assign').click();
+  await pick('Add employee', 'Asha Rao');
+  await drawer().getByRole('button', { name: 'Assign', exact: true }).click();
+  await toast('Assign — done.');
+  await button('Start work').click();
+  await drawer()
+    .getByRole('button', { name: 'Start work', exact: true })
+    .click();
+  await toast('Start work — done.');
+  await button('Put on hold').click();
+  await drawer()
+    .getByRole('button', { name: 'Put on hold', exact: true })
+    .click();
+  await drawer().getByText('Enter a reason').waitFor();
+  await drawer()
+    .getByLabel(/^Reason/)
+    .fill('Waiting for contactor');
+  await drawer()
+    .getByRole('button', { name: 'Put on hold', exact: true })
+    .click();
+  await toast('Put on hold — done.');
+  await button('Resume').click();
+  await drawer().getByRole('button', { name: 'Resume', exact: true }).click();
+  await toast('Resume — done.');
+  await button('Mark resolved').click();
+  await drawer()
+    .getByLabel(/^Resolution/)
+    .fill('Replaced contactor');
+  await drawer()
+    .getByRole('button', { name: 'Mark resolved', exact: true })
+    .click();
+  await toast('Mark resolved — done.');
+  await page.getByText('Replaced contactor').first().waitFor();
+  await shoot('16-work-order');
+  checks.push(
+    'Work order lifecycle with assignment, hold reason, resolution and history',
+  );
+
+  await nav('Complaints');
+  await button('Register complaint').click();
+  await drawer().getByLabel('Title').fill('Lobby too warm');
+  await pick('Site', 'Marina Campus');
+  await button('Create').click();
+  await page
+    .getByRole('heading', { level: 1, name: 'Lobby too warm' })
+    .waitFor();
+  await button('Create work order').click();
+  await toast('Work order created and linked.');
+  await page.getByText('Open linked work order').waitFor();
+  await button('Escalate').click();
+  await pick('Department', 'Operations');
+  await drawer()
+    .getByLabel(/^Reason/)
+    .fill('Tenant VIP');
+  await button('Raise escalation').click();
+  await toast('Escalation raised.');
+  checks.push('Complaint to linked work order and escalation');
+
+  await nav('SLA monitoring');
+  await page.getByText('Service levels').waitFor();
+  await nav('Maintenance dashboard');
+  await page.getByText('Maintenance overview').waitFor();
+  await nav('Scheduler monitor');
+  await page.getByText('Pending activation').first().waitFor();
+  await button('Run scheduler now').click();
+  await toast('Run ');
+  await shoot('17-scheduler-monitor');
+  await nav('Notification centre');
+  await page.getByText('Work order created').first().waitFor();
+  await page.getByLabel(/^Notifications, \d+ unread$/).waitFor();
+  await shoot('18-notifications');
+  await button('Mark all read').click();
+  await toast('marked as read');
+  await page.getByLabel('Notifications', { exact: true }).waitFor();
+  checks.push(
+    'SLA monitor, maintenance dashboard, scheduler monitor (pending activation) and notification centre',
+  );
+
   // ---------------------------------------------------------- admin
   await nav('Roles & permissions');
   await page.getByText('Prepared').first().waitFor();
@@ -609,6 +778,10 @@ try {
       .waitFor();
     await noOverflow(device + ' task detail');
     await shoot(`task-${device}`);
+    await page.goto(origin + '/task-calendar?view=month');
+    await page.locator('.cal-month').waitFor();
+    await noOverflow(device + ' calendar');
+    await shoot(`calendar-${device}`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await button('Toggle navigation').click();

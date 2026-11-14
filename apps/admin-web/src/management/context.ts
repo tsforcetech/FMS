@@ -84,12 +84,13 @@ export function formatDate(v: string) {
     year: 'numeric',
   });
 }
-export function formatInstant(d: Date) {
+export function formatInstant(d: Date, timeZone?: string) {
   return d.toLocaleString('en-GB', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    ...(timeZone ? { timeZone } : {}),
   });
 }

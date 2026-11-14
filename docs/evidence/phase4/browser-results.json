@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "Login error, sign-in, dashboard and refresh persistence",
+    "Site created with no client or contract field",
+    "Locations, child location, facility type, facility and condition history",
+    "Client, contract and whole-site allocation with client derived from contract",
+    "Department, designation, employee, overnight shift and assignment, team, leave and archive protection",
+    "Equipment, furniture batch, atomic transfer with history and QR label",
+    "Opening, receipt, rejected over-issue, issue, transfer, adjustment, reversal and exact balances with reorder flag",
+    "Task category, template builder with checklist, ranges, RACI and immutable published version",
+    "Manual task creation, start, saved progress, exception detection, submission and blocked self-approval",
+    "Supervisor rework request, resubmission, approval, timeline, submission history and task dashboard",
+    "Recurring schedule builder, preview, manual generation and idempotent re-run",
+    "Calendar day/week/month/agenda/staff/site views and drag-and-drop reschedule with occurrence scope",
+    "Staff workload and site/department/team views",
+    "Work order lifecycle with assignment, hold reason, resolution and history",
+    "Complaint to linked work order and escalation",
+    "SLA monitor, maintenance dashboard, scheduler monitor (pending activation) and notification centre",
+    "Roles matrix and read-only user access",
+    "Desktop, tablet and mobile dashboard, lists, task detail and form without page overflow",
+    "Company switching without tenant data leakage",
+    "Logout and account-enumeration-safe password reset"
+  ],
+  "viewports": [
+    "1440x1000",
+    "768x1024",
+    "390x844"
+  ],
+  "pageErrors": [],
+  "environment": "local demo emulators only"
+}

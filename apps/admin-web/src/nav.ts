@@ -35,6 +35,19 @@ import {
   Settings,
   KeyRound,
   SlidersHorizontal,
+  CalendarDays,
+  CalendarRange,
+  Repeat,
+  LayoutGrid,
+  AlertTriangle,
+  MessageSquareWarning,
+  Megaphone,
+  Timer,
+  ShieldAlert,
+  Bell,
+  BellRing,
+  Server,
+  ScrollText,
   type LucideIcon,
 } from 'lucide-react';
 import type { Kind } from '@facilityos/shared';
@@ -60,7 +73,23 @@ export type Page = {
     | 'tasks'
     | 'taskAssignments'
     | 'approvals'
-    | 'taskHistory';
+    | 'taskHistory'
+    | 'calendar'
+    | 'recurring'
+    | 'staffWorkload'
+    | 'groupedWorkload'
+    | 'maintenanceDashboard'
+    | 'pmPlans'
+    | 'maintenanceCalendar'
+    | 'workOrders'
+    | 'assetHistory'
+    | 'reportedIssues'
+    | 'complaints'
+    | 'escalations'
+    | 'slaMonitor'
+    | 'notificationCenter'
+    | 'notificationSettings'
+    | 'schedulerMonitor';
   /** Not yet available: shown with a phase label. */
   phase?: number;
   description?: string;
@@ -238,8 +267,8 @@ export const groups: Group[] = [
     ],
   },
   {
-    id: 'operations',
-    label: 'Operations',
+    id: 'tasks',
+    label: 'Task management',
     pages: [
       {
         id: 'task-dashboard',
@@ -248,22 +277,34 @@ export const groups: Group[] = [
         screen: 'taskDashboard',
       },
       {
-        id: 'task-categories',
-        label: 'Task categories',
-        icon: FolderKanban,
-        kinds: ['taskCategories'],
-      },
-      {
-        id: 'task-templates',
-        label: 'Task templates',
-        icon: ClipboardList,
-        kinds: ['taskTemplates'],
+        id: 'task-calendar',
+        label: 'Task calendar',
+        icon: CalendarDays,
+        screen: 'calendar',
       },
       {
         id: 'tasks',
         label: 'Task register',
         icon: ClipboardCheck,
         screen: 'tasks',
+      },
+      {
+        id: 'recurring-tasks',
+        label: 'Recurring tasks',
+        icon: Repeat,
+        screen: 'recurring',
+      },
+      {
+        id: 'staff-workload',
+        label: 'Staff workload',
+        icon: Users,
+        screen: 'staffWorkload',
+      },
+      {
+        id: 'site-team-view',
+        label: 'Site & team view',
+        icon: LayoutGrid,
+        screen: 'groupedWorkload',
       },
       {
         id: 'task-assignments',
@@ -283,12 +324,107 @@ export const groups: Group[] = [
         icon: History,
         screen: 'taskHistory',
       },
-      { id: 'maintenance', label: 'Maintenance', icon: Hammer, phase: 4 },
+      {
+        id: 'task-categories',
+        label: 'Task categories',
+        icon: FolderKanban,
+        kinds: ['taskCategories'],
+      },
+      {
+        id: 'task-templates',
+        label: 'Task templates',
+        icon: ClipboardList,
+        kinds: ['taskTemplates'],
+      },
+    ],
+  },
+  {
+    id: 'maintenance',
+    label: 'Maintenance',
+    pages: [
+      {
+        id: 'maintenance',
+        label: 'Maintenance dashboard',
+        icon: Hammer,
+        screen: 'maintenanceDashboard',
+      },
+      {
+        id: 'pm-plans',
+        label: 'Preventive plans',
+        icon: CalendarRange,
+        screen: 'pmPlans',
+      },
+      {
+        id: 'maintenance-calendar',
+        label: 'Maintenance calendar',
+        icon: CalendarDays,
+        screen: 'maintenanceCalendar',
+      },
       {
         id: 'work-orders',
         label: 'Work orders',
-        icon: ClipboardList,
-        phase: 4,
+        icon: Wrench,
+        screen: 'workOrders',
+      },
+      {
+        id: 'asset-history',
+        label: 'Asset maintenance history',
+        icon: ScrollText,
+        screen: 'assetHistory',
+      },
+    ],
+  },
+  {
+    id: 'issues',
+    label: 'Issues & escalations',
+    pages: [
+      {
+        id: 'reported-issues',
+        label: 'Reported issues',
+        icon: AlertTriangle,
+        screen: 'reportedIssues',
+      },
+      {
+        id: 'complaints',
+        label: 'Complaints',
+        icon: MessageSquareWarning,
+        screen: 'complaints',
+      },
+      {
+        id: 'escalations',
+        label: 'Escalations',
+        icon: Megaphone,
+        screen: 'escalations',
+      },
+      {
+        id: 'sla',
+        label: 'SLA monitoring',
+        icon: ShieldAlert,
+        screen: 'slaMonitor',
+      },
+      {
+        id: 'sla-policies',
+        label: 'SLA policies',
+        icon: Timer,
+        kinds: ['slaPolicies'],
+      },
+    ],
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    pages: [
+      {
+        id: 'notifications',
+        label: 'Notification centre',
+        icon: Bell,
+        screen: 'notificationCenter',
+      },
+      {
+        id: 'notification-settings',
+        label: 'Notification settings',
+        icon: BellRing,
+        screen: 'notificationSettings',
       },
     ],
   },
@@ -303,6 +439,12 @@ export const groups: Group[] = [
         screen: 'company',
       },
       { id: 'access', label: 'User access', icon: KeyRound, screen: 'access' },
+      {
+        id: 'scheduler',
+        label: 'Scheduler monitor',
+        icon: Server,
+        screen: 'schedulerMonitor',
+      },
       {
         id: 'system',
         label: 'System settings',
