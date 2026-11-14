@@ -750,6 +750,9 @@ svg {
   align-items: center;
   gap: 8px;
   min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
   font-size: 13px;
   color: var(--ink-3);
 }
@@ -1311,6 +1314,7 @@ a.stat:hover {
   color: var(--ink-2);
 }
 .table-wrap {
+  position: relative; /* contains absolutely positioned sr-only labels */
   overflow-x: auto;
   margin: 0 -6px;
   padding: 0 6px;
@@ -2178,6 +2182,13 @@ textarea.input {
   }
   .menu-toggle {
     display: inline-grid;
+  }
+  .crumbs .hide-sm {
+    display: none;
+  }
+  .crumbs strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .collapse-btn {
     display: none;

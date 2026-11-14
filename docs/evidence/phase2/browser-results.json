@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "Login error, sign-in, dashboard and refresh persistence",
+    "Site created with no client or contract field",
+    "Locations, child location, facility type, facility and condition history",
+    "Client, contract and whole-site allocation with client derived from contract",
+    "Department, designation, employee, overnight shift and assignment, team, leave and archive protection",
+    "Equipment, furniture batch, atomic transfer with history and QR label",
+    "Opening, receipt, rejected over-issue, issue, transfer, adjustment, reversal and exact balances with reorder flag",
+    "Roles matrix and read-only user access",
+    "Desktop, tablet and mobile dashboard, list and form without page overflow",
+    "Company switching without tenant data leakage",
+    "Logout and account-enumeration-safe password reset"
+  ],
+  "viewports": [
+    "1440x1000",
+    "768x1024",
+    "390x844"
+  ],
+  "pageErrors": [],
+  "environment": "local demo emulators only"
+}

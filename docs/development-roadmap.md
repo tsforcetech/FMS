@@ -13,6 +13,10 @@ Each phase requires implementation, tests and review before the next phase. Do n
 | 6     | Android/iOS, QR/camera/GPS, offline queue and synchronization                                                                               | Device permissions, replay/conflict resolution, secure local storage, Android/iOS device tests    |
 | 7     | Reports, exports, dashboards, customer portal, operational monitoring and release hardening                                                 | Accurate aggregates, scoped customer access, retention/backups, performance and recovery tests    |
 
+## Current status
+
+Phase 0, Phase 1 and the site/contract correction are merged. Phase 2 (people, assets, inventory) and the admin redesign are implemented and tested; see [phase2-report.md](phase2-report.md). Phase 2 Firestore rules/indexes require operator deployment before Phase 2 modules activate in the live project.
+
 ## Phase 0 status
 
 Implemented in source: strict workspace setup, email/password login/reset, Auth persistence, profile read, paginated company discovery, canonical membership checks, selected-company subscriptions, access-denied/error/loading/empty states, responsive foundation shell, secure provisioning, emulator fixtures, schema contracts, closed future collection rules and CI.

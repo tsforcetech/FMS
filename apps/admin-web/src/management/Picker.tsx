@@ -115,6 +115,7 @@ export function Picker({
       <button
         type="button"
         id={inputId}
+        aria-label={inputId ? undefined : label}
         className="input picker-trigger"
         aria-haspopup="listbox"
         aria-expanded={open}

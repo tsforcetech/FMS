@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
 import QRCode from 'qrcode';
-import type { QueryDocumentSnapshot } from 'firebase/firestore';
+import { doc, getDoc, type QueryDocumentSnapshot } from 'firebase/firestore';
 import {
   ArrowLeftRight,
   ArrowDownLeft,
@@ -99,7 +99,11 @@ function Field({
     <div className={'field ' + (wide ? 'wide' : '')}>
       <span className="field-label">
         {label}
-        {required && <span className="req">*</span>}
+        {required && (
+          <span className="req" aria-hidden="true">
+            *
+          </span>
+        )}
       </span>
       {children}
       {error ? (
@@ -1250,7 +1254,7 @@ function CurrentBalance({
   const [q, setQ] = useState<number | null>(null);
   useEffect(() => {
     let live = true;
-    import('firebase/firestore').then(({ doc, getDoc }) =>
+    Promise.resolve().then(() =>
       getDoc(
         doc(
           context.services.db,

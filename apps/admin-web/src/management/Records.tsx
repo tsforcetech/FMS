@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import {
@@ -54,7 +55,12 @@ import {
   type Values,
   type Operation,
 } from '@facilityos/shared';
-import { listRecords, saveRecord, listSubcollection } from './store';
+import {
+  listRecords,
+  saveRecord,
+  listSubcollection,
+  recordById,
+} from './store';
 import {
   clearLabelCache,
   formatDate,
@@ -297,6 +303,7 @@ export function RecordEditor({
     const common = {
       id,
       'aria-invalid': !!errors[f.key],
+      'aria-required': !!f.required,
       'aria-describedby': errors[f.key]
         ? id + '-err'
         : f.help
@@ -525,7 +532,11 @@ export function RecordEditor({
                       >
                         <label htmlFor={formId + f.key}>
                           {f.label}
-                          {f.required && <span className="req">*</span>}
+                          {f.required && (
+                            <span className="req" aria-hidden="true">
+                              *
+                            </span>
+                          )}
                         </label>
                         {input(f)}
                         {errors[f.key] ? (
@@ -586,7 +597,7 @@ function DerivedClient({
   const [clientId, setClientId] = useState('');
   useEffect(() => {
     let live = true;
-    import('./store').then(({ recordById }) =>
+    Promise.resolve().then(() =>
       recordById(
         context.services.db,
         context.company.companyId,
@@ -1142,7 +1153,6 @@ export function RecordDetail({
     ...extraTabs,
   ];
   async function reload() {
-    const { recordById } = await import('./store');
     const r = await recordById(
       context.services.db,
       context.company.companyId,
@@ -1595,6 +1605,39 @@ export function RecordPage({
   assetClasses?: string[];
 }) {
   const [kind, setKind] = useState<Kind>(kinds[0]);
+  const [params, setParams] = useSearchParams();
+  const [opened, setOpened] = useState<Operation>();
+  const openId = params.get('open') || '';
+  // Deep links such as QR labels: /assets?open=<id>. Access is still enforced by rules.
+  useEffect(() => {
+    if (!openId) return;
+    let live = true;
+    Promise.resolve().then(() =>
+      recordById(
+        context.services.db,
+        context.company.companyId,
+        kinds[0],
+        openId,
+      )
+        .then((r) => live && r && setOpened(r))
+        .catch(() => undefined),
+    );
+    return () => {
+      live = false;
+    };
+  }, [openId, context, kinds]);
+  if (opened)
+    return (
+      <RecordDetail
+        context={context}
+        kind={kinds[0]}
+        record={opened}
+        onBack={() => {
+          setOpened(undefined);
+          setParams({});
+        }}
+      />
+    );
   return (
     <>
       {kinds.length > 1 && (

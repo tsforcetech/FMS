@@ -7,6 +7,7 @@ on:
         feature/phase0-foundation,
         feature/phase1-company-sites,
         feature/phase1-site-contract-decoupling,
+        feature/phase2-people-assets-inventory,
       ]
   pull_request:
 permissions:
@@ -35,7 +36,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: phase1-browser-evidence
+          name: browser-evidence
           path: docs/evidence/
           if-no-files-found: ignore
 # This workflow validates only. Production Pages deployment remains tied to main.
