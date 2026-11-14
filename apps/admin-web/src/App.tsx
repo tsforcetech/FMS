@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useCallback,
@@ -16,6 +17,7 @@ import {
   Navigate,
   NavLink,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
 import {
   onAuthStateChanged,
@@ -31,26 +33,26 @@ import {
 } from 'firebase/firestore';
 import {
   Layers,
-  LayoutDashboard,
-  ClipboardCheck,
-  CalendarDays,
-  Wrench,
-  MessageSquare,
-  ShieldCheck,
-  Zap,
-  Building2,
-  Users,
-  Boxes,
-  Package,
-  BarChart3,
-  Settings,
-  Bell,
   Menu,
   LogOut,
   ArrowRight,
   LockKeyhole,
+  Bell,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  ChevronsLeft,
+  Home,
+  ShieldCheck,
+  RefreshCw,
+  AlertTriangle,
+  FlaskConical,
+  Mail,
+  Eye,
+  EyeOff,
+  Hourglass,
+  type LucideIcon,
 } from 'lucide-react';
-import { Field, Message } from '@facilityos/ui';
 import {
   canOpenAdmin,
   companySchema,
@@ -63,7 +65,24 @@ import {
 } from '@facilityos/shared';
 import type { FirebaseServices } from './firebase';
 import { loadAccess, loadProfile } from './data';
-import { Management, ManagementSummary } from './management/Management';
+import { groups, pageForPath } from './nav';
+import { Overview } from './management/Overview';
+import { RecordPage } from './management/Records';
+import {
+  BalancesPage,
+  MovementsPage,
+  TransfersPage,
+} from './management/Assets';
+import { AccessPage, CompanySettings, RolesPage } from './management/Admin';
+import { clearLabelCache, type Context } from './management/context';
+import {
+  Avatar,
+  IconCircle,
+  PageHead,
+  Pill,
+  ToastProvider,
+  type Tone,
+} from './ui/kit';
 
 type Access = { company: Company; member: Membership };
 type Session = {
@@ -180,32 +199,57 @@ function SessionProvider({
     </SessionContext.Provider>
   );
 }
-function Brand() {
+function Logo() {
   return (
-    <div className="brand-row">
-      <div className="brand-mark">
-        <Layers size={24} />
-      </div>
-      <div>
-        <div className="brand-name">
-          Facility<span style={{ color: 'var(--brand)' }}>OS</span>
-        </div>
-        <span className="brand-caption">BY SHARACO</span>
-      </div>
+    <span className="logo" aria-hidden>
+      <Layers />
+    </span>
+  );
+}
+function Wordmark() {
+  return (
+    <div className="wordmark">
+      Facility<span>OS</span>
+      <small>BY SHARACO</small>
     </div>
+  );
+}
+function StateCard({
+  title,
+  icon,
+  tone = 'blue',
+  children,
+}: {
+  title: string;
+  icon: LucideIcon;
+  tone?: Tone;
+  children?: ReactNode;
+}) {
+  return (
+    <section
+      className="card state-card"
+      role={tone === 'red' ? 'alert' : 'status'}
+    >
+      <IconCircle icon={icon} tone={tone} size="lg" />
+      <h2>{title}</h2>
+      {children}
+    </section>
   );
 }
 function Login({ services }: { services: FirebaseServices }) {
   const { user, loading } = useSession();
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
+    [show, setShow] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
   if (loading)
     return (
       <div className="center-state">
-        <Message title="Checking your session…" />
+        <StateCard title="Checking your session…" icon={ShieldCheck}>
+          <div className="spinner" aria-hidden />
+        </StateCard>
       </div>
     );
   if (user) return <Navigate to="/" replace />;
@@ -256,79 +300,126 @@ function Login({ services }: { services: FirebaseServices }) {
       setBusy(false);
     }
   }
+  const preview: [string, string, Tone][] = [
+    ['Marina Campus · 3 floors mapped', 'Active', 'green'],
+    ['Chiller AC-01 transferred to Tower B', 'Recorded', 'blue'],
+    ['Cleaning liquid below reorder level', 'Reorder', 'red'],
+  ];
   return (
-    <div className="login-wrap">
-      <section className="login-story">
-        <Layers size={44} />
-        <span className="eyebrow">YOUR OPERATIONS, CONNECTED</span>
-        <h1>
-          Simple. Clear.
-          <br />
-          Connected.
-        </h1>
-        <p>
-          A focused workspace for the people who keep your facilities running.
-        </p>
+    <div className="auth">
+      <section className="auth-story">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Logo />
+          <div className="wordmark" style={{ color: '#fff' }}>
+            Facility<span style={{ color: '#bcd2ff' }}>OS</span>
+            <small style={{ color: 'rgba(255,255,255,.7)' }}>BY SHARACO</small>
+          </div>
+        </div>
         <div>
-          <span className="badge teal">FACILITYOS · ADMIN PORTAL</span>
+          <h1>Every site, asset and team. One calm workspace.</h1>
+          <p>
+            Manage properties, people, equipment and stock for every company you
+            serve, with security built into every record.
+          </p>
+        </div>
+        <div className="auth-preview" aria-hidden>
+          {preview.map(([t, p, tone], i) => (
+            <div className="row" key={t} style={{ ['--i' as string]: i }}>
+              <span
+                className={`icon-circle tone-${tone}`}
+                style={{ width: 30, height: 30 }}
+              />
+              {t}
+              <Pill tone={tone}>{p}</Pill>
+            </div>
+          ))}
         </div>
       </section>
-      <main className="login-panel">
-        <Brand />
-        <span className="eyebrow">WELCOME BACK</span>
-        <h1>Sign in to your workspace</h1>
-        <p>Use the account provided by your company administrator.</p>
-        <form onSubmit={submit}>
-          <Field
-            label="Email address"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={busy}
-          />
-          <Field
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={busy}
-          />
+      <main className="auth-panel">
+        <form className="auth-form" onSubmit={submit} noValidate>
+          <Logo />
+          <div>
+            <h1>Sign in to your workspace</h1>
+          </div>
+          <p className="lead">
+            Use the account provided by your company administrator.
+          </p>
+          <div className="field">
+            <label htmlFor="login-email">Email address</label>
+            <input
+              id="login-email"
+              className="input"
+              type="email"
+              autoComplete="username"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={busy}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="login-password">Password</label>
+            <div className="input-suffix">
+              <input
+                id="login-password"
+                className="input"
+                type={show ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={busy}
+              />
+              <span>
+                <button
+                  type="button"
+                  className="icon-btn sm"
+                  style={{ border: 0 }}
+                  aria-label={show ? 'Hide password' : 'Show password'}
+                  onClick={() => setShow(!show)}
+                >
+                  {show ? <EyeOff /> : <Eye />}
+                </button>
+              </span>
+            </div>
+          </div>
           {error && (
-            <p className="error-text" role="alert">
-              {error}
-            </p>
+            <div className="banner tone-red" role="alert">
+              <AlertTriangle />
+              <div>{error}</div>
+            </div>
           )}
           {notice && (
-            <p className="status-text" role="status">
-              {notice}
-            </p>
+            <div className="banner tone-green" role="status">
+              <Mail />
+              <div>{notice}</div>
+            </div>
           )}
-          <button className="btn full" disabled={busy} type="submit">
+          <button
+            className="btn btn-primary btn-lg btn-block"
+            disabled={busy}
+            type="submit"
+          >
             {busy ? 'Please wait…' : 'Sign in'}
-            <ArrowRight size={18} />
+            <ArrowRight />
           </button>
           <button
-            className="link"
+            className="link-btn"
+            style={{ alignSelf: 'center' }}
             type="button"
             disabled={busy}
             onClick={() => void reset()}
           >
             Forgot your password?
           </button>
+          <div className="auth-note">
+            <LockKeyhole />
+            Access is limited to authorized company accounts. Need access?
+            Contact your company owner.
+          </div>
+          <p className="footer-note">Sharaco Technologies · FacilityOS</p>
         </form>
-        <div className="notice small">
-          <LockKeyhole
-            size={16}
-            style={{ display: 'inline', marginRight: 8 }}
-          />
-          Access is limited to authorized company accounts. Need access? Contact
-          your company owner.
-        </div>
-        <p className="footer-note">Sharaco Technologies · FacilityOS</p>
       </main>
     </div>
   );
@@ -339,32 +430,35 @@ function Gate({ services }: { services: FirebaseServices }) {
   if (session.loading)
     return (
       <div className="center-state">
-        <Message title="Loading your company access…" />
+        <StateCard title="Loading your company access…" icon={ShieldCheck}>
+          <div className="spinner" aria-hidden />
+        </StateCard>
       </div>
     );
   if (!session.user) return <Navigate to="/login" replace />;
   if (session.error || !session.companies.length)
     return (
       <div className="center-state">
-        <Brand />
-        <Message
+        <StateCard
           title={
             session.error ? 'Unable to load your workspace' : 'Access denied'
           }
-          error
+          tone="red"
+          icon={session.error ? AlertTriangle : LockKeyhole}
         >
           <p>
             {session.error ||
               'This account has no active administrator membership. Contact your company owner to arrange access.'}
           </p>
           {logoutError && <p>{logoutError}</p>}
-          <div className="button-row">
-            <button className="btn" onClick={session.refresh}>
+          <div className="actions">
+            <button className="btn btn-primary" onClick={session.refresh}>
+              <RefreshCw />
               Refresh access
             </button>
             {session.hasMore && (
               <button
-                className="btn secondary"
+                className="btn btn-outline"
                 disabled={session.loadingMore}
                 onClick={() => void session.loadMore()}
               >
@@ -372,151 +466,135 @@ function Gate({ services }: { services: FirebaseServices }) {
               </button>
             )}
             <button
-              className="btn secondary"
+              className="btn btn-outline"
               onClick={() =>
                 void signOut(services.auth).catch((e) =>
                   setLogoutError(friendlyError(e)),
                 )
               }
             >
+              <LogOut />
               Sign out
             </button>
           </div>
-        </Message>
+        </StateCard>
       </div>
     );
   return <Workspace key={session.user.uid} services={services} />;
 }
-const modules = [
-  {
-    id: 'tasks',
-    title: 'Task operations',
-    icon: ClipboardCheck,
-    phase: 3,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'templates',
-    title: 'Task templates',
-    icon: Layers,
-    phase: 3,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'scheduler',
-    title: 'Task scheduler',
-    icon: CalendarDays,
-    phase: 4,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'maintenance',
-    title: 'Maintenance',
-    icon: Wrench,
-    phase: 4,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'work-orders',
-    title: 'Work orders',
-    icon: Wrench,
-    phase: 4,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'complaints',
-    title: 'Complaints',
-    icon: MessageSquare,
-    phase: 4,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'approvals',
-    title: 'Approvals & RACI',
-    icon: ShieldCheck,
-    phase: 3,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'escalations',
-    title: 'Escalations',
-    icon: Zap,
-    phase: 4,
-    group: 'OPERATIONS',
-  },
-  {
-    id: 'companies-sites',
-    title: 'Companies & sites',
-    icon: Building2,
-    phase: 1,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'facilities',
-    title: 'Facilities & locations',
-    icon: Building2,
-    phase: 1,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'assets',
-    title: 'Assets & furniture',
-    icon: Boxes,
-    phase: 2,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'inventory',
-    title: 'Materials & inventory',
-    icon: Package,
-    phase: 2,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'employees',
-    title: 'Employees',
-    icon: Users,
-    phase: 2,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'roles',
-    title: 'Departments & roles',
-    icon: ShieldCheck,
-    phase: 2,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'reports',
-    title: 'Reports',
-    icon: BarChart3,
-    phase: 7,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'notifications',
-    title: 'Notifications',
-    icon: Bell,
-    phase: 4,
-    group: 'MANAGEMENT',
-  },
-  {
-    id: 'settings',
-    title: 'Settings',
-    icon: Settings,
-    phase: 1,
-    group: 'MANAGEMENT',
-  },
-];
+function Sidebar({
+  open,
+  onNavigate,
+  collapsed,
+  onCollapse,
+}: {
+  open: boolean;
+  onNavigate: () => void;
+  collapsed: boolean;
+  onCollapse: () => void;
+}) {
+  const location = useLocation();
+  const current = pageForPath(location.pathname);
+  const [closed, setClosed] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('fos-nav-closed') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  function toggle(id: string) {
+    const next = closed.includes(id)
+      ? closed.filter((x) => x !== id)
+      : [...closed, id];
+    setClosed(next);
+    try {
+      localStorage.setItem('fos-nav-closed', JSON.stringify(next));
+    } catch {
+      /* preference only */
+    }
+  }
+  return (
+    <aside
+      className={'sidebar ' + (open ? 'open' : '')}
+      aria-label="Main navigation"
+    >
+      <div className="sidebar-top">
+        <Logo />
+        <Wordmark />
+      </div>
+      <nav className="nav-scroll">
+        {groups.map((g) => {
+          const isOpen =
+            collapsed ||
+            !closed.includes(g.id) ||
+            g.pages.some((p) => p.id === current?.id);
+          return (
+            <div className="nav-group" key={g.id}>
+              <button
+                type="button"
+                className="nav-caption"
+                aria-expanded={isOpen}
+                onClick={() => toggle(g.id)}
+              >
+                {g.label}
+                <ChevronDown />
+              </button>
+              {isOpen &&
+                g.pages.map((p) => (
+                  <NavLink
+                    key={p.id}
+                    to={'/' + p.id}
+                    end
+                    data-label={p.label}
+                    className={({ isActive }) =>
+                      'nav-link ' +
+                      (isActive ? 'active ' : '') +
+                      (p.phase ? 'future' : '')
+                    }
+                    onClick={onNavigate}
+                  >
+                    <p.icon />
+                    <span className="label">{p.label}</span>
+                    {p.phase && (
+                      <span className="soon-chip">Phase {p.phase}</span>
+                    )}
+                  </NavLink>
+                ))}
+            </div>
+          );
+        })}
+      </nav>
+      <div className="sidebar-foot">
+        <button
+          type="button"
+          className="btn btn-ghost collapse-btn"
+          onClick={onCollapse}
+        >
+          <ChevronsLeft />
+          <span className="label">Collapse sidebar</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
 function Workspace({ services }: { services: FirebaseServices }) {
   const session = useSession();
   const [companyId, setCompanyId] = useState(
       session.companies[0].company.companyId,
     ),
     [navOpen, setNavOpen] = useState(false),
+    [collapsed, setCollapsed] = useState(() => {
+      try {
+        return localStorage.getItem('fos-collapsed') === '1';
+      } catch {
+        return false;
+      }
+    }),
     [logoutError, setLogoutError] = useState('');
   const location = useLocation();
-  const currentModule = modules.find((v) => location.pathname === '/' + v.id);
+  const navigate = useNavigate();
+  const page = pageForPath(location.pathname);
+  const profileRef = useRef<HTMLDetailsElement>(null);
   async function logout() {
     try {
       await signOut(services.auth);
@@ -524,88 +602,89 @@ function Workspace({ services }: { services: FirebaseServices }) {
       setLogoutError(friendlyError(e));
     }
   }
-  function navigation() {
+  useEffect(() => {
     setNavOpen(false);
-  }
+    if (profileRef.current) profileRef.current.open = false;
+  }, [location.pathname]);
+  useEffect(() => {
+    clearLabelCache();
+  }, [companyId]);
+  const name = session.profile?.displayName || 'there';
   return (
-    <div className="app-shell">
+    <div className={'shell ' + (collapsed ? 'collapsed' : '')}>
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
-      <aside
-        className={'sidebar ' + (navOpen ? 'open' : '')}
-        aria-label="Main navigation"
-      >
-        <Brand />
-        <button
-          className="btn secondary mobile-menu"
+      <Sidebar
+        open={navOpen}
+        collapsed={collapsed}
+        onNavigate={() => setNavOpen(false)}
+        onCollapse={() => {
+          setCollapsed(!collapsed);
+          try {
+            localStorage.setItem('fos-collapsed', collapsed ? '0' : '1');
+          } catch {
+            /* preference only */
+          }
+        }}
+      />
+      {navOpen && (
+        <div
+          className="overlay"
+          style={{ zIndex: 84 }}
           onClick={() => setNavOpen(false)}
-        >
-          Close navigation
-        </button>
-        <div className="nav-caption">OPERATIONS</div>
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) => 'nav-link ' + (isActive ? 'active' : '')}
-          onClick={navigation}
-        >
-          <LayoutDashboard />
-          Dashboard
-        </NavLink>
-        {['OPERATIONS', 'MANAGEMENT'].map((group) => (
-          <div key={group}>
-            {group === 'MANAGEMENT' && (
-              <div className="nav-caption">{group}</div>
-            )}
-            {modules
-              .filter((v) => v.group === group)
-              .map((m) => (
-                <NavLink
-                  key={m.id}
-                  to={'/' + m.id}
-                  className={({ isActive }) =>
-                    'nav-link ' + (isActive ? 'active' : '')
-                  }
-                  onClick={navigation}
-                >
-                  <m.icon />
-                  <span>{m.title}</span>
-                  <small>P{m.phase}</small>
-                </NavLink>
-              ))}
-          </div>
-        ))}
-        <div className="sidebar-foot">
-          <div className="help-card">
-            <strong>Simple. Clear. Connected.</strong>
-            <p>Every check, repair and request in one place.</p>
-            <span className="badge teal">Phase 1 · Management</span>
-          </div>
-        </div>
-      </aside>
-      <div className="main-column">
+          aria-hidden
+        />
+      )}
+      <div className="main">
         <header className="topbar">
-          <div className="top-left">
+          <button
+            className="icon-btn menu-toggle"
+            aria-label="Toggle navigation"
+            aria-expanded={navOpen}
+            onClick={() => setNavOpen((v) => !v)}
+          >
+            <Menu />
+          </button>
+          <nav className="crumbs" aria-label="Breadcrumb">
+            <span className="hide-sm">{session.profile?.displayName}</span>
+            <ChevronRight className="sep hide-sm" />
+            {page && page.id ? (
+              <>
+                <span className="hide-sm">{page.group.label}</span>
+                <ChevronRight className="sep hide-sm" />
+                <strong>
+                  <page.icon />
+                  {page.label}
+                </strong>
+              </>
+            ) : (
+              <strong>
+                <Home />
+                Home
+              </strong>
+            )}
+          </nav>
+          <div className="top-actions">
             <button
-              className="icon-button mobile-menu"
-              aria-label="Toggle navigation"
-              aria-expanded={navOpen}
-              onClick={() => setNavOpen((v) => !v)}
+              className="icon-btn hide-sm"
+              aria-label="Search modules"
+              onClick={() => navigate('/')}
             >
-              <Menu size={20} />
+              <Search />
             </button>
-            <div className="top-context">
-              <small>Sharaco FacilityOS / Operations workspace</small>
-              <strong>Admin portal</strong>
-            </div>
-          </div>
-          <div className="company-control">
-            <label className="company-picker-label" htmlFor="company-select">
+            <button
+              className="icon-btn hide-sm"
+              aria-label="Notifications (coming in a later phase)"
+              title="Notifications arrive in a later phase"
+            >
+              <Bell />
+            </button>
+            <label className="sr-only" htmlFor="company-select">
               Current company
             </label>
             <select
-              className="select company-picker"
+              className="company-select"
               id="company-select"
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
@@ -616,92 +695,149 @@ function Workspace({ services }: { services: FirebaseServices }) {
                 </option>
               ))}
             </select>
+            <details className="profile" ref={profileRef}>
+              <summary aria-label="Profile menu">
+                <Avatar name={name} />
+                <span className="who">{name}</span>
+                <ChevronDown size={16} />
+              </summary>
+              <div className="menu-pop">
+                <strong>{name}</strong>
+                <p className="email">{session.user?.email}</p>
+                <button
+                  className="btn btn-outline btn-block"
+                  onClick={() => void logout()}
+                >
+                  <LogOut />
+                  Sign out
+                </button>
+                {logoutError && <p role="alert">{logoutError}</p>}
+              </div>
+            </details>
           </div>
-          <details className="profile-menu">
-            <summary aria-label="Profile menu">
-              <span className="avatar">
-                {session.profile?.displayName.slice(0, 2).toUpperCase()}
-              </span>
-              <span className="profile-name">
-                {session.profile?.displayName}
-              </span>
-            </summary>
-            <div>
-              <strong>{session.profile?.displayName}</strong>
-              <p className="small muted">{session.user?.email}</p>
-              <button className="btn secondary" onClick={() => void logout()}>
-                <LogOut size={16} />
-                Sign out
-              </button>
-              {logoutError && <p role="alert">{logoutError}</p>}
-            </div>
-          </details>
         </header>
         {services.mode === 'emulator' && (
-          <div className="environment">Local emulator · isolated test data</div>
+          <div className="env-banner">
+            <FlaskConical size={15} />
+            Local emulator · isolated test data
+          </div>
         )}
         <main id="main-content" tabIndex={-1} className="content">
           <TenantView key={companyId} companyId={companyId} services={services}>
             {(access) => (
-              <>
-                <div className="page-heading">
-                  <div>
-                    <h1>{currentModule?.title || 'Your company workspace'}</h1>
-                    <p>
-                      {access.company.name} · {access.company.timeZone}
-                    </p>
-                  </div>
-                  <span className="role-pill">
-                    {access.member.role === 'owner'
-                      ? 'Company owner'
-                      : 'Company admin'}
-                  </span>
-                </div>
-                {location.pathname === '/' ? (
-                  <Dashboard access={access} services={services} />
-                ) : currentModule?.phase === 1 ? (
-                  <Management
-                    key={currentModule.id}
-                    services={services}
-                    company={access.company}
-                    uid={access.member.uid}
-                    section={currentModule.id}
-                  />
-                ) : currentModule ? (
-                  <Message title={'Coming in Phase ' + currentModule.phase}>
-                    <p>
-                      {currentModule.title} will become available after its
-                      implementation and review. This module is not active yet.
-                    </p>
-                    <NavLink className="btn secondary section-gap" to="/">
-                      Back to dashboard
-                    </NavLink>
-                  </Message>
-                ) : (
-                  <Message title="Page not found">
-                    <NavLink className="btn secondary" to="/">
-                      Back to dashboard
-                    </NavLink>
-                  </Message>
-                )}
-                {session.hasMore && (
-                  <button
-                    className="btn secondary section-gap"
-                    disabled={session.loadingMore}
-                    onClick={() => void session.loadMore()}
-                  >
-                    {session.loadingMore ? 'Loading…' : 'Load more companies'}
-                  </button>
-                )}
-                <p className="footer-note">
-                  FacilityOS · Company & facility management
-                </p>
-              </>
+              <Screen
+                access={access}
+                services={services}
+                name={name}
+                pathname={location.pathname}
+              />
             )}
           </TenantView>
+          {session.hasMore && (
+            <button
+              className="btn btn-outline"
+              style={{ alignSelf: 'center' }}
+              disabled={session.loadingMore}
+              onClick={() => void session.loadMore()}
+            >
+              {session.loadingMore ? 'Loading…' : 'Load more companies'}
+            </button>
+          )}
+          <p className="footer-note">FacilityOS by Sharaco Technologies</p>
         </main>
       </div>
     </div>
+  );
+}
+function Screen({
+  access,
+  services,
+  name,
+  pathname,
+}: {
+  access: Access;
+  services: FirebaseServices;
+  name: string;
+  pathname: string;
+}) {
+  const context: Context = useMemo(
+    () => ({
+      services,
+      company: access.company,
+      uid: access.member.uid,
+      role: access.member.role,
+    }),
+    [services, access.company, access.member.uid, access.member.role],
+  );
+  const page = pageForPath(pathname);
+  if (!page)
+    return (
+      <StateCard title="Page not found" icon={AlertTriangle} tone="amber">
+        <NavLink className="btn btn-primary" to="/">
+          Back to dashboard
+        </NavLink>
+      </StateCard>
+    );
+  if (page.screen === 'overview')
+    return <Overview context={context} name={name} />;
+  const head = (
+    <PageHead
+      title={page.label}
+      subtitle={
+        page.description ||
+        (page.phase
+          ? undefined
+          : `${access.company.name} · ${access.company.timeZone}`)
+      }
+    />
+  );
+  if (page.phase)
+    return (
+      <>
+        {head}
+        <StateCard
+          title={`${page.label} arrives in Phase ${page.phase}`}
+          icon={Hourglass}
+        >
+          <p>
+            This module is planned and not active yet. It will appear here after
+            its implementation, testing and review.
+          </p>
+          <div className="actions">
+            <NavLink className="btn btn-outline" to="/">
+              Back to dashboard
+            </NavLink>
+          </div>
+        </StateCard>
+      </>
+    );
+  return (
+    <>
+      {head}
+      {page.kinds ? (
+        <RecordPage
+          key={page.id}
+          context={context}
+          kinds={page.kinds}
+          assetClasses={page.assetClasses}
+        />
+      ) : page.screen === 'balances' ? (
+        <BalancesPage context={context} />
+      ) : page.screen === 'movements' ? (
+        <MovementsPage context={context} />
+      ) : page.screen === 'transfers' ? (
+        <TransfersPage context={context} />
+      ) : page.screen === 'roles' ? (
+        <RolesPage />
+      ) : page.screen === 'access' ? (
+        <AccessPage context={context} />
+      ) : (
+        <CompanySettings
+          key={access.company.updatedAt.toMillis()}
+          context={context}
+        />
+      )}
+    </>
   );
 }
 function TenantView({
@@ -778,114 +914,56 @@ function TenantView({
   }, [companyId, services, user]);
   if (error)
     return (
-      <Message title="Company access unavailable" error>
+      <StateCard
+        title="Company access unavailable"
+        tone="red"
+        icon={AlertTriangle}
+      >
         <p>{error}</p>
-        <button className="btn section-gap" onClick={refresh}>
-          Refresh access
-        </button>
-      </Message>
+        <div className="actions">
+          <button className="btn btn-primary" onClick={refresh}>
+            <RefreshCw />
+            Refresh access
+          </button>
+        </div>
+      </StateCard>
     );
-  if (pending) return <Message title="Verifying company access…" />;
+  if (pending)
+    return (
+      <StateCard title="Verifying company access…" icon={ShieldCheck}>
+        <div className="spinner" aria-hidden />
+      </StateCard>
+    );
   if (!user || !canOpenAdmin(member, company, user.uid) || !member || !company)
     return (
-      <Message title="Access denied" error>
+      <StateCard title="Access denied" tone="red" icon={LockKeyhole}>
         <p>
           Your company membership is no longer active or does not allow admin
           access.
         </p>
-        <button className="btn section-gap" onClick={refresh}>
-          Refresh access
-        </button>
-      </Message>
+        <div className="actions">
+          <button className="btn btn-primary" onClick={refresh}>
+            <RefreshCw />
+            Refresh access
+          </button>
+        </div>
+      </StateCard>
     );
   return children({ member, company });
-}
-function Dashboard({
-  access,
-  services,
-}: {
-  access: Access;
-  services: FirebaseServices;
-}) {
-  return (
-    <>
-      <section className="summary-banner">
-        <div>
-          <span className="eyebrow" style={{ color: '#c2e9e2' }}>
-            YOUR COMPANY · CONNECTED
-          </span>
-          <h2 className="section-gap">Your facilities, organised.</h2>
-          <p>
-            Manage clients, contracts, sites and physical facilities in your
-            company workspace.
-          </p>
-        </div>
-        <ShieldCheck size={42} />
-      </section>
-      <ManagementSummary services={services} company={access.company} />
-      <div className="foundation-grid">
-        <article className="card">
-          <span className="eyebrow">COMPANY PROFILE</span>
-          <h2 className="section-gap">{access.company.name}</h2>
-          <dl className="company-detail">
-            <div>
-              <dt>Company ID</dt>
-              <dd>{access.company.companyId}</dd>
-            </div>
-            <div>
-              <dt>Status</dt>
-              <dd>Active</dd>
-            </div>
-            <div>
-              <dt>Time zone</dt>
-              <dd>{access.company.timeZone}</dd>
-            </div>
-            <div>
-              <dt>Your access</dt>
-              <dd>
-                {access.member.role === 'owner'
-                  ? 'Company owner'
-                  : 'Company admin'}
-              </dd>
-            </div>
-          </dl>
-        </article>
-        <article className="card">
-          <h3>Manage your facilities</h3>
-          <p>Set up your clients, sites and flexible location hierarchy.</p>
-          <ul className="section-gap">
-            <li>Clients, contracts and sites</li>
-            <li>Buildings, rooms and outdoor areas</li>
-            <li>Facility types and locations</li>
-          </ul>
-          <NavLink to="/companies-sites" className="btn secondary section-gap">
-            Open management
-            <ArrowRight size={16} />
-          </NavLink>
-        </article>
-      </div>
-      <section className="card empty section-gap">
-        <ClipboardCheck size={32} />
-        <strong>Operations reporting is not active yet</strong>
-        <p>
-          Task, asset and maintenance reports will appear as their modules
-          become available.
-        </p>
-      </section>
-    </>
-  );
 }
 export default function App({ services }: { services: FirebaseServices }) {
   const Router =
     import.meta.env.VITE_ROUTER_MODE === 'hash' ? HashRouter : BrowserRouter;
   return (
     <Router>
-      <SessionProvider services={services}>
-        <Routes>
-          <Route path="/login" element={<Login services={services} />} />
-          <Route path="*" element={<Gate services={services} />} />
-        </Routes>
-      </SessionProvider>
+      <ToastProvider>
+        <SessionProvider services={services}>
+          <Routes>
+            <Route path="/login" element={<Login services={services} />} />
+            <Route path="*" element={<Gate services={services} />} />
+          </Routes>
+        </SessionProvider>
+      </ToastProvider>
     </Router>
   );
 }

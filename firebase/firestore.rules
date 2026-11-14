@@ -1,4 +1,5 @@
-// Phase 1 prototype rules; review with docs/database/phase1-schema.md before rollout.
+// Phase 1 + Phase 2 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
+// Phase 2 people/asset/inventory validators are generated from packages/shared (see rules-generator.ts).
 // Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
 // Operational documents: companyId, schemaVersion=1, code, name, notes, status,
 // createdAt/updatedAt timestamps, createdBy/updatedBy UIDs, revision/refCount integers,
@@ -21,7 +22,9 @@ service cloud.firestore {
  match /databases/{database}/documents {
   function signedIn(){return request.auth != null;}
   function member(companyId){return get(/databases/$(database)/documents/companies/$(companyId)/members/$(request.auth.uid)).data;}
-  function admin(companyId){let m=member(companyId); return signedIn() && m.uid==request.auth.uid && m.companyId==companyId && m.status=='active' && m.role in ['owner','admin'];}
+  // Rules 'let' bindings are re-evaluated on every use, so document data is passed as an argument (evaluated once).
+  function admin(companyId){return signedIn() && adminDoc(member(companyId),companyId);}
+  function adminDoc(m,companyId){return m.uid==request.auth.uid && m.companyId==companyId && m.status=='active' && m.role in ['owner','admin'];}
   function activeCompany(companyId){return get(/databases/$(database)/documents/companies/$(companyId)).data.status == 'active';}
 
   function validZone(zone) {return zone is string && (zone.matches('^(Africa/Abidjan|Africa/Accra|Africa/Addis_Ababa|Africa/Algiers|Africa/Asmera|Africa/Bamako|Africa/Bangui|Africa/Banjul|Africa/Bissau|Africa/Blantyre|Africa/Brazzaville|Africa/Bujumbura|Africa/Cairo|Africa/Casablanca|Africa/Ceuta|Africa/Conakry|Africa/Dakar|Africa/Dar_es_Salaam|Africa/Djibouti|Africa/Douala|Africa/El_Aaiun|Africa/Freetown|Africa/Gaborone|Africa/Harare|Africa/Johannesburg|Africa/Juba|Africa/Kampala|Africa/Khartoum|Africa/Kigali|Africa/Kinshasa|Africa/Lagos|Africa/Libreville|Africa/Lome|Africa/Luanda|Africa/Lubumbashi|Africa/Lusaka|Africa/Malabo|Africa/Maputo|Africa/Maseru|Africa/Mbabane|Africa/Mogadishu|Africa/Monrovia|Africa/Nairobi|Africa/Ndjamena|Africa/Niamey|Africa/Nouakchott|Africa/Ouagadougou|Africa/Porto\\-Novo|Africa/Sao_Tome|Africa/Tripoli|Africa/Tunis|Africa/Windhoek|America/Adak|America/Anchorage|America/Anguilla|America/Antigua|America/Araguaina|America/Argentina/La_Rioja|America/Argentina/Rio_Gallegos|America/Argentina/Salta|America/Argentina/San_Juan|America/Argentina/San_Luis|America/Argentina/Tucuman|America/Argentina/Ushuaia|America/Aruba|America/Asuncion|America/Bahia|America/Bahia_Banderas|America/Barbados|America/Belem|America/Belize|America/Blanc\\-Sablon|America/Boa_Vista|America/Bogota|America/Boise|America/Buenos_Aires|America/Cambridge_Bay|America/Campo_Grande|America/Cancun|America/Caracas|America/Catamarca|America/Cayenne|America/Cayman|America/Chicago|America/Chihuahua|America/Ciudad_Juarez|America/Coral_Harbour|America/Cordoba|America/Costa_Rica|America/Coyhaique|America/Creston|America/Cuiaba|America/Curacao|America/Danmarkshavn|America/Dawson|America/Dawson_Creek|America/Denver|America/Detroit|America/Dominica|America/Edmonton)$') || zone.matches('^(America/Eirunepe|America/El_Salvador|America/Fort_Nelson|America/Fortaleza|America/Glace_Bay|America/Godthab|America/Goose_Bay|America/Grand_Turk|America/Grenada|America/Guadeloupe|America/Guatemala|America/Guayaquil|America/Guyana|America/Halifax|America/Havana|America/Hermosillo|America/Indiana/Knox|America/Indiana/Marengo|America/Indiana/Petersburg|America/Indiana/Tell_City|America/Indiana/Vevay|America/Indiana/Vincennes|America/Indiana/Winamac|America/Indianapolis|America/Inuvik|America/Iqaluit|America/Jamaica|America/Jujuy|America/Juneau|America/Kentucky/Monticello|America/Kralendijk|America/La_Paz|America/Lima|America/Los_Angeles|America/Louisville|America/Lower_Princes|America/Maceio|America/Managua|America/Manaus|America/Marigot|America/Martinique|America/Matamoros|America/Mazatlan|America/Mendoza|America/Menominee|America/Merida|America/Metlakatla|America/Mexico_City|America/Miquelon|America/Moncton|America/Monterrey|America/Montevideo|America/Montserrat|America/Nassau|America/New_York|America/Nome|America/Noronha|America/North_Dakota/Beulah|America/North_Dakota/Center|America/North_Dakota/New_Salem|America/Ojinaga|America/Panama|America/Paramaribo|America/Phoenix|America/Port\\-au\\-Prince|America/Port_of_Spain|America/Porto_Velho|America/Puerto_Rico|America/Punta_Arenas|America/Rankin_Inlet|America/Recife|America/Regina|America/Resolute|America/Rio_Branco|America/Santarem|America/Santiago|America/Santo_Domingo|America/Sao_Paulo|America/Scoresbysund|America/Sitka|America/St_Barthelemy|America/St_Johns|America/St_Kitts|America/St_Lucia|America/St_Thomas|America/St_Vincent|America/Swift_Current|America/Tegucigalpa|America/Thule|America/Tijuana|America/Toronto|America/Tortola|America/Vancouver|America/Whitehorse|America/Winnipeg|America/Yakutat|Antarctica/Casey|Antarctica/Davis|Antarctica/DumontDUrville|Antarctica/Macquarie)$') || zone.matches('^(Antarctica/Mawson|Antarctica/McMurdo|Antarctica/Palmer|Antarctica/Rothera|Antarctica/Syowa|Antarctica/Troll|Antarctica/Vostok|Arctic/Longyearbyen|Asia/Aden|Asia/Almaty|Asia/Amman|Asia/Anadyr|Asia/Aqtau|Asia/Aqtobe|Asia/Ashgabat|Asia/Atyrau|Asia/Baghdad|Asia/Bahrain|Asia/Baku|Asia/Bangkok|Asia/Barnaul|Asia/Beirut|Asia/Bishkek|Asia/Brunei|Asia/Calcutta|Asia/Chita|Asia/Colombo|Asia/Damascus|Asia/Dhaka|Asia/Dili|Asia/Dubai|Asia/Dushanbe|Asia/Famagusta|Asia/Gaza|Asia/Hebron|Asia/Hong_Kong|Asia/Hovd|Asia/Irkutsk|Asia/Jakarta|Asia/Jayapura|Asia/Jerusalem|Asia/Kabul|Asia/Kamchatka|Asia/Karachi|Asia/Katmandu|Asia/Khandyga|Asia/Kolkata|Asia/Krasnoyarsk|Asia/Kuala_Lumpur|Asia/Kuching|Asia/Kuwait|Asia/Macau|Asia/Magadan|Asia/Makassar|Asia/Manila|Asia/Muscat|Asia/Nicosia|Asia/Novokuznetsk|Asia/Novosibirsk|Asia/Omsk|Asia/Oral|Asia/Phnom_Penh|Asia/Pontianak|Asia/Pyongyang|Asia/Qatar|Asia/Qostanay|Asia/Qyzylorda|Asia/Rangoon|Asia/Riyadh|Asia/Saigon|Asia/Sakhalin|Asia/Samarkand|Asia/Seoul|Asia/Shanghai|Asia/Singapore|Asia/Srednekolymsk|Asia/Taipei|Asia/Tashkent|Asia/Tbilisi|Asia/Tehran|Asia/Thimphu|Asia/Tokyo|Asia/Tomsk|Asia/Ulaanbaatar|Asia/Urumqi|Asia/Ust\\-Nera|Asia/Vientiane|Asia/Vladivostok|Asia/Yakutsk|Asia/Yekaterinburg|Asia/Yerevan|Atlantic/Azores|Atlantic/Bermuda|Atlantic/Canary|Atlantic/Cape_Verde|Atlantic/Faeroe|Atlantic/Madeira|Atlantic/Reykjavik|Atlantic/South_Georgia|Atlantic/St_Helena)$') || zone.matches('^(Atlantic/Stanley|Australia/Adelaide|Australia/Brisbane|Australia/Broken_Hill|Australia/Darwin|Australia/Eucla|Australia/Hobart|Australia/Lindeman|Australia/Lord_Howe|Australia/Melbourne|Australia/Perth|Australia/Sydney|Europe/Amsterdam|Europe/Andorra|Europe/Astrakhan|Europe/Athens|Europe/Belgrade|Europe/Berlin|Europe/Bratislava|Europe/Brussels|Europe/Bucharest|Europe/Budapest|Europe/Busingen|Europe/Chisinau|Europe/Copenhagen|Europe/Dublin|Europe/Gibraltar|Europe/Guernsey|Europe/Helsinki|Europe/Isle_of_Man|Europe/Istanbul|Europe/Jersey|Europe/Kaliningrad|Europe/Kiev|Europe/Kirov|Europe/Kyiv|Europe/Lisbon|Europe/Ljubljana|Europe/London|Europe/Luxembourg|Europe/Madrid|Europe/Malta|Europe/Mariehamn|Europe/Minsk|Europe/Monaco|Europe/Moscow|Europe/Oslo|Europe/Paris|Europe/Podgorica|Europe/Prague|Europe/Riga|Europe/Rome|Europe/Samara|Europe/San_Marino|Europe/Sarajevo|Europe/Saratov|Europe/Simferopol|Europe/Skopje|Europe/Sofia|Europe/Stockholm|Europe/Tallinn|Europe/Tirane|Europe/Ulyanovsk|Europe/Vaduz|Europe/Vatican|Europe/Vienna|Europe/Vilnius|Europe/Volgograd|Europe/Warsaw|Europe/Zagreb|Europe/Zurich|Indian/Antananarivo|Indian/Chagos|Indian/Christmas|Indian/Cocos|Indian/Comoro|Indian/Kerguelen|Indian/Mahe|Indian/Maldives|Indian/Mauritius|Indian/Mayotte|Indian/Reunion|Pacific/Apia|Pacific/Auckland|Pacific/Bougainville|Pacific/Chatham|Pacific/Easter|Pacific/Efate|Pacific/Enderbury|Pacific/Fakaofo|Pacific/Fiji|Pacific/Funafuti|Pacific/Galapagos|Pacific/Gambier|Pacific/Guadalcanal|Pacific/Guam|Pacific/Honolulu|Pacific/Kiritimati|Pacific/Kosrae|Pacific/Kwajalein)$') || zone.matches('^(Pacific/Majuro|Pacific/Marquesas|Pacific/Midway|Pacific/Nauru|Pacific/Niue|Pacific/Norfolk|Pacific/Noumea|Pacific/Pago_Pago|Pacific/Palau|Pacific/Pitcairn|Pacific/Ponape|Pacific/Port_Moresby|Pacific/Rarotonga|Pacific/Saipan|Pacific/Tahiti|Pacific/Tarawa|Pacific/Tongatapu|Pacific/Truk|Pacific/Wake|Pacific/Wallis|UTC)$'));}
@@ -35,25 +38,29 @@ service cloud.firestore {
   function known(k) {return k in ['clients','contracts','sites','locations','facilityTypes','facilities'];}
   function active(d) {return d.get('status','archived') != 'archived';}
   function referenced(k,d){return active(d) && (k!='contractAllocations'||!(d.status in ['terminated','expired']));}
+  function witnessBefore(c,w,wid){return exists(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)) ? get(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)).data : {};}
+  function witnessAfter(c,w,wid){return getAfter(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)).data;}
   function counter(c,k,id) {
+   let w=request.resource.data.witnessKind;
+   return w in {'clients':['contracts','sites'],'contracts':['sites'],'sites':['locations'],'locations':['locations','facilities'],'facilityTypes':['facilities'],'facilities':[]}[k]
+    && counterMove(k,id,k=='clients'?'clientId':k=='contracts'?'contractId':k=='sites'?'siteId':k=='facilityTypes'?'typeId':w=='locations'?'parentId':'locationId',
+       witnessBefore(c,w,request.resource.data.witnessId),witnessAfter(c,w,request.resource.data.witnessId));
+  }
+  function counterMove(k,id,field,before,after){
+   return counterDelta(before.get('status','archived')!='archived' && before.get(field,'')==id && (k!='sites' || before.get('parentId','')==''),
+     after.status!='archived' && after.get(field,'')==id && (k!='sites' || after.get('parentId','')==''));
+  }
+  function counterDelta(was,now){
    let d=request.resource.data;
-   let w=d.witnessKind;
-   let field=k=='clients'?'clientId':k=='contracts'?'contractId':k=='sites'?'siteId':k=='facilityTypes'?'typeId':w=='locations'?'parentId':'locationId';
-   let allowed={'clients':['contracts','sites'],'contracts':['sites'],'sites':['locations'],'locations':['locations','facilities'],'facilityTypes':['facilities'],'facilities':[]};
-   let before=exists(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)) ? get(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data : {};
-   let after=getAfter(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data;
-   let was=before.get('status','archived')!='archived' && before.get(field,'')==id && (k!='sites' || before.get('parentId','')=='');
-   let now=after.status!='archived' && after.get(field,'')==id && (k!='sites' || after.get('parentId','')=='');
-   return w in allowed[k] && was!=now
+   return was!=now
     && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
     && d.refCount is int && d.refCount==resource.data.refCount+(now?1:-1) && d.refCount>=0
     && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
   }
   function increment(c,k,id,tk,tid,n) {
-   let b=get(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data;
-   let a=getAfter(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data;
-   return a.refCount==b.refCount+n && a.witnessId==id && a.witnessKind==k;
+   return incremented(get(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,getAfter(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,k,id,n);
   }
+  function incremented(b,a,k,id,n){return a.refCount==b.refCount+n && a.witnessId==id && a.witnessKind==k;}
   function ref(c,k,id,field,targetKind) {
    let before=exists(/databases/$(database)/documents/companies/$(c)/$(k)/$(id)) ? get(/databases/$(database)/documents/companies/$(c)/$(k)/$(id)).data : {};
    let after=request.resource.data;
@@ -160,6 +167,214 @@ service cloud.firestore {
     && d.slots.size()==b.slots.size()+(a.status=='active'?1:0)
     && (creating||(d.siteId==b.siteId&&d.locationId==b.locationId&&d.year==b.year))
     && (a.status=='active'?(d.slots==b.slots.concat([expected]) && (b.slots.size()<=0||noConflict(b.slots[0],expected)) && (b.slots.size()<=1||noConflict(b.slots[1],expected)) && (b.slots.size()<=2||noConflict(b.slots[2],expected)) && (b.slots.size()<=3||noConflict(b.slots[3],expected)) && (b.slots.size()<=4||noConflict(b.slots[4],expected)) && (b.slots.size()<=5||noConflict(b.slots[5],expected)) && (b.slots.size()<=6||noConflict(b.slots[6],expected)) && (b.slots.size()<=7||noConflict(b.slots[7],expected)) && (b.slots.size()<=8||noConflict(b.slots[8],expected)) && (b.slots.size()<=9||noConflict(b.slots[9],expected)) && (b.slots.size()<=10||noConflict(b.slots[10],expected)) && (b.slots.size()<=11||noConflict(b.slots[11],expected))):d.slots==b.slots.removeAll([slot(d.witnessId,before)]).concat([expected]));}
+  // ------------------------------------------------------------------ Phase 2
+  // Masters reuse the Phase 1 metadata/code-claim contract. Counted references keep
+  // archive protection; informational links are resolved by the transaction only.
+  function live2(k,d){return d.get('status','archived')!='archived' && !(k in ['teamMembers','siteAssignments','shiftAssignments'] && d.get('status','')=='ended');}
+  // The target's own counter rule verifies the exact +1/-1 (counterDelta). Here we only prove the target
+  // was written in this same request by this witness: updatedAt==request.time cannot be stale.
+  function touched2(c,k,id,t,tid,isNew){return touchedNow(getAfter(/databases/$(database)/documents/companies/$(c)/$(t)/$(tid)).data,k,id,isNew);}
+  function touchedNow(a,k,id,isNew){return a.witnessKind==k && a.witnessId==id && a.updatedAt==request.time && (!isNew || a.status!='archived');}
+  function ref2(c,k,id,field,t,creating){
+   return refIds2(c,k,id,t,creating,(!creating && live2(k,resource.data)) ? resource.data.get(field,'') : '',live2(k,request.resource.data) ? request.resource.data.get(field,'') : '');
+  }
+  function refIds2(c,k,id,t,creating,oldId,newId){
+   return oldId==newId || ((oldId=='' || touched2(c,k,id,t,oldId,false)) && (newId=='' || touched2(c,k,id,t,newId,true)));
+  }
+  function counter2Move(id,w,field,before,after){return counterDelta(live2(w,before) && before.get(field,'')==id, live2(w,after) && after.get(field,'')==id);}
+  function extraAssignment(d){return (d.endDate=='' || d.endDate>=d.startDate) && (d.status!='ended' || d.endDate!='');}
+  function extraStore(c,d){return d.locationId=='' || !live2('stores',d) || getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(d.locationId)).data.siteId==d.siteId;}
+  function extraParent(c,k,id,d){return d.parentId=='' || !live2(k,d) || (d.parentId!=id && getAfter(/databases/$(database)/documents/companies/$(c)/$(k)/$(d.parentId)).data.parentId=='');}
+  function extraAsset(c,id,d){
+   return (!live2('assets',d) || getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(d.locationId)).data.siteId==d.siteId)
+    && (d.trackingMode!='individual' || d.quantity=='1') && (d.trackingMode!='batch' || d.serialNumber=='')
+    && (d.purchaseDate=='' || d.warrantyEndDate=='' || d.warrantyEndDate>=d.purchaseDate)
+    && d.lastTransferId is string && (d.revision!=1 || assetHistory(c,id));
+  }
+  // Shared metadata checks; per-kind field, link and lifecycle checks are generated below.
+  function business2(c,k,id){
+   let d=request.resource.data;
+   return d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
+    && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
+    && d.revision is int && d.revision>0 && d.witnessKind is string && d.witnessId is string
+    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
+    ;
+  }
+  function create2(c,k,id){
+   let d=request.resource.data;
+   return business2(c,k,id) && d.createdAt==request.time && d.createdBy==request.auth.uid
+    && d.status!='archived' && d.revision==1 && d.refCount==0 && d.witnessKind=='' && d.witnessId==''
+    && getAfter(/databases/$(database)/documents/companies/$(c)/codeClaims/$(k+'_'+d.code)).data.recordId==id
+    && (k!='assets' || d.lastTransferId=='');
+  }
+  function update2(c,k,id){
+   let d=request.resource.data; let b=resource.data;
+   return business2(c,k,id) && d.schemaVersion==b.schemaVersion
+    && d.createdAt==b.createdAt && d.createdBy==b.createdBy && d.code==b.code && d.revision==b.revision+1
+    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId;
+  }
+  // Assets move only with a new transfer record created in the same transaction.
+  function assetMove(c,id,b,d){
+   // Ordinary edits need a history snapshot; a move is recorded by its immutable transfer record instead.
+   return (d.siteId==b.siteId && d.locationId==b.locationId && d.lastTransferId==b.lastTransferId && assetHistory(c,id))
+    || (live2('assets',b) && d.lastTransferId!=b.lastTransferId
+     && !exists(/databases/$(database)/documents/companies/$(c)/assetTransfers/$(d.lastTransferId))
+     && transferMatches(getAfter(/databases/$(database)/documents/companies/$(c)/assetTransfers/$(d.lastTransferId)).data,id,b,d));
+  }
+  function transferMatches(t,id,b,d){return t.assetId==id && t.fromSiteId==b.siteId && t.fromLocationId==b.locationId && t.toSiteId==d.siteId && t.toLocationId==d.locationId && t.conditionBefore==b.condition && t.conditionAfter==d.condition && t.quantity==b.quantity;}
+  function assetHistory(c,id){
+   return assetHistoryMatches(request.resource.data,getAfter(/databases/$(database)/documents/companies/$(c)/assets/$(id)/history/$(string(request.resource.data.revision))).data);
+  }
+  function assetHistoryMatches(d,h){
+   return h.revision==d.revision && h.condition==d.condition && h.status==d.status && h.siteId==d.siteId && h.locationId==d.locationId
+    && h.custodianId==d.custodianId && h.quantity==d.quantity && h.transferId==d.lastTransferId && h.actorUid==request.auth.uid && h.occurredAt==request.time;
+  }
+  // Inventory: append-only movements; balances change only with a movement created in the same transaction.
+  // Cheap date format check; exact calendar validity is also enforced by the shared client schema.
+  function date2(v){return v.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');}
+  function storeActive(c,s){return s=='' || get(/databases/$(database)/documents/companies/$(c)/stores/$(s)).data.status=='active';}
+  function balanceAfter(c,s,m,id,expected){return s=='' ? expected==-1 : balanceIs(getAfter(/databases/$(database)/documents/companies/$(c)/stockBalances/$(s+'_'+m)).data,id,expected);}
+  function balanceIs(b,id,expected){return b.lastMovementId==id && b.quantity==expected;}
+  function movementSides(c,id,d){
+   let t=d.movementType;
+   return t=='reversal'
+    ? (id=='REV-'+d.reversesId && reversalMatches(get(/databases/$(database)/documents/companies/$(c)/stockMovements/$(d.reversesId)).data,d))
+    : (d.reversesId=='' && storeActive(c,d.fromStoreId) && storeActive(c,d.toStoreId)
+      && ((t in ['opening','receipt','adjustment_in'] && d.fromStoreId=='' && d.toStoreId!='')
+       || (t in ['issue','adjustment_out'] && d.fromStoreId!='' && d.toStoreId=='')
+       || (t=='transfer' && d.fromStoreId!='' && d.toStoreId!=''))
+      && (!(t in ['adjustment_in','adjustment_out']) || d.reason.size()>0));
+  }
+  function reversalMatches(o,d){return o.movementType!='reversal' && o.materialId==d.materialId && o.fromStoreId==d.toStoreId && o.toStoreId==d.fromStoreId && o.quantity==d.quantity;}
+  function optionalId(v){return v is string && (v=='' || v.matches('^[a-zA-Z0-9_-]{1,128}$'));}
+  function movementValid(c,id){
+   let d=request.resource.data;
+   return d.keys().hasOnly(['companyId','schemaVersion','movementType','materialId','fromStoreId','toStoreId','quantity','movementDate','reason','reference','notes','issuedToEmployeeId','issuedToLocationId','reversesId','fromBalanceAfter','toBalanceAfter','createdAt','createdBy'])
+    && d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$') && d.createdAt==request.time && d.createdBy==request.auth.uid
+    && d.movementType in ['opening','receipt','issue','transfer','adjustment_in','adjustment_out','reversal']
+    && d.quantity is int && d.quantity>0 && d.quantity<=1000000000000
+    && d.materialId is string && d.materialId.matches('^[a-zA-Z0-9_-]{1,128}$') && optionalId(d.fromStoreId) && optionalId(d.toStoreId) && d.fromStoreId!=d.toStoreId
+    && optionalId(d.issuedToEmployeeId) && optionalId(d.issuedToLocationId) && optionalId(d.reversesId)
+    && d.movementDate is string && date2(d.movementDate)
+    && d.reason is string && d.reason.size()<=500 && d.reference is string && d.reference.size()<=120 && d.notes is string && d.notes.size()<=2000
+    && get(/databases/$(database)/documents/companies/$(c)/materials/$(d.materialId)).data.status=='active'
+    && movementSides(c,id,d)
+    && d.fromBalanceAfter is int && d.toBalanceAfter is int
+    && balanceAfter(c,d.fromStoreId,d.materialId,id,d.fromBalanceAfter) && balanceAfter(c,d.toStoreId,d.materialId,id,d.toBalanceAfter);
+  }
+  function balanceValid(c,id,b,creating){
+   return balanceMatches(c,id,b,creating,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(c)/stockMovements/$(request.resource.data.lastMovementId)).data);
+  }
+  function balanceMatches(c,id,b,creating,a,m){
+   return a.keys().hasOnly(['companyId','storeId','materialId','quantity','revision','lastMovementId','updatedAt','updatedBy'])
+    && a.companyId==c && a.storeId is string && a.materialId is string && id==a.storeId+'_'+a.materialId
+    && a.quantity is int && a.quantity>=0 && a.revision==b.revision+1 && a.updatedAt==request.time && a.updatedBy==request.auth.uid
+    && a.lastMovementId is string && a.lastMovementId.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && !exists(/databases/$(database)/documents/companies/$(c)/stockMovements/$(a.lastMovementId))
+    && m.materialId==a.materialId && m.createdAt==request.time && (m.movementType!='opening' || creating)
+    && ((m.toStoreId==a.storeId && a.quantity==b.quantity+m.quantity) || (m.fromStoreId==a.storeId && a.quantity==b.quantity-m.quantity));
+  }
+  function transferValid(c,tid){
+   return transferData(c,tid,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(c)/assets/$(request.resource.data.assetId)).data,get(/databases/$(database)/documents/companies/$(c)/assets/$(request.resource.data.assetId)).data);
+  }
+  // Field equality (from/to/condition/quantity) is enforced once, by assetMove on the asset update
+  // in the same transaction; this rule binds the immutable record to that asset move.
+  function transferData(c,tid,t,a,b){
+   return t.keys().hasOnly(['companyId','schemaVersion','assetId','fromSiteId','fromLocationId','toSiteId','toLocationId','quantity','transferDate','reason','conditionBefore','conditionAfter','receivedById','notes','actorUid','createdAt'])
+    && t.companyId==c && t.schemaVersion==1 && t.actorUid==request.auth.uid && t.createdAt==request.time
+    && a.lastTransferId==tid && b.lastTransferId!=tid
+    && t.transferDate is string && date2(t.transferDate) && t.reason is string && t.reason.size()>0 && t.reason.size()<=500
+    && t.notes is string && t.notes.size()<=2000 && optionalId(t.receivedById);
+  }
+  // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.
+  // Source: packages/shared/src/operations.ts via rules-generator.ts.
+  function shape_departments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','siteId','managerId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.siteId+'~'+d.managerId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_designations(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','grade','description']) && d.status in ['active','archived'] && (d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.grade+d.description).size()<=2200;}
+  function shape_employees(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','email','phone','joiningDate','employmentType','departmentId','designationId','supervisorId','primarySiteId','linkedUid']) && d.status in ['active','probation','suspended','resigned','terminated','archived'] && (d.departmentId+'~'+d.designationId+'~'+d.supervisorId+'~'+d.primarySiteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.joiningDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.employmentType in ['Full-time','Part-time','Contract','Temporary'] && d.linkedUid.matches('^$|^[A-Za-z0-9]{1,128}$') && (d.email+d.phone).size()<=400;}
+  function shape_teams(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','siteId','leaderId','description']) && d.status in ['active','archived'] && (d.departmentId+'~'+d.siteId+'~'+d.leaderId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_teamMembers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','teamId','employeeId','memberRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.teamId+'~'+d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.memberRole in ['Member','Deputy lead','Lead'];}
+  function shape_siteAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','siteId','assignmentRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.siteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assignmentRole in ['Assigned staff','Site supervisor','Relief cover'];}
+  function shape_shifts(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','startTime','endTime','breakMinutes','workingDays','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{1,128}$') && d.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.breakMinutes.matches('^$|^(0|[1-9][0-9]{0,6})$') && (d.breakMinutes=='' || (int(d.breakMinutes)>=0 && int(d.breakMinutes)<=600)) && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']))) && (d.description).size()<=2000;}
+  function shape_shiftAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','shiftId','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.shiftId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$');}
+  function shape_holidays(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','holidayDate','siteId','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.holidayDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && (d.description).size()<=2000;}
+  function shape_leaveRecords(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','leaveType','startDate','endDate','reason']) && d.status in ['planned','approved','taken','cancelled','archived'] && (d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.leaveType in ['Annual','Sick','Unpaid','Emergency','Parental','Other'] && (d.reason).size()<=2000;}
+  function shape_assetCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','assetClass','description']) && d.status in ['active','archived'] && (d.parentId).matches('^[a-zA-Z0-9_-]{0,128}$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && (d.description).size()<=2000;}
+  function shape_suppliers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','supplierType','contactPerson','phone','email','address','country','vatNumber']) && d.status in ['active','archived'] && d.supplierType in ['Assets','Materials','Assets and materials','Services'] && (d.contactPerson+d.phone+d.email+d.address+d.country+d.vatNumber).size()<=3000;}
+  function shape_assets(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','assetTag','assetClass','categoryId','trackingMode','quantity','serialNumber','brand','model','siteId','locationId','facilityId','condition','custodianId','departmentId','supplierId','purchaseDate','purchaseCost','warrantyEndDate','description','lastTransferId']) && d.status in ['in_service','in_storage','under_maintenance','out_of_service','disposed','archived'] && (d.categoryId+'~'+d.siteId+'~'+d.locationId+'~'+d.facilityId+'~'+d.custodianId+'~'+d.departmentId+'~'+d.supplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.purchaseDate+'~'+d.warrantyEndDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && d.trackingMode in ['individual','batch'] && d.quantity.matches('^(0|[1-9][0-9]{0,6})$') && (d.quantity=='' || (int(d.quantity)>=1 && int(d.quantity)<=100000)) && d.condition in ['Excellent','Good','Fair','Poor','Critical'] && d.purchaseCost.matches('^$|^(0|[1-9][0-9]{0,9})([.][0-9]{1,2})?$') && (d.assetTag+d.serialNumber+d.brand+d.model+d.description).size()<=2640;}
+  function shape_materialCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','description']) && d.status in ['active','archived'] && (d.description).size()<=2000;}
+  function shape_materials(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','unit','reorderLevel','preferredSupplierId','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.preferredSupplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.unit in ['each','box','pack','carton','pair','set','roll','bottle','kg','g','litre','ml','metre','sqm'] && d.reorderLevel.matches('^$|^(0|[1-9][0-9]{0,8})([.][0-9]{1,3})?$') && (d.description).size()<=2000;}
+  function shape_stores(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','locationId','storeKeeperId','description']) && d.status in ['active','archived'] && (d.siteId+'~'+d.locationId+'~'+d.storeKeeperId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function known2(k){return k in ['departments','designations','employees','teams','teamMembers','siteAssignments','shifts','shiftAssignments','holidays','leaveRecords','assetCategories','suppliers','assets','materialCategories','materials','stores'];}
+  function create_departments(c,id,d){return create2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',true) && ref2(c,'departments',id,'siteId','sites',true);}
+  function update_departments(c,id,d,b){return update2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',false) && ref2(c,'departments',id,'siteId','sites',false) && d.diff(b).affectedKeys().intersection(['parentId','siteId'].toSet()).size()<=1;}
+  function create_designations(c,id,d){return create2(c,'designations',id) && shape_designations(d) && ref2(c,'designations',id,'departmentId','departments',true);}
+  function update_designations(c,id,d,b){return update2(c,'designations',id) && shape_designations(d) && ref2(c,'designations',id,'departmentId','departments',false);}
+  function create_employees(c,id,d){return create2(c,'employees',id) && shape_employees(d) && d.supervisorId!=id && ref2(c,'employees',id,'departmentId','departments',true) && ref2(c,'employees',id,'designationId','designations',true);}
+  function update_employees(c,id,d,b){return update2(c,'employees',id) && shape_employees(d) && d.supervisorId!=id && ref2(c,'employees',id,'departmentId','departments',false) && ref2(c,'employees',id,'designationId','designations',false) && d.diff(b).affectedKeys().intersection(['departmentId','designationId'].toSet()).size()<=1;}
+  function create_teams(c,id,d){return create2(c,'teams',id) && shape_teams(d) && ref2(c,'teams',id,'departmentId','departments',true);}
+  function update_teams(c,id,d,b){return update2(c,'teams',id) && shape_teams(d) && ref2(c,'teams',id,'departmentId','departments',false);}
+  function create_teamMembers(c,id,d){return create2(c,'teamMembers',id) && shape_teamMembers(d) && extraAssignment(d) && ref2(c,'teamMembers',id,'teamId','teams',true) && ref2(c,'teamMembers',id,'employeeId','employees',true);}
+  function update_teamMembers(c,id,d,b){return update2(c,'teamMembers',id) && shape_teamMembers(d) && extraAssignment(d) && ref2(c,'teamMembers',id,'teamId','teams',false) && ref2(c,'teamMembers',id,'employeeId','employees',false) && !d.diff(b).affectedKeys().hasAny(['teamId','employeeId']) && d.diff(b).affectedKeys().intersection(['teamId','employeeId'].toSet()).size()<=1 && (live2('teamMembers',b) || !live2('teamMembers',d));}
+  function create_siteAssignments(c,id,d){return create2(c,'siteAssignments',id) && shape_siteAssignments(d) && extraAssignment(d) && ref2(c,'siteAssignments',id,'employeeId','employees',true) && ref2(c,'siteAssignments',id,'siteId','sites',true);}
+  function update_siteAssignments(c,id,d,b){return update2(c,'siteAssignments',id) && shape_siteAssignments(d) && extraAssignment(d) && ref2(c,'siteAssignments',id,'employeeId','employees',false) && ref2(c,'siteAssignments',id,'siteId','sites',false) && !d.diff(b).affectedKeys().hasAny(['employeeId','siteId']) && d.diff(b).affectedKeys().intersection(['employeeId','siteId'].toSet()).size()<=1 && (live2('siteAssignments',b) || !live2('siteAssignments',d));}
+  function create_shifts(c,id,d){return create2(c,'shifts',id) && shape_shifts(d) && d.startTime!=d.endTime && ref2(c,'shifts',id,'siteId','sites',true);}
+  function update_shifts(c,id,d,b){return update2(c,'shifts',id) && shape_shifts(d) && d.startTime!=d.endTime && ref2(c,'shifts',id,'siteId','sites',false) && !d.diff(b).affectedKeys().hasAny(['siteId']);}
+  function create_shiftAssignments(c,id,d){return create2(c,'shiftAssignments',id) && shape_shiftAssignments(d) && extraAssignment(d) && ref2(c,'shiftAssignments',id,'employeeId','employees',true) && ref2(c,'shiftAssignments',id,'shiftId','shifts',true);}
+  function update_shiftAssignments(c,id,d,b){return update2(c,'shiftAssignments',id) && shape_shiftAssignments(d) && extraAssignment(d) && ref2(c,'shiftAssignments',id,'employeeId','employees',false) && ref2(c,'shiftAssignments',id,'shiftId','shifts',false) && !d.diff(b).affectedKeys().hasAny(['employeeId','shiftId']) && d.diff(b).affectedKeys().intersection(['employeeId','shiftId'].toSet()).size()<=1 && (live2('shiftAssignments',b) || !live2('shiftAssignments',d));}
+  function create_holidays(c,id,d){return create2(c,'holidays',id) && shape_holidays(d) && true;}
+  function update_holidays(c,id,d,b){return update2(c,'holidays',id) && shape_holidays(d) && true;}
+  function create_leaveRecords(c,id,d){return create2(c,'leaveRecords',id) && shape_leaveRecords(d) && d.endDate>=d.startDate && true;}
+  function update_leaveRecords(c,id,d,b){return update2(c,'leaveRecords',id) && shape_leaveRecords(d) && d.endDate>=d.startDate && true && !d.diff(b).affectedKeys().hasAny(['employeeId']);}
+  function create_assetCategories(c,id,d){return create2(c,'assetCategories',id) && shape_assetCategories(d) && extraParent(c,'assetCategories',id,d) && ref2(c,'assetCategories',id,'parentId','assetCategories',true);}
+  function update_assetCategories(c,id,d,b){return update2(c,'assetCategories',id) && shape_assetCategories(d) && extraParent(c,'assetCategories',id,d) && ref2(c,'assetCategories',id,'parentId','assetCategories',false);}
+  function create_suppliers(c,id,d){return create2(c,'suppliers',id) && shape_suppliers(d) && true;}
+  function update_suppliers(c,id,d,b){return update2(c,'suppliers',id) && shape_suppliers(d) && true;}
+  function create_assets(c,id,d){return create2(c,'assets',id) && shape_assets(d) && extraAsset(c,id,d) && ref2(c,'assets',id,'categoryId','assetCategories',true) && ref2(c,'assets',id,'locationId','locations',true);}
+  function update_assets(c,id,d,b){return update2(c,'assets',id) && shape_assets(d) && extraAsset(c,id,d) && ref2(c,'assets',id,'categoryId','assetCategories',false) && ref2(c,'assets',id,'locationId','locations',false) && !d.diff(b).affectedKeys().hasAny(['trackingMode']) && d.diff(b).affectedKeys().intersection(['categoryId','locationId'].toSet()).size()<=1 && assetMove(c,id,b,d);}
+  function create_materialCategories(c,id,d){return create2(c,'materialCategories',id) && shape_materialCategories(d) && true;}
+  function update_materialCategories(c,id,d,b){return update2(c,'materialCategories',id) && shape_materialCategories(d) && true;}
+  function create_materials(c,id,d){return create2(c,'materials',id) && shape_materials(d) && ref2(c,'materials',id,'categoryId','materialCategories',true);}
+  function update_materials(c,id,d,b){return update2(c,'materials',id) && shape_materials(d) && ref2(c,'materials',id,'categoryId','materialCategories',false) && !d.diff(b).affectedKeys().hasAny(['unit']);}
+  function create_stores(c,id,d){return create2(c,'stores',id) && shape_stores(d) && extraStore(c,d) && ref2(c,'stores',id,'siteId','sites',true) && ref2(c,'stores',id,'locationId','locations',true);}
+  function update_stores(c,id,d,b){return update2(c,'stores',id) && shape_stores(d) && extraStore(c,d) && ref2(c,'stores',id,'siteId','sites',false) && ref2(c,'stores',id,'locationId','locations',false) && !d.diff(b).affectedKeys().hasAny(['siteId']) && d.diff(b).affectedKeys().intersection(['siteId','locationId'].toSet()).size()<=1;}
+  function counter_departments(c,id){return counterIn_departments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_departments(c,id,w,wid){return w=='departments'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='designations'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='employees'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='teams'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_designations(c,id){return counterIn_designations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_designations(c,id,w,wid){return w=='employees'?counter2Move(id,w,'designationId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_employees(c,id){return counterIn_employees(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_employees(c,id,w,wid){return w=='teamMembers'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shiftAssignments'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_teams(c,id){return counterIn_teams(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_teams(c,id,w,wid){return w=='teamMembers'?counter2Move(id,w,'teamId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_teamMembers(c,id){return counterIn_teamMembers(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_teamMembers(c,id,w,wid){return false;}
+  function counter_siteAssignments(c,id){return counterIn_siteAssignments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_siteAssignments(c,id,w,wid){return false;}
+  function counter_shifts(c,id){return counterIn_shifts(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_shifts(c,id,w,wid){return w=='shiftAssignments'?counter2Move(id,w,'shiftId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_shiftAssignments(c,id){return counterIn_shiftAssignments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_shiftAssignments(c,id,w,wid){return false;}
+  function counter_holidays(c,id){return counterIn_holidays(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_holidays(c,id,w,wid){return false;}
+  function counter_leaveRecords(c,id){return counterIn_leaveRecords(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_leaveRecords(c,id,w,wid){return false;}
+  function counter_assetCategories(c,id){return counterIn_assetCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_assetCategories(c,id,w,wid){return w=='assetCategories'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='assets'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_suppliers(c,id){return counterIn_suppliers(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_suppliers(c,id,w,wid){return false;}
+  function counter_assets(c,id){return counterIn_assets(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_assets(c,id,w,wid){return false;}
+  function counter_materialCategories(c,id){return counterIn_materialCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_materialCategories(c,id,w,wid){return w=='materials'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_materials(c,id){return counterIn_materials(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_materials(c,id,w,wid){return false;}
+  function counter_stores(c,id){return counterIn_stores(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_stores(c,id,w,wid){return false;}
+  function counter_sites(c,id){return counterIn_sites(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_sites(c,id,w,wid){return w=='departments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shifts'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_locations(c,id){return counterIn_locations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_locations(c,id,w,wid){return w=='assets'?counter2Move(id,w,'locationId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'locationId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  // END GENERATED PHASE 2 VALIDATORS
   match /users/{uid} {
    allow get: if signedIn() && request.auth.uid == uid;
    allow list, create, delete: if false;
@@ -189,7 +404,9 @@ service cloud.firestore {
    match /members/{uid} {
     allow get: if signedIn() && resource.data.uid == uid && resource.data.companyId == companyId
      && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
-    allow list, write: if false;
+    // Phase 2: owners/admins may list their company's members (read-only). Role changes stay trusted.
+    allow list: if admin(companyId) && activeCompany(companyId);
+    allow write: if false;
    }
    match /auditLogs/{eventId} {
     allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
@@ -200,14 +417,14 @@ service cloud.firestore {
     allow get: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && request.resource.data.keys().hasOnly(['kind','recordId','code','companyId'])
-     && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
+     && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||known2(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
      && claimId==request.resource.data.kind+'_'+request.resource.data.code
      && !exists(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId))
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
     allow update,delete,list: if false;
    }
    match /{kind}/{id} {
-    allow read: if known(kind) && admin(companyId) && activeCompany(companyId);
+    allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
     allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
@@ -216,7 +433,7 @@ service cloud.firestore {
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
      && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true));
     allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
-     request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):counter(companyId,kind,id)) : (
+     request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):(known2(request.resource.data.witnessKind)?(kind=='sites'?counter_sites(companyId,id):kind=='locations'?counter_locations(companyId,id):false):counter(companyId,kind,id))) : (
       business(companyId,kind,id)
       && request.resource.data.schemaVersion==resource.data.schemaVersion
       && (kind!='sites'||(request.resource.data.get('clientId','')==resource.data.get('clientId','')&&request.resource.data.get('contractId','')==resource.data.get('contractId','')))
@@ -229,6 +446,99 @@ service cloud.firestore {
       && (kind!='facilities' || facilityHistory(companyId,id))
       && (kind!='contractAllocations'||allocationChange(companyId,id,false))
      ));
+    allow delete: if false;
+   }
+  // BEGIN GENERATED PHASE 2 MATCHES — do not edit by hand.
+   match /departments/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_departments(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_departments(companyId,id) : update_departments(companyId,id,request.resource.data,resource.data));
+   }
+   match /designations/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_designations(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_designations(companyId,id) : update_designations(companyId,id,request.resource.data,resource.data));
+   }
+   match /employees/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_employees(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_employees(companyId,id) : update_employees(companyId,id,request.resource.data,resource.data));
+   }
+   match /teams/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_teams(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teams(companyId,id) : update_teams(companyId,id,request.resource.data,resource.data));
+   }
+   match /teamMembers/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_teamMembers(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teamMembers(companyId,id) : update_teamMembers(companyId,id,request.resource.data,resource.data));
+   }
+   match /siteAssignments/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_siteAssignments(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_siteAssignments(companyId,id) : update_siteAssignments(companyId,id,request.resource.data,resource.data));
+   }
+   match /shifts/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_shifts(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shifts(companyId,id) : update_shifts(companyId,id,request.resource.data,resource.data));
+   }
+   match /shiftAssignments/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_shiftAssignments(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shiftAssignments(companyId,id) : update_shiftAssignments(companyId,id,request.resource.data,resource.data));
+   }
+   match /holidays/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_holidays(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_holidays(companyId,id) : update_holidays(companyId,id,request.resource.data,resource.data));
+   }
+   match /leaveRecords/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_leaveRecords(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_leaveRecords(companyId,id) : update_leaveRecords(companyId,id,request.resource.data,resource.data));
+   }
+   match /assetCategories/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_assetCategories(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assetCategories(companyId,id) : update_assetCategories(companyId,id,request.resource.data,resource.data));
+   }
+   match /suppliers/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_suppliers(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_suppliers(companyId,id) : update_suppliers(companyId,id,request.resource.data,resource.data));
+   }
+   match /assets/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_assets(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assets(companyId,id) : update_assets(companyId,id,request.resource.data,resource.data));
+   }
+   match /materialCategories/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_materialCategories(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materialCategories(companyId,id) : update_materialCategories(companyId,id,request.resource.data,resource.data));
+   }
+   match /materials/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_materials(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materials(companyId,id) : update_materials(companyId,id,request.resource.data,resource.data));
+   }
+   match /stores/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_stores(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_stores(companyId,id) : update_stores(companyId,id,request.resource.data,resource.data));
+   }
+  // END GENERATED PHASE 2 MATCHES
+   match /assets/{assetId}/history/{event} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && request.resource.data.keys().hasOnly(['companyId','revision','condition','status','siteId','locationId','custodianId','quantity','transferId','actorUid','occurredAt'])
+     && request.resource.data.companyId==companyId && event==string(request.resource.data.revision)
+     && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision
+     && (!exists(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)) || request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision+1)
+     && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
+    allow update,delete: if false;
+   }
+   match /assetTransfers/{transferId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && transferValid(companyId,transferId);
+    allow update,delete: if false;
+   }
+   match /stockMovements/{movementId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && movementValid(companyId,movementId);
+    allow update,delete: if false;
+   }
+   match /stockBalances/{balanceId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,{'quantity':0,'revision':0},true);
+    allow update: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,resource.data,false)
+     && request.resource.data.storeId==resource.data.storeId && request.resource.data.materialId==resource.data.materialId;
     allow delete: if false;
    }
    match /facilities/{facilityId}/history/{eventId} {

@@ -1,6 +1,6 @@
-# FacilityOS — Phase 0
+# FacilityOS
 
-Sharaco Technologies' multi-company facility management foundation. Only the administrator application is implemented. Staff web, Android/iOS and operational modules are future phases.
+Sharaco Technologies' multi-company facility management platform. The administrator application covers Phase 0 (foundation), Phase 1 (companies, physical sites, locations, facilities, clients, contracts and allocations) and Phase 2 (people and teams, assets and furniture, materials and inventory) with the redesigned UI. Staff web, Android/iOS and operational modules are future phases. See the [Phase 2 report](docs/phase2-report.md).
 
 **The existing `https://fms.flowb.io/` is a visual reference only.** Forms, fields, hierarchy and workflows follow our planned FacilityOS structure, not the prototype's demo data model. No production deployment or DNS change is part of this delivery.
 
@@ -35,7 +35,7 @@ npm run check
 npm run test:rules
 ```
 
-`check` runs lint, strict typechecking, unit tests and the production build. `test:rules` starts its own Auth/Firestore emulators, runs security and SDK integration tests, and shuts them down. Stop interactive emulators first to avoid port conflicts. Tests use a demo project and require no cloud credentials. `npm run build` produces `apps/admin-web/dist`; a build without a configured environment is deliberately not a live connected deployment.
+`check` runs lint, strict typechecking, unit tests (including the rules/index sync check) and the production build. `npm run test:browser` runs the end-to-end suite; Phase 2 rule validators are regenerated with `GENERATE_RULES=1 npx vitest run packages/shared/src/rules-sync.test.ts`. `test:rules` starts its own Auth/Firestore emulators, runs security and SDK integration tests, and shuts them down. Stop interactive emulators first to avoid port conflicts. Tests use a demo project and require no cloud credentials. `npm run build` produces `apps/admin-web/dist`; a build without a configured environment is deliberately not a live connected deployment.
 
 ## Repository layout
 

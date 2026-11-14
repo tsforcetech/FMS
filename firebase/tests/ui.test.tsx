@@ -122,7 +122,7 @@ it('protects routes, authenticates, switches companies, denies revoked access an
   );
   await screen.findByRole('heading', { name: 'ui-company-b' });
   expect(screen.queryByRole('heading', { name: 'ui-company-a' })).toBe(null);
-  await user.click(screen.getByRole('link', { name: /Companies & sites/ }));
+  await user.click(screen.getByRole('link', { name: /^Clients$/ }));
   await screen.findByRole('heading', { name: 'Clients' });
   await adminDb(admin)
     .doc('companies/ui-company-b/members/ui-owner')

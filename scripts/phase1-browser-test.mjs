@@ -1,4 +1,5 @@
-// Isolated local-only end-to-end verification; never targets a live Firebase project.
+// Isolated local-only end-to-end verification of Phase 1 and Phase 2 in the
+// redesigned admin UI; never targets a live Firebase project.
 import { chromium } from 'playwright';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -38,6 +39,7 @@ const vite = spawn(
   },
 );
 const origin = 'http://127.0.0.1:5193';
+const evidence = 'docs/evidence/phase2';
 let browser;
 let page;
 const checks = [];
@@ -58,222 +60,379 @@ try {
       : {}),
     args: ['--no-sandbox'],
   });
-  page = await browser.newPage({
-    viewport: { width: 1440, height: 1000 },
-  });
+  page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.setDefaultTimeout(15000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.goto(origin);
-  await page.getByLabel('Email address').fill('owner@example.test');
-  await page.getByLabel('Password', { exact: true }).fill('Local-only-123!');
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await page.getByRole('heading', { name: 'Your company workspace' }).waitFor();
-  await page.reload();
-  await page.getByRole('heading', { name: 'Your company workspace' }).waitFor();
-  checks.push('Owner login, company loading and refresh persistence');
-  await page.getByRole('link', { name: /Companies & sites/ }).click();
-  const button = (name) => page.getByRole('button', { name, exact: true });
-  async function basic(code, name) {
-    await page.getByLabel(/^Code/).fill(code);
-    await page.getByLabel(/^Name/).fill(name);
-  }
-  async function choose(label, name) {
-    await page
-      .locator('form')
-      .getByRole('button', {
-        name: new RegExp('Choose ' + label.toLowerCase()),
-      })
-      .click();
-    await page
-      .locator('form')
-      .getByRole('button', { name: new RegExp(name) })
-      .click();
-  }
-  async function saved(name) {
-    await button(name).click();
-    await page.getByText('Changes saved.', { exact: true }).waitFor();
-  }
-  await button('Sites').click();
-  await button('Add site').click();
-  await basic('SITE001', 'Marina Campus');
-  assert.equal(
-    await page
-      .locator('form')
-      .getByRole('button', { name: /Choose client|Choose contract/ })
-      .count(),
-    0,
-  );
-  await page.getByLabel('Mon', { exact: true }).check();
-  await page.getByLabel('Tue', { exact: true }).check();
-  await saved('Save site');
-  checks.push('Independent site creation before any client or contract');
-  await button('Clients').click();
-  await button('Add client').click();
-  await button('Save client').click();
-  await page.getByRole('alert').first().waitFor();
-  await basic('CL001', 'Northstar Services');
-  await page.getByLabel(/^Client type/).selectOption('Company');
-  await page.getByLabel('Email', { exact: true }).fill('team@example.test');
-  await saved('Save client');
-  await page
-    .getByRole('button', { name: 'Edit Northstar Services', exact: true })
-    .click();
-  await page.getByLabel(/^Name/).fill('Northstar Facilities');
-  await saved('Save client');
-  checks.push('Client validation, create and edit');
-  await button('Contracts').click();
-  await button('Add contract').click();
-  await page.getByLabel(/^Contract reference/).fill('CT001');
-  await page.getByLabel(/^Name/).fill('Annual services');
-  await choose('Client', 'Northstar Facilities');
-  await page.getByLabel(/^Start date/).fill('2026-01-01');
-  await page.getByLabel(/^End date/).fill('2026-12-31');
-  await saved('Save contract');
-  checks.push('Contract create and client selector');
-  await button('Sites').click();
-  await button('Marina Campus').click();
-  await page
-    .getByRole('navigation', { name: 'Site details' })
-    .getByRole('button', { name: 'Locations', exact: true })
-    .click();
-  await button('Add location').click();
-  await basic('LOC001', 'Tower A');
-  await saved('Save location');
-  await button('Add location').click();
-  await basic('LOC002', 'First floor');
-  await page.getByLabel(/^Location type/).selectOption('Floor');
-  await choose('Parent location', 'Tower A');
-  await saved('Save location');
-  checks.push('Site, working days, root and child location creation');
-  await page
-    .getByRole('button', { name: 'Archive Tower A', exact: true })
-    .click();
-  await button('Confirm archive').click();
-  await page
-    .getByRole('alert')
-    .filter({ hasText: 'Archive or reassign' })
-    .waitFor();
-  checks.push('Referenced location archive is blocked with a useful message');
-  await page.getByRole('link', { name: /Companies & sites/ }).click();
-  await page
-    .getByRole('navigation', { name: 'Management modules' })
-    .getByRole('button', { name: 'Contract allocations', exact: true })
-    .click();
-  await button('Add allocation').click();
-  await basic('AL001', 'Whole-site service');
-  await choose('Contract', 'Annual services');
-  await choose('Site', 'Marina Campus');
-  await page.getByLabel(/^Start date/).fill('2026-01-01');
-  await page.getByLabel(/^End date/).fill('2026-12-31');
-  await page.getByLabel(/^Status/).selectOption('active');
-  await saved('Save allocation');
-  await button('Add allocation').click();
-  await basic('AL002', 'Office occupancy');
-  await choose('Contract', 'Annual services');
-  await choose('Site', 'Marina Campus');
-  await choose('Space', 'First floor');
-  await page.getByLabel(/^Allocation type/).selectOption('exclusive_occupancy');
-  await page.getByLabel(/^Start date/).fill('2026-01-01');
-  await page.getByLabel(/^End date/).fill('2026-03-31');
-  await page.getByLabel(/^Status/).selectOption('active');
-  await saved('Save allocation');
-  await button('Edit Office occupancy').click();
-  await page.getByLabel(/^Status/).selectOption('terminated');
-  await page.getByLabel(/^Effective termination date/).fill('2026-02-15');
-  await saved('Save allocation');
-  await button('Office occupancy').click();
-  await page.getByRole('heading', { name: 'Allocation history' }).waitFor();
-  await page.getByText(/Revision 2 · terminated/).waitFor();
-  await mkdir('docs/evidence/correction', { recursive: true });
-  for (const [device, width, height] of [
-    ['desktop', 1440, 1000],
-    ['tablet', 768, 1024],
-    ['mobile', 390, 844],
-  ]) {
-    await page.setViewportSize({ width, height });
-    await page.evaluate(() => window.scrollTo(0, 0));
-    assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-      true,
-    );
-    await page.screenshot({
-      path: `docs/evidence/correction/allocation-${device}.png`,
-      fullPage: true,
-    });
-  }
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  checks.push(
-    'Whole-site service, derived client, exclusive occupancy termination, immutable history and responsive layouts',
-  );
+  await mkdir(evidence, { recursive: true });
 
-  await page.getByRole('link', { name: /Facilities & locations/ }).click();
-  await button('Facility types').click();
-  await button('Add facility type').click();
+  const button = (name) => page.getByRole('button', { name, exact: true });
+  const nav = async (label) => {
+    await page.getByRole('link', { name: label, exact: true }).click();
+    await page.getByRole('heading', { level: 1, name: label }).waitFor();
+  };
+  const drawer = () => page.getByRole('dialog');
+  const add = (singular) => button(`Add ${singular}`).first().click();
+  const basic = async (code, name) => {
+    await drawer()
+      .getByLabel(/^(Code|Contract reference|Employee ID|Asset code)/)
+      .fill(code);
+    await drawer()
+      .getByLabel(/^(Name|Full name)/)
+      .fill(name);
+  };
+  const exact = (label) =>
+    new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\*?$');
+  const pick = async (label, option) => {
+    const scope = (await drawer().count()) ? drawer() : page;
+    await scope.getByLabel(exact(label)).click();
+    await page
+      .getByRole('option', { name: new RegExp(option) })
+      .first()
+      .click();
+  };
+  const select = (label, value) =>
+    drawer().getByLabel(exact(label)).selectOption(value);
+  const save = async (singular, verb = 'created') => {
+    await button(`Save ${singular}`).click();
+    await page
+      .getByText(
+        `${singular.charAt(0).toUpperCase() + singular.slice(1)} ${verb}.`,
+      )
+      .first()
+      .waitFor();
+    await drawer().waitFor({ state: 'detached' });
+  };
+  const open = (name) => button(name).first().click();
+  const back = (title) => button(`Back to ${title}`).click();
+  const noOverflow = async (label) => {
+    const wide = await page.evaluate(() =>
+      document.documentElement.scrollWidth <= window.innerWidth
+        ? []
+        : [...document.querySelectorAll('body *')]
+            .filter(
+              (e) =>
+                e.getBoundingClientRect().right > window.innerWidth + 1 &&
+                getComputedStyle(e).visibility !== 'hidden',
+            )
+            .slice(0, 6)
+            .map((e) => e.tagName + '.' + e.className)
+            .concat(['scrollWidth ' + document.documentElement.scrollWidth]),
+    );
+    assert.deepEqual(wide, [], `${label} has horizontal page overflow`);
+  };
+  const shoot = async (name, full = false) => {
+    await page.waitForTimeout(450);
+    await page.screenshot({ path: `${evidence}/${name}.png`, fullPage: full });
+  };
+
+  // ---------------------------------------------------------- authentication
+  await page.goto(origin);
+  await page
+    .getByRole('heading', { name: 'Sign in to your workspace' })
+    .waitFor();
+  await shoot('01-login');
+  await page.getByLabel('Email address').fill('owner@example.test');
+  await page.getByLabel('Password', { exact: true }).fill('wrong-password');
+  await button('Sign in').click();
+  await page.getByRole('alert').waitFor();
+  await page.getByLabel('Password', { exact: true }).fill('Local-only-123!');
+  await button('Sign in').click();
+  await page.getByText(/Good (morning|afternoon|evening)/).waitFor();
+  await page.reload();
+  await page.getByText(/Good (morning|afternoon|evening)/).waitFor();
+  checks.push('Login error, sign-in, dashboard and refresh persistence');
+
+  // ---------------------------------------------------------- property
+  await nav('Sites');
+  await add('site');
+  await basic('SITE001', 'Marina Campus');
+  assert.equal(await drawer().getByLabel('Client', { exact: true }).count(), 0);
+  await button('Mon').click();
+  await button('Tue').click();
+  await shoot('02-site-form');
+  await save('site');
+  checks.push('Site created with no client or contract field');
+  await nav('Locations');
+  await add('location');
+  await basic('LOC001', 'Tower A');
+  await pick('Site', 'Marina Campus');
+  await save('location');
+  await open('Tower A');
+  await button('Add child location').click();
+  await basic('LOC002', 'First floor');
+  await select('Location type', 'Floor');
+  await save('location');
+  await back('locations');
+  await nav('Facility types');
+  await add('facility type');
   await basic('POOL', 'Swimming pool');
-  await saved('Save facility type');
-  await button('Facilities').click();
-  await button('Add facility').click();
+  await save('facility type');
+  await nav('Facilities');
+  await add('facility');
   await basic('FAC001', 'Main pool');
-  await choose('Site', 'Marina Campus');
-  await choose('Location', 'First floor');
-  await choose('Facility type', 'Swimming pool');
-  await saved('Save facility');
+  await pick('Site', 'Marina Campus');
+  await pick('Location', 'First floor');
+  await pick('Facility type', 'Swimming pool');
+  await save('facility');
   await page
     .getByRole('button', { name: 'Edit Main pool', exact: true })
     .click();
-  await page.getByLabel(/^Condition/).selectOption('Fair');
-  await page.getByLabel(/^Status/).selectOption('under_maintenance');
-  await saved('Save facility');
-  await button('Main pool').click();
+  await select('Condition', 'Fair');
+  await select('Status', 'under_maintenance');
+  await save('facility', 'updated');
+  await open('Main pool');
+  await page.getByRole('tab', { name: 'History' }).click();
+  await page.getByText('Revision 2').waitFor();
+  await back('facilities');
+  checks.push(
+    'Locations, child location, facility type, facility and condition history',
+  );
+
+  // ---------------------------------------------------------- commercial
+  await nav('Clients');
+  await add('client');
+  await button('Save client').click();
+  await drawer().getByRole('alert').first().waitFor();
+  await basic('CL001', 'Northstar Services');
+  await select('Client type', 'Company');
+  await save('client');
+  await nav('Contracts');
+  await add('contract');
+  await basic('CT001', 'Annual services');
+  await pick('Client', 'Northstar Services');
+  await drawer().getByLabel('Start date').fill('2026-01-01');
+  await drawer().getByLabel('End date').fill('2026-12-31');
+  await save('contract');
+  await nav('Contract allocations');
+  await add('allocation');
+  await basic('AL001', 'Whole-site service');
+  await pick('Contract', 'Annual services');
+  await drawer().getByText('Client taken from the contract').waitFor();
+  await drawer().getByText('Northstar Services').waitFor();
+  await pick('Site', 'Marina Campus');
+  await drawer().getByLabel('Start date').fill('2026-01-01');
+  await drawer().getByLabel('End date').fill('2026-12-31');
+  await save('allocation');
+  checks.push(
+    'Client, contract and whole-site allocation with client derived from contract',
+  );
+
+  // ---------------------------------------------------------- people
+  await nav('Departments');
+  await add('department');
+  await basic('OPS', 'Operations');
+  await save('department');
+  await nav('Designations');
+  await add('designation');
+  await basic('TECH', 'Technician');
+  await pick('Department', 'Operations');
+  await save('designation');
+  await nav('Employees');
+  await add('employee');
+  await basic('E001', 'Asha Rao');
+  await drawer().getByLabel('Joining date').fill('2026-01-05');
+  await pick('Department', 'Operations');
+  await pick('Designation', 'Technician');
+  await pick('Primary site', 'Marina Campus');
+  await shoot('03-employee-form');
+  await save('employee');
+  await nav('Shifts');
+  await add('shift');
+  await basic('NIGHT', 'Night shift');
+  await pick('Site', 'Marina Campus');
+  await drawer().getByLabel('Start time').fill('22:00');
+  await drawer().getByLabel('End time').fill('06:00');
+  await button('Sun').click();
+  await save('shift');
+  await button('Shift assignments').click();
+  await add('shift assignment');
+  await pick('Employee', 'Asha Rao');
+  await pick('Shift', 'Night shift');
+  await drawer().getByLabel('Effective from').fill('2026-02-01');
+  await save('shift assignment');
+  await page.getByText('Asha Rao · Night shift').waitFor();
+  await nav('Teams');
+  await add('team');
+  await basic('TEAM1', 'Facilities crew');
+  await pick('Department', 'Operations');
+  await pick('Team leader', 'Asha Rao');
+  await save('team');
+  await nav('Leave & holidays');
+  await add('leave record');
+  await pick('Employee', 'Asha Rao');
+  await drawer().getByLabel('First day').fill('2026-04-01');
+  await drawer().getByLabel('Last day').fill('2026-04-03');
+  await save('leave record');
+  await nav('Departments');
   await page
-    .getByRole('heading', { name: 'Condition & status history' })
+    .getByRole('button', { name: 'Archive Operations', exact: true })
+    .click();
+  await button('Archive').click();
+  await page
+    .getByText(/Archive or reassign active linked records first/)
     .waitFor();
-  await page.getByText(/#2 · Fair/).waitFor();
-  checks.push('Facility type, facility create/edit and condition history');
-  await mkdir('docs/evidence', { recursive: true });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: 'docs/evidence/phase1-desktop.png',
-    fullPage: true,
-  });
-  for (const [name, width, height] of [
+  checks.push(
+    'Department, designation, employee, overnight shift and assignment, team, leave and archive protection',
+  );
+
+  // ---------------------------------------------------------- assets
+  await nav('Categories');
+  await add('asset category');
+  await basic('HVAC', 'HVAC');
+  await save('asset category');
+  await nav('Asset register');
+  await add('asset');
+  await basic('AC-001', 'Chiller unit');
+  await pick('Category', 'HVAC');
+  await drawer().getByLabel('Serial number').fill('SN-77812');
+  await pick('Site', 'Marina Campus');
+  await pick('Location', 'Tower A');
+  await drawer().getByLabel('Purchase cost').fill('12500.00');
+  await save('asset');
+  await nav('Furniture & fixtures');
+  await add('asset');
+  await basic('CHAIR-B1', 'Lobby chairs');
+  await pick('Category', 'HVAC');
+  await select('Tracking', 'batch');
+  await drawer().getByLabel('Quantity').fill('40');
+  await pick('Site', 'Marina Campus');
+  await pick('Location', 'First floor');
+  await save('asset');
+  await page.getByText('Lobby chairs').waitFor();
+  await nav('Asset register');
+  await open('Chiller unit');
+  await button('Transfer').click();
+  await pick('Destination location', 'First floor');
+  await drawer().getByLabel('Reason').fill('Moved to plant room');
+  await button('Confirm transfer').click();
+  await page.getByText('Chiller unit transferred.').waitFor();
+  await page.getByRole('tab', { name: 'Transfers' }).click();
+  await page.getByText('Moved to plant room').waitFor();
+  await button('QR label').click();
+  await page.getByRole('img', { name: /QR code for AC-001/ }).waitFor();
+  await shoot('04-asset-qr');
+  await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
+  checks.push(
+    'Equipment, furniture batch, atomic transfer with history and QR label',
+  );
+
+  // ---------------------------------------------------------- inventory
+  await nav('Material categories');
+  await add('material category');
+  await basic('CLEAN', 'Cleaning');
+  await save('material category');
+  await nav('Materials');
+  await add('material');
+  await basic('MAT-01', 'Floor cleaner');
+  await pick('Category', 'Cleaning');
+  await select('Unit of measure', 'litre');
+  await drawer().getByLabel('Reorder level').fill('5');
+  await save('material');
+  await nav('Stores');
+  for (const [code, name] of [
+    ['ST-A', 'Main store'],
+    ['ST-B', 'Tower store'],
+  ]) {
+    await add('store');
+    await basic(code, name);
+    await pick('Site', 'Marina Campus');
+    await save('store');
+  }
+  await nav('Stock transactions');
+  const post = async (type, fields, quantity, extra) => {
+    await button('New transaction').click();
+    await button(type).click();
+    await pick('Material', 'Floor cleaner');
+    for (const [label, value] of fields) await pick(label, value);
+    await drawer().getByLabel('Quantity').fill(quantity);
+    if (extra) await drawer().getByLabel('Reason').fill(extra);
+    await drawer()
+      .getByRole('button', { name: /^Post / })
+      .click();
+  };
+  await post('Opening stock', [['Destination store', 'Main store']], '20.5');
+  await page.getByText('Opening stock posted.').waitFor();
+  await post('Receipt', [['Destination store', 'Main store']], '4.25');
+  await page.getByText('Receipt posted.').waitFor();
+  await post('Issue', [['Source store', 'Main store']], '100');
+  await drawer()
+    .getByText(/Not enough stock/)
+    .waitFor();
+  await button('Cancel').click();
+  await post('Issue', [['Source store', 'Main store']], '0.755');
+  await page.getByText('Issue posted.').waitFor();
+  await post(
+    'Transfer',
+    [
+      ['Source store', 'Main store'],
+      ['Destination store', 'Tower store'],
+    ],
+    '20',
+  );
+  await page.getByText('Transfer posted.').waitFor();
+  await post(
+    'Adjustment (decrease)',
+    [['Source store', 'Tower store']],
+    '0.5',
+    'Spillage',
+  );
+  await page.getByText('Adjustment (decrease) posted.').waitFor();
+  await page.getByRole('button', { name: 'Reverse' }).first().click();
+  await button('Post reversal').click();
+  await page.getByText('Transaction reversed.').waitFor();
+  await shoot('05-stock-ledger');
+  await nav('Stock balance');
+  await page.getByText('3.995').waitFor();
+  await page.getByText('20.000').waitFor();
+  await page.getByText('Reorder').first().waitFor();
+  checks.push(
+    'Opening, receipt, rejected over-issue, issue, transfer, adjustment, reversal and exact balances with reorder flag',
+  );
+
+  // ---------------------------------------------------------- admin
+  await nav('Roles & permissions');
+  await page.getByText('Prepared').first().waitFor();
+  await nav('User access');
+  await page.getByText('You').first().waitFor();
+  checks.push('Roles matrix and read-only user access');
+
+  // ---------------------------------------------------------- responsive
+  const views = [
+    ['desktop', 1440, 1000],
     ['tablet', 768, 1024],
     ['mobile', 390, 844],
-  ]) {
+  ];
+  for (const [device, width, height] of views) {
     await page.setViewportSize({ width, height });
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.screenshot({
-      path: `docs/evidence/phase1-${name}.png`,
-      fullPage: true,
-    });
-    assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-      true,
-      `${name} has page overflow`,
-    );
+    await page.goto(origin + '/');
+    await page.getByText(/Good (morning|afternoon|evening)/).waitFor();
+    await noOverflow(device + ' dashboard');
+    await shoot(`dashboard-${device}`);
+    await page.goto(origin + '/assets');
+    await page.getByText('Chiller unit').first().waitFor();
+    await noOverflow(device + ' list');
+    await shoot(`list-${device}`);
   }
-  checks.push(
-    'Desktop, tablet and mobile detail layouts without page overflow',
-  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await button('Toggle navigation').click();
+  await page.getByRole('link', { name: 'Employees', exact: true }).click();
+  await add('employee');
+  await noOverflow('mobile form');
+  await shoot('form-mobile');
+  await button('Cancel').click();
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await button('Back to list').click();
-  await page
-    .getByRole('button', { name: 'Archive Main pool', exact: true })
-    .click();
-  await button('Confirm archive').click();
-  await page.getByText('Changes saved.', { exact: true }).waitFor();
+  checks.push(
+    'Desktop, tablet and mobile dashboard, list and form without page overflow',
+  );
+
+  // ---------------------------------------------------------- isolation & logout
+  await page.goto(origin + '/sites');
+  await page.getByText('Marina Campus').first().waitFor();
   await page.getByLabel('Current company').selectOption('local-company-b');
-  await page
-    .getByRole('heading', { name: 'Facilities', exact: true })
-    .waitFor();
-  await page.getByRole('heading', { name: 'No facilities found' }).waitFor();
-  assert.equal(await button('Main pool').count(), 0);
-  checks.push('Archive, company switching and no tenant data leakage');
+  await page.getByText('No sites yet').waitFor();
+  assert.equal(await button('Marina Campus').count(), 0);
+  checks.push('Company switching without tenant data leakage');
   await page.getByLabel('Profile menu').click();
   await button('Sign out').click();
   await page
@@ -289,16 +448,10 @@ try {
       )
       .waitFor();
   }
-  await page.screenshot({
-    path: 'docs/evidence/phase1-reset.png',
-    fullPage: true,
-  });
-  checks.push(
-    'Logout and account-enumeration-safe password reset for known and unknown email',
-  );
+  checks.push('Logout and account-enumeration-safe password reset');
   assert.deepEqual(errors, [], 'Unexpected browser exceptions');
   await writeFile(
-    'docs/evidence/browser-results.json',
+    `${evidence}/browser-results.json`,
     JSON.stringify(
       {
         checks,
@@ -313,11 +466,11 @@ try {
   console.log(JSON.stringify({ passed: checks.length, checks }));
 } catch (error) {
   if (page) {
-    await mkdir('docs/evidence', { recursive: true });
+    await mkdir(evidence, { recursive: true });
     await page
-      .screenshot({ path: 'docs/evidence/failure.png', fullPage: true })
+      .screenshot({ path: `${evidence}/failure.png`, fullPage: true })
       .catch(() => {});
-    await writeFile('docs/evidence/failure.txt', String(error));
+    await writeFile(`${evidence}/failure.txt`, String(error));
   }
   throw error;
 } finally {
