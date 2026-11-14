@@ -1,4 +1,4 @@
-// Phase 1 + Phase 2 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
+// Phase 1 + Phase 2 + Phase 3 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
 // Phase 2 people/asset/inventory validators are generated from packages/shared (see rules-generator.ts).
 // Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
 // Operational documents: companyId, schemaVersion=1, code, name, notes, status,
@@ -287,6 +287,115 @@ service cloud.firestore {
     && t.transferDate is string && date2(t.transferDate) && t.reason is string && t.reason.size()>0 && t.reason.size()<=500
     && t.notes is string && t.notes.size()<=2000 && optionalId(t.receivedById);
   }
+  // ------------------------------------------------------------------ Phase 3 tasks
+  // Template versions: drafts are editable; published versions are frozen except retirement.
+  function versionContentOk(x){return x is map && x.keys().hasOnly(['title','instructions','priority','estimatedMinutes','approvalRequired','siteTypes','facilityTypeIds','assetCategoryIds','sections','questions','raci','assignment'])
+   && x.title is string && x.title.size()>0 && x.title.size()<=120 && x.instructions is string && x.instructions.size()<=4000
+   && x.priority in ['low','medium','high','critical'] && x.estimatedMinutes is int && x.estimatedMinutes>0 && x.estimatedMinutes<=1440 && x.approvalRequired is bool
+   && x.questions is list && x.questions.size()<=100 && x.sections is list && x.sections.size()>0 && x.sections.size()<=20 && x.raci is list && x.raci.size()<=30
+   && x.siteTypes is list && x.siteTypes.size()<=20 && x.facilityTypeIds is list && x.facilityTypeIds.size()<=20 && x.assetCategoryIds is list && x.assetCategoryIds.size()<=20 && x.assignment is map;}
+  function versionKeys(d){return d.keys().hasOnly(['companyId','schemaVersion','templateId','version','state','content','revision','createdAt','createdBy','updatedAt','updatedBy','publishedAt','publishedBy','retiredAt']);}
+  function versionCreate(c,id,d){
+   return versionKeys(d) && d.companyId==c && d.schemaVersion==1 && d.version is int && d.version>0 && d.templateId is string && id==d.templateId+'-v'+string(d.version)
+    && d.state=='draft' && d.revision==1 && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && d.publishedAt==null && d.publishedBy=='' && d.retiredAt==null && versionContentOk(d.content)
+    && get(/databases/$(database)/documents/companies/$(c)/taskTemplates/$(d.templateId)).data.status=='active';
+  }
+  function versionUpdate(d,b){
+   return versionKeys(d) && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && (b.state=='draft'
+     ? (d.diff(b).affectedKeys().hasOnly(['content','state','publishedAt','publishedBy','revision','updatedAt','updatedBy']) && versionContentOk(d.content)
+        && ((d.state=='draft' && d.publishedAt==null && d.publishedBy=='')
+         || (d.state=='published' && d.publishedAt==request.time && d.publishedBy==request.auth.uid && d.content.questions.size()>0)))
+     : (b.state=='published' && d.state=='retired' && d.retiredAt==request.time && d.diff(b).affectedKeys().hasOnly(['state','retiredAt','revision','updatedAt','updatedBy'])));
+  }
+  // Tasks: created from a published version snapshot; every status change is bound to a timeline event.
+  function taskKeys(d){return d.keys().hasOnly(['companyId','schemaVersion','reference','title','templateId','versionId','version','content','approvalRequired','priority','siteId','locationId','facilityId','assetId','departmentId','assigneeIds','teamId','notes','plannedStart','dueAt','status','attempt','draftAnswers','occurrenceKey','cancelReason','exceptionCount','evidencePending','completedAt','createdAt','createdBy','updatedAt','updatedBy','revision']);}
+  function placeOk(c,k,pid,site){return pid=='' || placeData(get(/databases/$(database)/documents/companies/$(c)/$(k)/$(pid)).data,site);}
+  function placeData(x,site){return x.siteId==site && x.status!='archived';}
+  function taskVersionOk(d,v){return v.state=='published' && v.templateId==d.templateId && v.version==d.version && d.content==v.content && d.approvalRequired==v.content.approvalRequired;}
+  function eventOk(e,id,d,action,from){return e.taskId==id && e.revision==d.revision && e.action==action && e.fromStatus==from && e.toStatus==d.status && e.assigneeIds==d.assigneeIds && e.attempt==d.attempt && e.actorUid==request.auth.uid && e.at==request.time;}
+  function taskCreate(c,id,d){
+   return taskKeys(d) && d.companyId==c && d.schemaVersion==1 && d.revision==1 && d.attempt==1
+    && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && d.reference is string && d.reference.size()>0 && d.reference.size()<=40 && d.title is string && d.title.size()>0 && d.title.size()<=160 && d.notes is string && d.notes.size()<=2000
+    && d.priority in ['low','medium','high','critical'] && d.dueAt is timestamp && (d.plannedStart==null || (d.plannedStart is timestamp && d.plannedStart<=d.dueAt))
+    && d.assigneeIds is list && d.assigneeIds.size()<=10 && ((d.status=='assigned' && d.assigneeIds.size()>0) || (d.status=='pending' && d.assigneeIds.size()==0))
+    && d.draftAnswers=={} && d.occurrenceKey=='' && d.cancelReason=='' && d.exceptionCount==0 && d.evidencePending==false && d.completedAt==null
+    && (d.siteId+'~'+d.locationId+'~'+d.facilityId+'~'+d.assetId+'~'+d.departmentId+'~'+d.teamId).matches('^[a-zA-Z0-9_-]{1,128}(~[a-zA-Z0-9_-]{0,128}){5}$')
+    && taskVersionOk(d,get(/databases/$(database)/documents/companies/$(c)/templateVersions/$(d.versionId)).data)
+    && get(/databases/$(database)/documents/companies/$(c)/sites/$(d.siteId)).data.status!='archived'
+    && placeOk(c,'locations',d.locationId,d.siteId) && placeOk(c,'facilities',d.facilityId,d.siteId) && placeOk(c,'assets',d.assetId,d.siteId)
+    && eventOk(getAfter(/databases/$(database)/documents/companies/$(c)/taskEvents/$(id+'_1')).data,id,d,'create','');
+  }
+  function moveOk(a,f,t,appr){
+   return a=='assign' ? (f in ['pending','assigned','paused'] && t=='assigned')
+    : a=='start' ? (f=='assigned' && t=='in_progress')
+    : a=='pause' ? (f=='in_progress' && t=='paused')
+    : a=='resume' ? (f=='paused' && t=='in_progress')
+    : a=='submit' ? (f=='in_progress' && t==(appr ? 'awaiting_approval' : 'completed'))
+    : a=='approve' ? (f=='awaiting_approval' && t=='completed')
+    : a=='request_rework' ? (f=='awaiting_approval' && t=='rework_required')
+    : a=='reject' ? (f=='awaiting_approval' && t=='rejected')
+    : a=='restart' ? (f=='rework_required' && t=='in_progress')
+    : a=='cancel' ? (f in ['pending','assigned','in_progress','paused','rework_required'] && t=='cancelled')
+    : false;
+  }
+  function submissionOk(s,id,b){return s.taskId==id && s.attempt==b.attempt && s.submittedAt==request.time && s.submittedBy==request.auth.uid;}
+  function decisionOk(x,a,attempt){return x.decision==a && x.attempt==attempt && x.decidedAt==request.time && x.reviewerUid==request.auth.uid;}
+  function transitionOk(c,id,d,b,e){
+   return eventOk(e,id,d,e.action,b.status) && moveOk(e.action,b.status,d.status,b.approvalRequired)
+    && (e.action=='restart' ? (d.attempt==b.attempt+1 && d.draftAnswers=={}) : d.attempt==b.attempt)
+    && (e.action=='cancel' ? (d.cancelReason is string && d.cancelReason.size()>0 && d.cancelReason.size()<=500) : d.cancelReason==b.cancelReason)
+    && (e.action=='assign' ? (d.assigneeIds is list && d.assigneeIds.size()>0 && d.assigneeIds.size()<=10) : d.assigneeIds==b.assigneeIds)
+    && (d.status=='completed' ? d.completedAt==request.time : d.completedAt==b.completedAt)
+    && (e.action=='submit'
+     ? (submissionOk(getAfter(/databases/$(database)/documents/companies/$(c)/taskSubmissions/$(id+'_'+string(b.attempt))).data,id,b)
+        && d.draftAnswers=={} && d.exceptionCount is int && d.exceptionCount>=b.exceptionCount && d.evidencePending is bool)
+     : (d.exceptionCount==b.exceptionCount && d.evidencePending==b.evidencePending && (d.draftAnswers==b.draftAnswers || e.action=='restart')))
+    && (!(e.action in ['approve','request_rework','reject'])
+     || decisionOk(getAfter(/databases/$(database)/documents/companies/$(c)/taskApprovals/$(id+'_'+string(b.attempt))).data,e.action,b.attempt));
+  }
+  function taskUpdate(c,id,d,b){
+   return taskKeys(d) && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && ((d.status==b.status && b.status=='in_progress' && d.diff(b).affectedKeys().hasOnly(['draftAnswers','revision','updatedAt','updatedBy']) && d.draftAnswers is map && d.draftAnswers.size()<=120)
+     || (d.diff(b).affectedKeys().hasOnly(['status','assigneeIds','attempt','draftAnswers','cancelReason','exceptionCount','evidencePending','completedAt','revision','updatedAt','updatedBy'])
+        && transitionOk(c,id,d,b,getAfter(/databases/$(database)/documents/companies/$(c)/taskEvents/$(id+'_'+string(d.revision))).data)));
+  }
+  function eventCreate(c,eid,e,t){
+   return e.keys().hasOnly(['companyId','schemaVersion','taskId','revision','action','fromStatus','toStatus','actorUid','at','note','assigneeIds','attempt'])
+    && e.companyId==c && e.schemaVersion==1 && e.revision is int && eid==e.taskId+'_'+string(e.revision) && t.revision==e.revision && t.status==e.toStatus
+    && e.action in ['create','assign','start','pause','resume','submit','approve','request_rework','reject','restart','cancel']
+    && e.actorUid==request.auth.uid && e.at==request.time && e.note is string && e.note.size()<=1000;
+  }
+  function submissionCreate(c,sid,s,t,b){
+   return s.keys().hasOnly(['companyId','schemaVersion','taskId','attempt','versionId','answers','exceptions','evidencePending','remarks','siteId','locationId','facilityId','assetId','submittedBy','submittedAt'])
+    && s.companyId==c && s.schemaVersion==1 && s.attempt is int && sid==s.taskId+'_'+string(s.attempt) && b.status=='in_progress' && t.attempt==s.attempt
+    && t.status in ['awaiting_approval','completed'] && s.versionId==t.versionId && s.siteId==t.siteId && s.locationId==t.locationId && s.facilityId==t.facilityId && s.assetId==t.assetId
+    && s.submittedBy==request.auth.uid && s.submittedAt==request.time && s.answers is map && s.answers.size()<=120
+    && s.exceptions is list && s.exceptions.size()<=100 && s.evidencePending is list && s.evidencePending.size()<=100 && s.remarks is string && s.remarks.size()<=2000;
+  }
+  // No self-approval: the reviewer must differ from the submitter of the attempt.
+  function approvalCreate(c,aid,x,t,b,s){
+   return x.keys().hasOnly(['companyId','schemaVersion','taskId','attempt','decision','reason','reviewerUid','submittedBy','decidedAt'])
+    && x.companyId==c && x.schemaVersion==1 && x.attempt is int && aid==x.taskId+'_'+string(x.attempt) && b.status=='awaiting_approval' && x.attempt==b.attempt
+    && x.decision in ['approve','request_rework','reject'] && t.status==(x.decision=='approve' ? 'completed' : x.decision=='reject' ? 'rejected' : 'rework_required')
+    && x.reviewerUid==request.auth.uid && x.decidedAt==request.time && x.reason is string && x.reason.size()<=1000 && (x.decision=='approve' || x.reason.size()>0)
+    && x.submittedBy==s.submittedBy && s.submittedBy!=request.auth.uid;
+  }
+  function exceptionCreate(c,x,t){
+   return x.keys().hasOnly(['companyId','schemaVersion','taskId','attempt','questionId','siteId','locationId','facilityId','assetId','type','severity','description','detectedBy','detectedAt','status','resolutionNote','revision','updatedAt','updatedBy'])
+    && x.companyId==c && x.schemaVersion==1 && t.status!='cancelled' && x.attempt is int && x.attempt<=t.attempt
+    && x.siteId==t.siteId && x.locationId==t.locationId && x.facilityId==t.facilityId && x.assetId==t.assetId
+    && x.questionId is string && x.questionId.size()<=16 && x.type is string && x.type.size()>0 && x.type.size()<=60 && x.severity in ['warning','critical']
+    && x.description is string && x.description.size()>0 && x.description.size()<=1000
+    && x.detectedBy==request.auth.uid && x.detectedAt==request.time && x.status=='open' && x.resolutionNote=='' && x.revision==1 && x.updatedAt==request.time && x.updatedBy==request.auth.uid;
+  }
+  function exceptionUpdate(x,b){
+   return x.diff(b).affectedKeys().hasOnly(['status','resolutionNote','revision','updatedAt','updatedBy']) && x.revision==b.revision+1
+    && x.updatedAt==request.time && x.updatedBy==request.auth.uid && x.resolutionNote is string && x.resolutionNote.size()<=1000
+    && ((b.status=='open' && x.status in ['acknowledged','closed']) || (b.status=='acknowledged' && x.status=='closed'));
+  }
   // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.
   // Source: packages/shared/src/operations.ts via rules-generator.ts.
   function shape_departments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','siteId','managerId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.siteId+'~'+d.managerId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
@@ -305,7 +414,9 @@ service cloud.firestore {
   function shape_materialCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','description']) && d.status in ['active','archived'] && (d.description).size()<=2000;}
   function shape_materials(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','unit','reorderLevel','preferredSupplierId','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.preferredSupplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.unit in ['each','box','pack','carton','pair','set','roll','bottle','kg','g','litre','ml','metre','sqm'] && d.reorderLevel.matches('^$|^(0|[1-9][0-9]{0,8})([.][0-9]{1,3})?$') && (d.description).size()<=2000;}
   function shape_stores(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','locationId','storeKeeperId','description']) && d.status in ['active','archived'] && (d.siteId+'~'+d.locationId+'~'+d.storeKeeperId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
-  function known2(k){return k in ['departments','designations','employees','teams','teamMembers','siteAssignments','shifts','shiftAssignments','holidays','leaveRecords','assetCategories','suppliers','assets','materialCategories','materials','stores'];}
+  function shape_taskCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','departmentId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_taskTemplates(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','departmentId','defaultPriority','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.defaultPriority in ['medium','low','high','critical'] && (d.description).size()<=2000;}
+  function known2(k){return k in ['departments','designations','employees','teams','teamMembers','siteAssignments','shifts','shiftAssignments','holidays','leaveRecords','assetCategories','suppliers','assets','materialCategories','materials','stores','taskCategories','taskTemplates'];}
   function create_departments(c,id,d){return create2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',true) && ref2(c,'departments',id,'siteId','sites',true);}
   function update_departments(c,id,d,b){return update2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',false) && ref2(c,'departments',id,'siteId','sites',false) && d.diff(b).affectedKeys().intersection(['parentId','siteId'].toSet()).size()<=1;}
   function create_designations(c,id,d){return create2(c,'designations',id) && shape_designations(d) && ref2(c,'designations',id,'departmentId','departments',true);}
@@ -338,6 +449,10 @@ service cloud.firestore {
   function update_materials(c,id,d,b){return update2(c,'materials',id) && shape_materials(d) && ref2(c,'materials',id,'categoryId','materialCategories',false) && !d.diff(b).affectedKeys().hasAny(['unit']);}
   function create_stores(c,id,d){return create2(c,'stores',id) && shape_stores(d) && extraStore(c,d) && ref2(c,'stores',id,'siteId','sites',true) && ref2(c,'stores',id,'locationId','locations',true);}
   function update_stores(c,id,d,b){return update2(c,'stores',id) && shape_stores(d) && extraStore(c,d) && ref2(c,'stores',id,'siteId','sites',false) && ref2(c,'stores',id,'locationId','locations',false) && !d.diff(b).affectedKeys().hasAny(['siteId']) && d.diff(b).affectedKeys().intersection(['siteId','locationId'].toSet()).size()<=1;}
+  function create_taskCategories(c,id,d){return create2(c,'taskCategories',id) && shape_taskCategories(d) && ref2(c,'taskCategories',id,'parentId','taskCategories',true);}
+  function update_taskCategories(c,id,d,b){return update2(c,'taskCategories',id) && shape_taskCategories(d) && ref2(c,'taskCategories',id,'parentId','taskCategories',false);}
+  function create_taskTemplates(c,id,d){return create2(c,'taskTemplates',id) && shape_taskTemplates(d) && ref2(c,'taskTemplates',id,'categoryId','taskCategories',true);}
+  function update_taskTemplates(c,id,d,b){return update2(c,'taskTemplates',id) && shape_taskTemplates(d) && ref2(c,'taskTemplates',id,'categoryId','taskCategories',false);}
   function counter_departments(c,id){return counterIn_departments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_departments(c,id,w,wid){return w=='departments'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='designations'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='employees'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='teams'?counter2Move(id,w,'departmentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
   function counter_designations(c,id){return counterIn_designations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
@@ -370,6 +485,10 @@ service cloud.firestore {
   function counterIn_materials(c,id,w,wid){return false;}
   function counter_stores(c,id){return counterIn_stores(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_stores(c,id,w,wid){return false;}
+  function counter_taskCategories(c,id){return counterIn_taskCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_taskCategories(c,id,w,wid){return w=='taskCategories'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='taskTemplates'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
+  function counter_taskTemplates(c,id){return counterIn_taskTemplates(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
+  function counterIn_taskTemplates(c,id,w,wid){return false;}
   function counter_sites(c,id){return counterIn_sites(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_sites(c,id,w,wid){return w=='departments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shifts'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
   function counter_locations(c,id){return counterIn_locations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
@@ -448,6 +567,44 @@ service cloud.firestore {
      ));
     allow delete: if false;
    }
+   // ---------------------------------------------------------------- Phase 3 workflow
+   match /templateVersions/{versionId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && versionCreate(companyId,versionId,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && versionUpdate(request.resource.data,resource.data);
+    allow delete: if false;
+   }
+   match /tasks/{taskId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && taskCreate(companyId,taskId,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && taskUpdate(companyId,taskId,request.resource.data,resource.data);
+    allow delete: if false;
+   }
+   match /taskEvents/{eventId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && eventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow update,delete: if false;
+   }
+   match /taskSubmissions/{submissionId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && submissionCreate(companyId,submissionId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow update,delete: if false;
+   }
+   match /taskApprovals/{approvalId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && approvalCreate(companyId,approvalId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/taskSubmissions/$(approvalId)).data);
+    allow update,delete: if false;
+   }
+   match /taskExceptions/{exceptionId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && exceptionCreate(companyId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
+    allow update: if admin(companyId) && activeCompany(companyId) && exceptionUpdate(request.resource.data,resource.data);
+    allow delete: if false;
+   }
   // BEGIN GENERATED PHASE 2 MATCHES — do not edit by hand.
    match /departments/{id} {
     allow create: if admin(companyId) && activeCompany(companyId) && create_departments(companyId,id,request.resource.data);
@@ -512,6 +669,14 @@ service cloud.firestore {
    match /stores/{id} {
     allow create: if admin(companyId) && activeCompany(companyId) && create_stores(companyId,id,request.resource.data);
     allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_stores(companyId,id) : update_stores(companyId,id,request.resource.data,resource.data));
+   }
+   match /taskCategories/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_taskCategories(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskCategories(companyId,id) : update_taskCategories(companyId,id,request.resource.data,resource.data));
+   }
+   match /taskTemplates/{id} {
+    allow create: if admin(companyId) && activeCompany(companyId) && create_taskTemplates(companyId,id,request.resource.data);
+    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskTemplates(companyId,id) : update_taskTemplates(companyId,id,request.resource.data,resource.data));
    }
   // END GENERATED PHASE 2 MATCHES
    match /assets/{assetId}/history/{event} {

@@ -35,6 +35,9 @@ export const phase2Kinds = [
   'materialCategories',
   'materials',
   'stores',
+  // Phase 3 masters reuse the same generated-rule machinery.
+  'taskCategories',
+  'taskTemplates',
 ] as const;
 export const kinds = [...phase1Kinds, ...phase2Kinds] as const;
 export type Kind = (typeof kinds)[number];
@@ -1081,6 +1084,73 @@ export const definitions: Record<Kind, Definition> = {
         label: 'Description',
         type: 'textarea',
         section: 'Placement',
+      },
+    ],
+  },
+  // ---------------------------------------------------------------- Phase 3
+  taskCategories: {
+    title: 'Task categories',
+    singular: 'task category',
+    description:
+      'Company task categories such as housekeeping, HVAC inspection or fire & safety. One subcategory level is supported.',
+    columns: ['parentId', 'departmentId'],
+    fields: [
+      {
+        key: 'parentId',
+        label: 'Parent category',
+        reference: 'taskCategories',
+        rootOnly: true,
+        section: 'General',
+        help: 'Optional. Choose a top-level category to create a subcategory.',
+      },
+      {
+        key: 'departmentId',
+        label: 'Responsible department',
+        reference: 'departments',
+        counted: false,
+        section: 'General',
+      },
+      {
+        key: 'description',
+        label: 'Description',
+        type: 'textarea',
+        section: 'General',
+      },
+    ],
+  },
+  taskTemplates: {
+    title: 'Task templates',
+    singular: 'task template',
+    description:
+      'Reusable task definitions. Checklists, evidence, responsibilities and assignment defaults are built as versions; published versions never change.',
+    columns: ['categoryId', 'departmentId', 'defaultPriority'],
+    fields: [
+      {
+        key: 'categoryId',
+        label: 'Category',
+        required: true,
+        reference: 'taskCategories',
+        section: 'General',
+      },
+      {
+        key: 'departmentId',
+        label: 'Responsible department',
+        reference: 'departments',
+        counted: false,
+        section: 'General',
+      },
+      {
+        key: 'defaultPriority',
+        label: 'Default priority',
+        required: true,
+        options: ['medium', 'low', 'high', 'critical'],
+        section: 'General',
+      },
+      {
+        key: 'description',
+        label: 'Description',
+        type: 'textarea',
+        section: 'General',
       },
     ],
   },

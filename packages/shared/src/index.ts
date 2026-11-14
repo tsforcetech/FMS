@@ -128,3 +128,4 @@ export * from './future';
 export * from './operations';
 export * from './allocations';
 export * from './inventory';
+export * from './tasks';
