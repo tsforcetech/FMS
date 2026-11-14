@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { createFirebase } from './firebase';
 import { Message } from '@facilityos/ui';
-import './styles.css';
+import './theme.css';
 class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {

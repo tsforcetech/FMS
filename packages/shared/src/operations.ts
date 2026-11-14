@@ -1132,7 +1132,8 @@ export function releasedStatuses(kind: Kind) {
       : ['archived'];
 }
 export function initialStatus(kind: Kind) {
-  return statuses(kind)[0];
+  const list = statuses(kind);
+  return list.includes('active') ? 'active' : list[0];
 }
 export function fieldsFor(kind: Kind): FieldSpec[] {
   return [

@@ -13,9 +13,9 @@ import {
   type FieldSpec,
   type Kind,
   type Phase2Kind,
+  isAssignment,
 } from './operations';
 
-const ID = "'^[a-zA-Z0-9_-]{1,128}$'";
 const regex: Record<string, string> = {
   code: "'^[A-Z0-9][A-Z0-9_-]{0,39}$'",
   integer: "'^(0|[1-9][0-9]{0,6})$'",
@@ -117,6 +117,18 @@ export function shapeFunction(kind: Kind) {
     ';}'
   );
 }
+export function generatedMatches() {
+  const lines = ['  // BEGIN GENERATED PHASE 2 MATCHES — do not edit by hand.'];
+  for (const k of phase2Kinds)
+    lines.push(
+      `   match /${k}/{id} {`,
+      `    allow create: if admin(companyId) && activeCompany(companyId) && create_${k}(companyId,id,request.resource.data);`,
+      `    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_${k}(companyId,id) : update_${k}(companyId,id,request.resource.data,resource.data));`,
+      '   }',
+    );
+  lines.push('  // END GENERATED PHASE 2 MATCHES');
+  return lines.join('\n');
+}
 export function generatedRules() {
   const lines: string[] = [];
   lines.push('  // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.');
@@ -125,33 +137,18 @@ export function generatedRules() {
   );
   for (const k of phase2Kinds) lines.push(shapeFunction(k));
   lines.push(`  function known2(k){return k in ${list([...phase2Kinds])};}`);
-  lines.push(
-    '  function shape2(k,d){return ' +
-      phase2Kinds.map((k) => `k=='${k}'?shape_${k}(d):`).join('') +
-      'false;}',
-  );
-  const chain = (name: string, value: (k: Phase2Kind) => string) =>
-    `  function ${name}(k){return ` +
-    phase2Kinds.map((k) => `k=='${k}'?${value(k)}:`).join('') +
-    '[];}';
-  lines.push(
-    chain('refKeys2', (k) => list(countedReferences(k).map((f) => f.key))),
-  );
-  lines.push(
-    chain('immutable2', (k) =>
-      list(definitions[k].fields.filter((f) => f.immutable).map((f) => f.key)),
-    ),
-  );
-  lines.push(
-    '  function relations2(c,k,id,creating){return ' +
-      phase2Kinds
-        .map((k) => {
-          const refs = countedReferences(k);
-          return `k=='${k}'?(${refs.length ? refs.map((f) => `ref2(c,k,id,'${f.key}','${f.reference}',creating)`).join(' && ') : 'true'}):`;
-        })
-        .join('') +
-      'false;}',
-  );
+  const extra: Partial<Record<Phase2Kind, string>> = {
+    assets: 'extraAsset(c,id,d)',
+    teamMembers: 'extraAssignment(d)',
+    siteAssignments: 'extraAssignment(d)',
+    shiftAssignments: 'extraAssignment(d)',
+    stores: 'extraStore(c,d)',
+    departments: "extraParent(c,'departments',id,d)",
+    assetCategories: "extraParent(c,'assetCategories',id,d)",
+    employees: 'd.supervisorId!=id',
+    leaveRecords: 'd.endDate>=d.startDate',
+    shifts: 'd.startTime!=d.endTime',
+  };
   const targets: Record<string, Record<string, string>> = {};
   for (const w of phase2Kinds)
     for (const f of countedReferences(w)) {
@@ -160,20 +157,51 @@ export function generatedRules() {
         throw new Error(`${w} references ${f.reference} twice`);
       targets[f.reference!][w] = f.key;
     }
-  lines.push(
-    '  function refField2(k,w){return ' +
-      Object.entries(targets)
-        .map(
-          ([t, m]) =>
-            `k=='${t}'?(` +
-            Object.entries(m)
-              .map(([w, f]) => `w=='${w}'?'${f}':`)
-              .join('') +
-            "''):",
-        )
-        .join('') +
-      "'';}",
-  );
+  // One dedicated function set per kind: no dispatch chains, which Firestore
+  // charges against the per-request expression budget.
+  for (const k of phase2Kinds) {
+    const refs = countedReferences(k);
+    const rel = refs.length
+      ? refs
+          .map((f) => `ref2(c,'${k}',id,'${f.key}','${f.reference}',creating)`)
+          .join(' && ')
+      : 'true';
+    const x = extra[k] ? ` && ${extra[k]}` : '';
+    lines.push(
+      `  function create_${k}(c,id,d){return create2(c,'${k}',id) && shape_${k}(d)${x} && ${rel.replaceAll('creating', 'true')};}`,
+    );
+    const immutable = definitions[k].fields
+      .filter((f) => f.immutable)
+      .map((f) => f.key);
+    lines.push(
+      `  function update_${k}(c,id,d,b){return update2(c,'${k}',id) && shape_${k}(d)${x} && ${rel.replaceAll('creating', 'false')}` +
+        (immutable.length
+          ? ` && !d.diff(b).affectedKeys().hasAny(${list(immutable)})`
+          : '') +
+        (refs.length > 1
+          ? ` && d.diff(b).affectedKeys().intersection(${list(refs.map((f) => f.key))}.toSet()).size()<=1`
+          : '') +
+        (isAssignment(k) ? ` && (live2('${k}',b) || !live2('${k}',d))` : '') +
+        (k === 'assets' ? ' && assetMove(c,id,b,d)' : '') +
+        ';}',
+    );
+  }
+  for (const t of [...phase2Kinds, 'sites', 'locations']) {
+    const m = targets[t] || {};
+    const body = Object.entries(m)
+      .map(
+        ([w, f]) =>
+          `w=='${w}'?counter2Move(id,w,'${f}',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):`,
+      )
+      .join('');
+    lines.push(
+      `  function counter_${t}(c,id){return counterFor(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}`.replace(
+        'counterFor',
+        `counterIn_${t}`,
+      ),
+    );
+    lines.push(`  function counterIn_${t}(c,id,w,wid){return ${body}false;}`);
+  }
   lines.push('  // END GENERATED PHASE 2 VALIDATORS');
   return lines.join('\n');
 }

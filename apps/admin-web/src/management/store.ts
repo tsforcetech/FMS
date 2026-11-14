@@ -41,7 +41,9 @@ import {
 } from '@facilityos/shared';
 export const PAGE_SIZE = 20;
 /** An error whose message is written for end users and safe to display. */
-export class UserError extends Error {}
+export class UserError extends Error {
+  readonly userFacing = true;
+}
 export class AlreadyPostedError extends UserError {}
 export async function listRecords(
   db: Firestore,
@@ -53,30 +55,59 @@ export async function listRecords(
   filter?: { key: string; value: string },
   secondaryFilter?: { key: string; value: string },
 ) {
-  const constraints: QueryConstraint[] = [];
-  if (status) constraints.push(where('status', '==', status));
+  const base: QueryConstraint[] = [];
+  if (status) base.push(where('status', '==', status));
   if (filter)
-    constraints.push(
+    base.push(
       where(filter.key, '==', filter.value === '__root__' ? '' : filter.value),
     );
   if (secondaryFilter)
-    constraints.push(where(secondaryFilter.key, '==', secondaryFilter.value));
-  constraints.push(orderBy('name'));
-  if (search.trim())
-    constraints.push(
-      where('name', '>=', search.trim()),
-      where('name', '<=', search.trim() + ''),
+    base.push(where(secondaryFilter.key, '==', secondaryFilter.value));
+  base.push(orderBy('name'));
+  const term = search.trim();
+  const run = async (prefix: string, after?: QueryDocumentSnapshot) => {
+    const c = [...base];
+    if (prefix)
+      c.push(
+        where('name', '>=', prefix),
+        where('name', '<=', prefix + '\uf8ff'),
+      );
+    if (after) c.push(startAfter(after));
+    c.push(limit(PAGE_SIZE + 1));
+    return getDocs(query(collection(db, 'companies', company, kind), ...c));
+  };
+  if (term) {
+    // Firestore prefix search is case-sensitive; query the common casings and merge.
+    const variants = [
+      ...new Set([
+        term,
+        term.charAt(0).toUpperCase() + term.slice(1),
+        term.toLowerCase(),
+        term.toUpperCase(),
+      ]),
+    ];
+    const results = await Promise.all(variants.map((v) => run(v)));
+    const seen = new Map<string, QueryDocumentSnapshot>();
+    for (const r of results) for (const d of r.docs) seen.set(d.id, d);
+    const docs = [...seen.values()].sort((a, b) =>
+      String(a.data().name).localeCompare(String(b.data().name)),
     );
-  if (cursor) constraints.push(startAfter(cursor));
-  constraints.push(limit(PAGE_SIZE + 1));
-  const result = await getDocs(
-    query(collection(db, 'companies', company, kind), ...constraints),
-  );
+    return {
+      rows: docs
+        .slice(0, PAGE_SIZE)
+        .map((d) => parseOperation(kind, d.id, d.data())),
+      cursor: undefined,
+      hasMore: false,
+      truncated: docs.length > PAGE_SIZE,
+    };
+  }
+  const result = await run('', cursor);
   const page = result.docs.slice(0, PAGE_SIZE);
   return {
     rows: page.map((d) => parseOperation(kind, d.id, d.data())),
     cursor: page.at(-1),
     hasMore: result.docs.length > PAGE_SIZE,
+    truncated: false,
   };
 }
 export async function recordById(
@@ -212,9 +243,7 @@ export async function saveRecord(
         'Close linked allocations before changing the contract client or dates.',
       );
     if (old && v.status === 'archived' && old.refCount > 0)
-      throw new UserError(
-        'Archive or reassign the active records that use this one first.',
-      );
+      throw new UserError('Archive or reassign active linked records first.');
     if (!old && v.status === 'archived')
       throw new UserError('New records cannot start archived.');
     if (old && kind === 'locations' && old.values.siteId !== v.siteId)
@@ -647,10 +676,7 @@ export async function transferAsset(
       revision,
       ...meta,
     });
-    tx.set(
-      doc(target, 'history', String(revision)),
-      assetHistory(company, revision, v, transfer.id, uid),
-    );
+    // The immutable transfer record is this revision's history entry.
   });
   return transfer.id;
 }

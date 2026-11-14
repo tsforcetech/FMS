@@ -186,8 +186,12 @@ describe('tenant security rules', () => {
   });
   it('denies list discovery and future collections', async () => {
     await assertFails(getDocs(collection(db('owner-a'), 'companies')));
-    await assertFails(
+    // Phase 2: owners/admins may list their own company's members (read-only); staff may not.
+    await assertSucceeds(
       getDocs(collection(db('owner-a'), 'companies', 'a', 'members')),
+    );
+    await assertFails(
+      getDocs(collection(db('staff'), 'companies', 'a', 'members')),
     );
     await assertFails(
       setDoc(doc(db('owner-a'), 'companies', 'a', 'tasks', 't'), {
@@ -195,7 +199,7 @@ describe('tenant security rules', () => {
       }),
     );
     await assertFails(
-      getDoc(doc(db('owner-a'), 'companies', 'a', 'assets', 's')),
+      getDoc(doc(db('owner-a'), 'companies', 'a', 'workOrders', 's')),
     );
   });
   it('allows own membership without exposing other staff', async () => {
