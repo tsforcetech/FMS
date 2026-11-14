@@ -18,7 +18,7 @@ export interface Assignment extends TenantRecord {
   shiftId?: string;
   replacedAssignmentId?: string;
 }
-export type TaskStatus =
+export type PlannedTaskStatus =
   | 'scheduled'
   | 'pending'
   | 'assigned'
@@ -39,7 +39,7 @@ export interface Task extends TenantRecord {
   scheduleId?: string;
   occurrenceKey: string;
   dueAt: Timestamp;
-  status: TaskStatus;
+  status: PlannedTaskStatus;
 }
 export interface ChecklistQuestion {
   id: string;
@@ -79,8 +79,8 @@ export interface TaskEvent extends TenantRecord {
   eventType: string;
   actorUid: string;
   occurredAt: Timestamp;
-  fromStatus?: TaskStatus;
-  toStatus?: TaskStatus;
+  fromStatus?: PlannedTaskStatus;
+  toStatus?: PlannedTaskStatus;
 }
 export interface Submission extends TenantRecord {
   taskId: string;

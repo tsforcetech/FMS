@@ -8,6 +8,7 @@ on:
         feature/phase1-company-sites,
         feature/phase1-site-contract-decoupling,
         feature/phase2-people-assets-inventory,
+        feature/phase3-tasks-raci-approvals,
       ]
   pull_request:
 permissions:

@@ -39,6 +39,8 @@ import {
   MapPinned,
   CalendarClock,
   AlertCircle,
+  FolderKanban,
+  ClipboardList,
 } from 'lucide-react';
 import {
   definitions,
@@ -70,6 +72,7 @@ import {
   type Context,
 } from './context';
 import { Picker } from './Picker';
+import { TemplateVersions } from './TemplateBuilder';
 import {
   Banner,
   ConfirmDialog,
@@ -118,6 +121,8 @@ export const kindIcons: Record<Kind, LucideIcon> = {
   materialCategories: Tags,
   materials: Package,
   stores: Warehouse,
+  taskCategories: FolderKanban,
+  taskTemplates: ClipboardList,
 };
 const kindTone: Partial<Record<Kind, Tone>> = {
   clients: 'violet',
@@ -1111,6 +1116,11 @@ function relatedFor(kind: Kind): Related[] {
       ];
     case 'materialCategories':
       return [rel('Materials', 'materials', 'categoryId')];
+    case 'taskCategories':
+      return [
+        rel('Templates', 'taskTemplates', 'categoryId'),
+        rel('Subcategories', 'taskCategories', 'parentId'),
+      ];
     default:
       return [];
   }
@@ -1128,7 +1138,7 @@ export function RecordDetail({
 }) {
   const def = definitions[kind];
   const [record, setRecord] = useState(initialRecord),
-    [tab, setTab] = useState('overview'),
+    [tab, setTab] = useState(kind === 'taskTemplates' ? 'builder' : 'overview'),
     [editing, setEditing] = useState(false),
     [transfer, setTransfer] = useState(false),
     [qr, setQr] = useState(false),
@@ -1147,6 +1157,9 @@ export function RecordDetail({
       : []),
   ];
   const tabs = [
+    ...(kind === 'taskTemplates'
+      ? [{ value: 'builder', label: 'Checklist & versions' }]
+      : []),
     { value: 'overview', label: 'Overview' },
     ...(kind === 'sites' ? [{ value: 'tree', label: 'Location tree' }] : []),
     ...related.map((r) => ({ value: 'rel:' + r.label, label: r.label })),
@@ -1339,6 +1352,9 @@ export function RecordDetail({
       )}
       {tab === 'transfers' && (
         <TransferHistory context={context} assetId={record.id} key={version} />
+      )}
+      {tab === 'builder' && (
+        <TemplateVersions context={context} template={record} />
       )}
       {tab === 'stock' && (
         <StockForRecord

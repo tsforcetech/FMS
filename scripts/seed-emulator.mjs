@@ -11,6 +11,7 @@ const password = 'Local-only-123!';
 for (const [uid, email, name] of [
   ['local-owner', 'owner@example.test', 'Local Owner'],
   ['local-staff', 'staff@example.test', 'Local Staff'],
+  ['local-supervisor', 'supervisor@example.test', 'Local Supervisor'],
 ]) {
   try {
     await auth.getUser(uid);
@@ -26,7 +27,11 @@ for (const [uid, email, name] of [
     updatedBy: 'emulator-fixture',
   };
   await db.doc(`users/${uid}`).set({ ...meta, uid, displayName: name });
-  for (const companyId of ['local-company-a', 'local-company-b']) {
+  // The supervisor is an admin of company A only, so approvals can be reviewed
+  // by someone other than the submitter.
+  for (const companyId of uid === 'local-supervisor'
+    ? ['local-company-a']
+    : ['local-company-a', 'local-company-b']) {
     const batch = db.batch();
     batch.set(db.doc(`companies/${companyId}`), {
       ...meta,
@@ -42,7 +47,12 @@ for (const [uid, email, name] of [
       ...meta,
       companyId,
       uid,
-      role: uid === 'local-owner' ? 'owner' : 'staff',
+      role:
+        uid === 'local-owner'
+          ? 'owner'
+          : uid === 'local-supervisor'
+            ? 'admin'
+            : 'staff',
       status: 'active',
     });
     batch.set(db.doc(`users/${uid}/companyAccess/${companyId}`), { companyId });
@@ -50,5 +60,5 @@ for (const [uid, email, name] of [
   }
 }
 console.log(
-  'Local emulators seeded. Test accounts: owner@example.test / staff@example.test; password: Local-only-123!',
+  'Local emulators seeded. Test accounts: owner@example.test, supervisor@example.test (admin, company A), staff@example.test; password: Local-only-123!',
 );

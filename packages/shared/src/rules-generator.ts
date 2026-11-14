@@ -208,7 +208,10 @@ export function generatedRules() {
 type Index = {
   collectionGroup: string;
   queryScope: 'COLLECTION';
-  fields: { fieldPath: string; order: 'ASCENDING' | 'DESCENDING' }[];
+  fields: (
+    | { fieldPath: string; order: 'ASCENDING' | 'DESCENDING' }
+    | { fieldPath: string; arrayConfig: 'CONTAINS' }
+  )[];
 };
 const asc = (fieldPath: string) => ({ fieldPath, order: 'ASCENDING' as const });
 const desc = (fieldPath: string) => ({
@@ -234,5 +237,37 @@ export function generatedIndexes(): Index[] {
   for (const f of ['materialId', 'movementType', 'fromStoreId', 'toStoreId'])
     add('stockMovements', [asc(f), desc('createdAt')]);
   add('assetTransfers', [asc('assetId'), desc('createdAt')]);
+  // Phase 3 workflow queries.
+  add('tasks', [asc('status'), asc('dueAt')]);
+  for (const f of ['siteId', 'departmentId', 'priority', 'templateId']) {
+    add('tasks', [asc(f), asc('dueAt')]);
+    add('tasks', [asc('status'), asc(f), asc('dueAt')]);
+  }
+  out.push(
+    {
+      collectionGroup: 'tasks',
+      queryScope: 'COLLECTION',
+      fields: [
+        { fieldPath: 'assigneeIds', arrayConfig: 'CONTAINS' },
+        asc('dueAt'),
+      ],
+    },
+    {
+      collectionGroup: 'tasks',
+      queryScope: 'COLLECTION',
+      fields: [
+        asc('status'),
+        { fieldPath: 'assigneeIds', arrayConfig: 'CONTAINS' },
+        asc('dueAt'),
+      ],
+    },
+  );
+  add('taskEvents', [asc('taskId'), asc('revision')]);
+  add('taskSubmissions', [asc('taskId'), asc('attempt')]);
+  add('taskApprovals', [asc('taskId'), asc('attempt')]);
+  add('taskExceptions', [asc('taskId'), desc('detectedAt')]);
+  add('taskExceptions', [asc('status'), desc('detectedAt')]);
+  add('templateVersions', [asc('templateId'), desc('version')]);
+  add('templateVersions', [asc('templateId'), asc('state'), desc('version')]);
   return out;
 }
