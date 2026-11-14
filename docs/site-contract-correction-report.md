@@ -1,6 +1,6 @@
 # Physical sites and contract allocations — correction review
 
-Status: implementation on `feature/phase1-site-contract-decoupling`; final CI/browser verification pending. Phase 2 is paused. No merge, production rule/index deployment, billing change or live migration has been performed for this correction.
+Status: implementation on `feature/phase1-site-contract-decoupling`; verified in CI; awaiting architecture review. Phase 2 is paused. No merge, production rule/index deployment, billing change or live migration has been performed for this correction.
 
 ## Repository findings
 
@@ -86,10 +86,16 @@ node scripts/migrate-site-contract-links.mjs --project facilityos-43386 --compan
 
 ## Verification and remaining gates
 
-- Local lint, strict TypeScript, unit tests and production build passed before the final additional adversarial tests; final results will be recorded after CI.
-- Emulator regression suite: 39 passed before adding direct forged-write checks. Tests include independent sites, legacy edit preservation, snapshots/history, tenant denial, archive/reference integrity, concurrent exclusive occupancy, shared occupancy, annual limits and lifecycle protection.
+- Local lint, formatting, strict TypeScript, all 24 unit tests and production build passed.
+- Emulator regression suite: 40 passed, including direct forged-write checks. Tests include independent sites, legacy edit preservation, snapshots/history, tenant denial, archive/reference integrity, concurrent exclusive occupancy, shared occupancy, annual limits and lifecycle protection.
 - Migration planner: seven cases passed. Emulator migration: seven checks passed (no-op dry-run, original backup, physical field preservation, reference detach/reconciliation, draft creation and idempotent replay).
-- Browser script includes independent site creation before clients, service allocation, occupancy termination/history and desktop/tablet/mobile checks alongside the original flow. Local Chromium is unavailable; GitHub CI supplies the browser environment. Final browser result is pending.
+- Browser script includes independent site creation before clients, service allocation, occupancy termination/history and desktop/tablet/mobile checks alongside the original flow. Local Chromium is unavailable; GitHub CI supplies the browser environment. CI passed all 11 browser checks with no page errors at 1440×1000, 768×1024 and 390×844. Desktop and mobile captures were visually reviewed.
 - Existing JavaScript bundle-size warning remains (~978 KB before gzip).
 
 Review gates: approve the exact-space/unmetered-shared/12-per-year policy; complete live audit and decisions; review rules and migration plan; authorize a coordinated compatible deployment and migration. Phase 2 remains paused until this correction is reviewed. Production and `https://fms.flowb.io/` remain unchanged by this branch.
+
+## Verified delivery
+
+Implementation commit: `3f17d1f717c1317088aa200269f9f3ee8d4e74a9`. [All CI checks passed](https://github.com/tsforcetech/FMS/actions/runs/43598720602): formatting, lint, strict typechecking, 24 unit tests, 40 security/regression tests, seven migration planner tests, seven emulator migration checks, production build and 11 browser checks. This final documentation/evidence commit does not change application code.
+
+Browser evidence: [results](evidence/correction/browser-results.json), [desktop](evidence/correction/allocation-desktop.png), [tablet](evidence/correction/allocation-tablet.png), [mobile](evidence/correction/allocation-mobile.png). Captures and migration fixtures are isolated emulator data, not production data.
