@@ -171,6 +171,17 @@ for (;;) {
           )
             throw Error('Invalid reference count: ' + path);
         }
+        if (row.allocation) {
+          const targetPath = row.allocation.locationId
+            ? 'locations/' + row.allocation.locationId
+            : 'sites/' + doc.id;
+          const target = parents.get(targetPath).data();
+          if (
+            target.status === 'archived' ||
+            (row.allocation.locationId && target.siteId !== doc.id)
+          )
+            throw Error('Physical target changed after review');
+        }
         const now = FieldValue.serverTimestamp(),
           actor = 'trusted-site-migration';
         tx.create(backup, {

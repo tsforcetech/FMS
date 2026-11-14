@@ -156,7 +156,10 @@ try {
     .waitFor();
   checks.push('Referenced location archive is blocked with a useful message');
   await page.getByRole('link', { name: /Companies & sites/ }).click();
-  await button('Contract allocations').click();
+  await page
+    .getByRole('navigation', { name: 'Management modules' })
+    .getByRole('button', { name: 'Contract allocations', exact: true })
+    .click();
   await button('Add allocation').click();
   await basic('AL001', 'Whole-site service');
   await choose('Contract', 'Annual services');

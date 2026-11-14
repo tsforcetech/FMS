@@ -53,6 +53,7 @@ export function planSiteMigration(siteId, site, contract, client, decision) {
       !Number.isFinite(Date.parse(endDate)) ||
       new Date(startDate).toISOString().slice(0, 10) !== startDate ||
       new Date(endDate).toISOString().slice(0, 10) !== endDate ||
+      startDate <= '0000-12-31' ||
       startDate > endDate
     )
       return { ...base, issues: ['Invalid contract dates'] };
