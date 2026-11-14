@@ -11,48 +11,6 @@ export interface TenantRecord {
   updatedBy: string;
   archivedAt?: Timestamp;
 }
-export interface Asset extends TenantRecord {
-  siteId: string;
-  locationId: string;
-  categoryId: string;
-  assetTag: string;
-  name: string;
-  serialNumber?: string;
-  warrantyEndAt?: Timestamp;
-  supplierId?: string;
-  condition: string;
-}
-export interface Material extends TenantRecord {
-  name: string;
-  categoryId: string;
-  unit: string;
-  reorderLevel: number;
-}
-export interface StockMovement extends TenantRecord {
-  materialId: string;
-  fromStoreId?: string;
-  toStoreId?: string;
-  quantity: number;
-  kind: 'opening' | 'receipt' | 'issue' | 'transfer' | 'adjustment';
-  taskId?: string;
-  workOrderId?: string;
-  idempotencyKey: string;
-}
-export interface Department extends TenantRecord {
-  name: string;
-  siteId?: string;
-}
-export interface Team extends TenantRecord {
-  name: string;
-  departmentId: string;
-}
-export interface Shift extends TenantRecord {
-  name: string;
-  siteId: string;
-  timeZone: string;
-  localStart: string;
-  localEnd: string;
-}
 export interface Assignment extends TenantRecord {
   taskId: string;
   uid: string;

@@ -1,4 +1,5 @@
-// Phase 1 prototype rules; review with docs/database/phase1-schema.md before rollout.
+// Phase 1 + Phase 2 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
+// Phase 2 people/asset/inventory validators are generated from packages/shared (see rules-generator.ts).
 // Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
 // Operational documents: companyId, schemaVersion=1, code, name, notes, status,
 // createdAt/updatedAt timestamps, createdBy/updatedBy UIDs, revision/refCount integers,
@@ -160,6 +161,165 @@ service cloud.firestore {
     && d.slots.size()==b.slots.size()+(a.status=='active'?1:0)
     && (creating||(d.siteId==b.siteId&&d.locationId==b.locationId&&d.year==b.year))
     && (a.status=='active'?(d.slots==b.slots.concat([expected]) && (b.slots.size()<=0||noConflict(b.slots[0],expected)) && (b.slots.size()<=1||noConflict(b.slots[1],expected)) && (b.slots.size()<=2||noConflict(b.slots[2],expected)) && (b.slots.size()<=3||noConflict(b.slots[3],expected)) && (b.slots.size()<=4||noConflict(b.slots[4],expected)) && (b.slots.size()<=5||noConflict(b.slots[5],expected)) && (b.slots.size()<=6||noConflict(b.slots[6],expected)) && (b.slots.size()<=7||noConflict(b.slots[7],expected)) && (b.slots.size()<=8||noConflict(b.slots[8],expected)) && (b.slots.size()<=9||noConflict(b.slots[9],expected)) && (b.slots.size()<=10||noConflict(b.slots[10],expected)) && (b.slots.size()<=11||noConflict(b.slots[11],expected))):d.slots==b.slots.removeAll([slot(d.witnessId,before)]).concat([expected]));}
+  // ------------------------------------------------------------------ Phase 2
+  // Masters reuse the Phase 1 metadata/code-claim contract. Counted references keep
+  // archive protection; informational links are resolved by the transaction only.
+  function live2(k,d){return d.get('status','archived')!='archived' && !(k in ['teamMembers','siteAssignments','shiftAssignments'] && d.get('status','')=='ended');}
+  function touched2(c,k,id,t,tid,n,creating){let a=getAfter(/databases/$(database)/documents/companies/$(c)/$(t)/$(tid)).data; return a.witnessKind==k && a.witnessId==id && (creating || a.refCount==get(/databases/$(database)/documents/companies/$(c)/$(t)/$(tid)).data.refCount+n);}
+  function ref2(c,k,id,field,t,creating){
+   let b=creating?{}:resource.data; let d=request.resource.data;
+   let oldId=(!creating && live2(k,b)) ? b.get(field,'') : '';
+   let newId=live2(k,d) ? d.get(field,'') : '';
+   return (newId=='' || newId==oldId || getAfter(/databases/$(database)/documents/companies/$(c)/$(t)/$(newId)).data.status!='archived')
+    && (oldId==newId || ((oldId=='' || touched2(c,k,id,t,oldId,-1,creating)) && (newId=='' || touched2(c,k,id,t,newId,1,creating))));
+  }
+  function counter2(c,k,id){
+   let d=request.resource.data; let w=d.witnessKind; let field=refField2(k,w);
+   let before=exists(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)) ? get(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data : {};
+   let after=getAfter(/databases/$(database)/documents/companies/$(c)/$(w)/$(d.witnessId)).data;
+   let was=live2(w,before) && before.get(field,'')==id;
+   let now=live2(w,after) && after.get(field,'')==id;
+   return known2(w) && was!=now
+    && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
+    && d.refCount is int && d.refCount==resource.data.refCount+(now?1:-1) && d.refCount>=0
+    && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+  }
+  function extra2(c,k,id,d){
+   return k=='assets' ? extraAsset(c,id,d)
+    : k in ['teamMembers','siteAssignments','shiftAssignments'] ? ((d.endDate=='' || d.endDate>=d.startDate) && (d.status!='ended' || d.endDate!=''))
+    : k=='stores' ? (d.locationId=='' || !live2(k,d) || getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(d.locationId)).data.siteId==d.siteId)
+    : k in ['departments','assetCategories'] ? (d.parentId=='' || !live2(k,d) || (d.parentId!=id && getAfter(/databases/$(database)/documents/companies/$(c)/$(k)/$(d.parentId)).data.parentId==''))
+    : k=='employees' ? d.supervisorId!=id
+    : k=='leaveRecords' ? d.endDate>=d.startDate
+    : k=='shifts' ? d.startTime!=d.endTime
+    : true;
+  }
+  function extraAsset(c,id,d){
+   return (!live2('assets',d) || getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(d.locationId)).data.siteId==d.siteId)
+    && (d.trackingMode!='individual' || d.quantity=='1') && (d.trackingMode!='batch' || d.serialNumber=='')
+    && (d.purchaseDate=='' || d.warrantyEndDate=='' || d.warrantyEndDate>=d.purchaseDate)
+    && d.lastTransferId is string && assetHistory(c,id);
+  }
+  function business2(c,k,id,creating){
+   let d=request.resource.data;
+   return d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
+    && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
+    && d.revision is int && d.revision>0 && d.witnessKind is string && d.witnessId is string
+    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
+    && shape2(k,d) && extra2(c,k,id,d) && relations2(c,k,id,creating);
+  }
+  function create2(c,k,id){
+   let d=request.resource.data;
+   return business2(c,k,id,true) && d.createdAt==request.time && d.createdBy==request.auth.uid
+    && d.status!='archived' && d.revision==1 && d.refCount==0 && d.witnessKind=='' && d.witnessId==''
+    && getAfter(/databases/$(database)/documents/companies/$(c)/codeClaims/$(k+'_'+d.code)).data.recordId==id
+    && (k!='assets' || d.lastTransferId=='');
+  }
+  function update2(c,k,id){
+   let d=request.resource.data; let b=resource.data;
+   return business2(c,k,id,false) && d.schemaVersion==b.schemaVersion
+    && d.createdAt==b.createdAt && d.createdBy==b.createdBy && d.code==b.code && d.revision==b.revision+1
+    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId
+    && !d.diff(b).affectedKeys().hasAny(immutable2(k))
+    && d.diff(b).affectedKeys().intersection(refKeys2(k).toSet()).size()<=1
+    && (!(k in ['teamMembers','siteAssignments','shiftAssignments']) || live2(k,b) || !live2(k,d))
+    && (k!='assets' || assetMove(c,id,b,d));
+  }
+  // Assets move only with a new transfer record created in the same transaction.
+  function assetMove(c,id,b,d){
+   return (d.siteId==b.siteId && d.locationId==b.locationId && d.lastTransferId==b.lastTransferId)
+    || (live2('assets',b) && d.lastTransferId!=b.lastTransferId
+     && !exists(/databases/$(database)/documents/companies/$(c)/assetTransfers/$(d.lastTransferId))
+     && transferMatches(getAfter(/databases/$(database)/documents/companies/$(c)/assetTransfers/$(d.lastTransferId)).data,id,b,d));
+  }
+  function transferMatches(t,id,b,d){return t.assetId==id && t.fromSiteId==b.siteId && t.fromLocationId==b.locationId && t.toSiteId==d.siteId && t.toLocationId==d.locationId && t.conditionBefore==b.condition && t.conditionAfter==d.condition && t.quantity==b.quantity;}
+  function assetHistory(c,id){
+   let d=request.resource.data;
+   let h=getAfter(/databases/$(database)/documents/companies/$(c)/assets/$(id)/history/$(string(d.revision))).data;
+   return h.revision==d.revision && h.condition==d.condition && h.status==d.status && h.siteId==d.siteId && h.locationId==d.locationId
+    && h.custodianId==d.custodianId && h.quantity==d.quantity && h.transferId==d.lastTransferId && h.actorUid==request.auth.uid && h.occurredAt==request.time;
+  }
+  // Inventory: append-only movements; balances change only with a movement created in the same transaction.
+  // Cheap date format check; exact calendar validity is also enforced by the shared client schema.
+  function date2(v){return v.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');}
+  function storeActive(c,s){return s=='' || get(/databases/$(database)/documents/companies/$(c)/stores/$(s)).data.status=='active';}
+  function balanceAfter(c,s,m,id,expected){return s=='' ? expected==-1 : (getAfter(/databases/$(database)/documents/companies/$(c)/stockBalances/$(s+'_'+m)).data.lastMovementId==id && getAfter(/databases/$(database)/documents/companies/$(c)/stockBalances/$(s+'_'+m)).data.quantity==expected);}
+  function movementSides(c,id,d){
+   let t=d.movementType;
+   return t=='reversal'
+    ? (id=='REV-'+d.reversesId && reversalMatches(get(/databases/$(database)/documents/companies/$(c)/stockMovements/$(d.reversesId)).data,d))
+    : (d.reversesId=='' && storeActive(c,d.fromStoreId) && storeActive(c,d.toStoreId)
+      && ((t in ['opening','receipt','adjustment_in'] && d.fromStoreId=='' && d.toStoreId!='')
+       || (t in ['issue','adjustment_out'] && d.fromStoreId!='' && d.toStoreId=='')
+       || (t=='transfer' && d.fromStoreId!='' && d.toStoreId!=''))
+      && (!(t in ['adjustment_in','adjustment_out']) || d.reason.size()>0));
+  }
+  function reversalMatches(o,d){return o.movementType!='reversal' && o.materialId==d.materialId && o.fromStoreId==d.toStoreId && o.toStoreId==d.fromStoreId && o.quantity==d.quantity;}
+  function optionalId(v){return v is string && (v=='' || v.matches('^[a-zA-Z0-9_-]{1,128}$'));}
+  function movementValid(c,id){
+   let d=request.resource.data;
+   return d.keys().hasOnly(['companyId','schemaVersion','movementType','materialId','fromStoreId','toStoreId','quantity','movementDate','reason','reference','notes','issuedToEmployeeId','issuedToLocationId','reversesId','fromBalanceAfter','toBalanceAfter','createdAt','createdBy'])
+    && d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$') && d.createdAt==request.time && d.createdBy==request.auth.uid
+    && d.movementType in ['opening','receipt','issue','transfer','adjustment_in','adjustment_out','reversal']
+    && d.quantity is int && d.quantity>0 && d.quantity<=1000000000000
+    && d.materialId is string && d.materialId.matches('^[a-zA-Z0-9_-]{1,128}$') && optionalId(d.fromStoreId) && optionalId(d.toStoreId) && d.fromStoreId!=d.toStoreId
+    && optionalId(d.issuedToEmployeeId) && optionalId(d.issuedToLocationId) && optionalId(d.reversesId)
+    && d.movementDate is string && date2(d.movementDate)
+    && d.reason is string && d.reason.size()<=500 && d.reference is string && d.reference.size()<=120 && d.notes is string && d.notes.size()<=2000
+    && get(/databases/$(database)/documents/companies/$(c)/materials/$(d.materialId)).data.status=='active'
+    && movementSides(c,id,d)
+    && d.fromBalanceAfter is int && d.toBalanceAfter is int
+    && balanceAfter(c,d.fromStoreId,d.materialId,id,d.fromBalanceAfter) && balanceAfter(c,d.toStoreId,d.materialId,id,d.toBalanceAfter);
+  }
+  function balanceValid(c,id,b,creating){
+   let a=request.resource.data;
+   let m=getAfter(/databases/$(database)/documents/companies/$(c)/stockMovements/$(a.lastMovementId)).data;
+   return a.keys().hasOnly(['companyId','storeId','materialId','quantity','revision','lastMovementId','updatedAt','updatedBy'])
+    && a.companyId==c && a.storeId is string && a.materialId is string && id==a.storeId+'_'+a.materialId
+    && a.quantity is int && a.quantity>=0 && a.revision==b.revision+1 && a.updatedAt==request.time && a.updatedBy==request.auth.uid
+    && a.lastMovementId is string && a.lastMovementId.matches('^[a-zA-Z0-9_-]{1,128}$')
+    && !exists(/databases/$(database)/documents/companies/$(c)/stockMovements/$(a.lastMovementId))
+    && m.materialId==a.materialId && m.createdAt==request.time && (m.movementType!='opening' || creating)
+    && ((m.toStoreId==a.storeId && a.quantity==b.quantity+m.quantity) || (m.fromStoreId==a.storeId && a.quantity==b.quantity-m.quantity));
+  }
+  function transferValid(c,tid){
+   let t=request.resource.data;
+   let a=getAfter(/databases/$(database)/documents/companies/$(c)/assets/$(t.assetId)).data;
+   let b=get(/databases/$(database)/documents/companies/$(c)/assets/$(t.assetId)).data;
+   return t.keys().hasOnly(['companyId','schemaVersion','assetId','fromSiteId','fromLocationId','toSiteId','toLocationId','quantity','transferDate','reason','conditionBefore','conditionAfter','receivedById','notes','actorUid','createdAt'])
+    && t.companyId==c && t.schemaVersion==1 && t.actorUid==request.auth.uid && t.createdAt==request.time
+    && a.lastTransferId==tid && b.lastTransferId!=tid && a.revision==b.revision+1
+    && t.fromSiteId==b.siteId && t.fromLocationId==b.locationId && t.toSiteId==a.siteId && t.toLocationId==a.locationId
+    && t.conditionBefore==b.condition && t.conditionAfter==a.condition && t.quantity==b.quantity
+    && t.transferDate is string && date2(t.transferDate) && t.reason is string && t.reason.size()>0 && t.reason.size()<=500
+    && t.notes is string && t.notes.size()<=2000 && optionalId(t.receivedById);
+  }
+  // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.
+  // Source: packages/shared/src/operations.ts via rules-generator.ts.
+  function shape_departments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','siteId','managerId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.siteId+'~'+d.managerId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_designations(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','grade','description']) && d.status in ['active','archived'] && (d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.grade+d.description).size()<=2200;}
+  function shape_employees(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','email','phone','joiningDate','employmentType','departmentId','designationId','supervisorId','primarySiteId','linkedUid']) && d.status in ['active','probation','suspended','resigned','terminated','archived'] && (d.departmentId+'~'+d.designationId+'~'+d.supervisorId+'~'+d.primarySiteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.joiningDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.employmentType in ['Full-time','Part-time','Contract','Temporary'] && d.linkedUid.matches('^$|^[A-Za-z0-9]{1,128}$') && (d.email+d.phone).size()<=400;}
+  function shape_teams(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','siteId','leaderId','description']) && d.status in ['active','archived'] && (d.departmentId+'~'+d.siteId+'~'+d.leaderId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_teamMembers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','teamId','employeeId','memberRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.teamId+'~'+d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.memberRole in ['Member','Deputy lead','Lead'];}
+  function shape_siteAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','siteId','assignmentRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.siteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assignmentRole in ['Assigned staff','Site supervisor','Relief cover'];}
+  function shape_shifts(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','startTime','endTime','breakMinutes','workingDays','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{1,128}$') && d.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.breakMinutes.matches('^$|^(0|[1-9][0-9]{0,6})$') && (d.breakMinutes=='' || (int(d.breakMinutes)>=0 && int(d.breakMinutes)<=600)) && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']))) && (d.description).size()<=2000;}
+  function shape_shiftAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','shiftId','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.shiftId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$');}
+  function shape_holidays(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','holidayDate','siteId','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.holidayDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && (d.description).size()<=2000;}
+  function shape_leaveRecords(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','leaveType','startDate','endDate','reason']) && d.status in ['planned','approved','taken','cancelled','archived'] && (d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.leaveType in ['Annual','Sick','Unpaid','Emergency','Parental','Other'] && (d.reason).size()<=2000;}
+  function shape_assetCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','assetClass','description']) && d.status in ['active','archived'] && (d.parentId).matches('^[a-zA-Z0-9_-]{0,128}$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && (d.description).size()<=2000;}
+  function shape_suppliers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','supplierType','contactPerson','phone','email','address','country','vatNumber']) && d.status in ['active','archived'] && d.supplierType in ['Assets','Materials','Assets and materials','Services'] && (d.contactPerson+d.phone+d.email+d.address+d.country+d.vatNumber).size()<=3000;}
+  function shape_assets(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','assetTag','assetClass','categoryId','trackingMode','quantity','serialNumber','brand','model','siteId','locationId','facilityId','condition','custodianId','departmentId','supplierId','purchaseDate','purchaseCost','warrantyEndDate','description','lastTransferId']) && d.status in ['in_service','in_storage','under_maintenance','out_of_service','disposed','archived'] && (d.categoryId+'~'+d.siteId+'~'+d.locationId+'~'+d.facilityId+'~'+d.custodianId+'~'+d.departmentId+'~'+d.supplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.purchaseDate+'~'+d.warrantyEndDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && d.trackingMode in ['individual','batch'] && d.quantity.matches('^(0|[1-9][0-9]{0,6})$') && (d.quantity=='' || (int(d.quantity)>=1 && int(d.quantity)<=100000)) && d.condition in ['Excellent','Good','Fair','Poor','Critical'] && d.purchaseCost.matches('^$|^(0|[1-9][0-9]{0,9})([.][0-9]{1,2})?$') && (d.assetTag+d.serialNumber+d.brand+d.model+d.description).size()<=2640;}
+  function shape_materialCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','description']) && d.status in ['active','archived'] && (d.description).size()<=2000;}
+  function shape_materials(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','unit','reorderLevel','preferredSupplierId','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.preferredSupplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.unit in ['each','box','pack','carton','pair','set','roll','bottle','kg','g','litre','ml','metre','sqm'] && d.reorderLevel.matches('^$|^(0|[1-9][0-9]{0,8})([.][0-9]{1,3})?$') && (d.description).size()<=2000;}
+  function shape_stores(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','locationId','storeKeeperId','description']) && d.status in ['active','archived'] && (d.siteId+'~'+d.locationId+'~'+d.storeKeeperId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function known2(k){return k in ['departments','designations','employees','teams','teamMembers','siteAssignments','shifts','shiftAssignments','holidays','leaveRecords','assetCategories','suppliers','assets','materialCategories','materials','stores'];}
+  function shape2(k,d){return k=='departments'?shape_departments(d):k=='designations'?shape_designations(d):k=='employees'?shape_employees(d):k=='teams'?shape_teams(d):k=='teamMembers'?shape_teamMembers(d):k=='siteAssignments'?shape_siteAssignments(d):k=='shifts'?shape_shifts(d):k=='shiftAssignments'?shape_shiftAssignments(d):k=='holidays'?shape_holidays(d):k=='leaveRecords'?shape_leaveRecords(d):k=='assetCategories'?shape_assetCategories(d):k=='suppliers'?shape_suppliers(d):k=='assets'?shape_assets(d):k=='materialCategories'?shape_materialCategories(d):k=='materials'?shape_materials(d):k=='stores'?shape_stores(d):false;}
+  function refKeys2(k){return k=='departments'?['parentId','siteId']:k=='designations'?['departmentId']:k=='employees'?['departmentId','designationId']:k=='teams'?['departmentId']:k=='teamMembers'?['teamId','employeeId']:k=='siteAssignments'?['employeeId','siteId']:k=='shifts'?['siteId']:k=='shiftAssignments'?['employeeId','shiftId']:k=='holidays'?[]:k=='leaveRecords'?[]:k=='assetCategories'?['parentId']:k=='suppliers'?[]:k=='assets'?['categoryId','locationId']:k=='materialCategories'?[]:k=='materials'?['categoryId']:k=='stores'?['siteId','locationId']:[];}
+  function immutable2(k){return k=='departments'?[]:k=='designations'?[]:k=='employees'?[]:k=='teams'?[]:k=='teamMembers'?['teamId','employeeId']:k=='siteAssignments'?['employeeId','siteId']:k=='shifts'?['siteId']:k=='shiftAssignments'?['employeeId','shiftId']:k=='holidays'?[]:k=='leaveRecords'?['employeeId']:k=='assetCategories'?[]:k=='suppliers'?[]:k=='assets'?['trackingMode']:k=='materialCategories'?[]:k=='materials'?['unit']:k=='stores'?['siteId']:[];}
+  function relations2(c,k,id,creating){return k=='departments'?(ref2(c,k,id,'parentId','departments',creating) && ref2(c,k,id,'siteId','sites',creating)):k=='designations'?(ref2(c,k,id,'departmentId','departments',creating)):k=='employees'?(ref2(c,k,id,'departmentId','departments',creating) && ref2(c,k,id,'designationId','designations',creating)):k=='teams'?(ref2(c,k,id,'departmentId','departments',creating)):k=='teamMembers'?(ref2(c,k,id,'teamId','teams',creating) && ref2(c,k,id,'employeeId','employees',creating)):k=='siteAssignments'?(ref2(c,k,id,'employeeId','employees',creating) && ref2(c,k,id,'siteId','sites',creating)):k=='shifts'?(ref2(c,k,id,'siteId','sites',creating)):k=='shiftAssignments'?(ref2(c,k,id,'employeeId','employees',creating) && ref2(c,k,id,'shiftId','shifts',creating)):k=='holidays'?(true):k=='leaveRecords'?(true):k=='assetCategories'?(ref2(c,k,id,'parentId','assetCategories',creating)):k=='suppliers'?(true):k=='assets'?(ref2(c,k,id,'categoryId','assetCategories',creating) && ref2(c,k,id,'locationId','locations',creating)):k=='materialCategories'?(true):k=='materials'?(ref2(c,k,id,'categoryId','materialCategories',creating)):k=='stores'?(ref2(c,k,id,'siteId','sites',creating) && ref2(c,k,id,'locationId','locations',creating)):false;}
+  function refField2(k,w){return k=='departments'?(w=='departments'?'parentId':w=='designations'?'departmentId':w=='employees'?'departmentId':w=='teams'?'departmentId':''):k=='sites'?(w=='departments'?'siteId':w=='siteAssignments'?'siteId':w=='shifts'?'siteId':w=='stores'?'siteId':''):k=='designations'?(w=='employees'?'designationId':''):k=='teams'?(w=='teamMembers'?'teamId':''):k=='employees'?(w=='teamMembers'?'employeeId':w=='siteAssignments'?'employeeId':w=='shiftAssignments'?'employeeId':''):k=='shifts'?(w=='shiftAssignments'?'shiftId':''):k=='assetCategories'?(w=='assetCategories'?'parentId':w=='assets'?'categoryId':''):k=='locations'?(w=='assets'?'locationId':w=='stores'?'locationId':''):k=='materialCategories'?(w=='materials'?'categoryId':''):'';}
+  // END GENERATED PHASE 2 VALIDATORS
   match /users/{uid} {
    allow get: if signedIn() && request.auth.uid == uid;
    allow list, create, delete: if false;
@@ -189,7 +349,9 @@ service cloud.firestore {
    match /members/{uid} {
     allow get: if signedIn() && resource.data.uid == uid && resource.data.companyId == companyId
      && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
-    allow list, write: if false;
+    // Phase 2: owners/admins may list their company's members (read-only). Role changes stay trusted.
+    allow list: if admin(companyId) && activeCompany(companyId);
+    allow write: if false;
    }
    match /auditLogs/{eventId} {
     allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
@@ -200,14 +362,14 @@ service cloud.firestore {
     allow get: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && request.resource.data.keys().hasOnly(['kind','recordId','code','companyId'])
-     && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
+     && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||known2(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
      && claimId==request.resource.data.kind+'_'+request.resource.data.code
      && !exists(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId))
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
     allow update,delete,list: if false;
    }
    match /{kind}/{id} {
-    allow read: if known(kind) && admin(companyId) && activeCompany(companyId);
+    allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
     allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
@@ -216,7 +378,7 @@ service cloud.firestore {
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
      && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true));
     allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
-     request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):counter(companyId,kind,id)) : (
+     request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):(known2(request.resource.data.witnessKind)?counter2(companyId,kind,id):counter(companyId,kind,id))) : (
       business(companyId,kind,id)
       && request.resource.data.schemaVersion==resource.data.schemaVersion
       && (kind!='sites'||(request.resource.data.get('clientId','')==resource.data.get('clientId','')&&request.resource.data.get('contractId','')==resource.data.get('contractId','')))
@@ -229,6 +391,38 @@ service cloud.firestore {
       && (kind!='facilities' || facilityHistory(companyId,id))
       && (kind!='contractAllocations'||allocationChange(companyId,id,false))
      ));
+    allow delete: if false;
+   }
+   match /{kind}/{id} {
+    allow create: if known2(kind) && admin(companyId) && activeCompany(companyId) && create2(companyId,kind,id);
+    allow update: if known2(kind) && admin(companyId) && activeCompany(companyId)
+     && (request.resource.data.refCount!=resource.data.refCount ? counter2(companyId,kind,id) : update2(companyId,kind,id));
+   }
+   match /assets/{assetId}/history/{event} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId)
+     && request.resource.data.keys().hasOnly(['companyId','revision','condition','status','siteId','locationId','custodianId','quantity','transferId','actorUid','occurredAt'])
+     && request.resource.data.companyId==companyId && event==string(request.resource.data.revision)
+     && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision
+     && (!exists(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)) || request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision+1)
+     && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
+    allow update,delete: if false;
+   }
+   match /assetTransfers/{transferId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && transferValid(companyId,transferId);
+    allow update,delete: if false;
+   }
+   match /stockMovements/{movementId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && movementValid(companyId,movementId);
+    allow update,delete: if false;
+   }
+   match /stockBalances/{balanceId} {
+    allow read: if admin(companyId) && activeCompany(companyId);
+    allow create: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,{'quantity':0,'revision':0},true);
+    allow update: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,resource.data,false)
+     && request.resource.data.storeId==resource.data.storeId && request.resource.data.materialId==resource.data.materialId;
     allow delete: if false;
    }
    match /facilities/{facilityId}/history/{eventId} {

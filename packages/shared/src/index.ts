@@ -127,3 +127,4 @@ export const deferredScheduler: SchedulerGateway = {
 export * from './future';
 export * from './operations';
 export * from './allocations';
+export * from './inventory';
