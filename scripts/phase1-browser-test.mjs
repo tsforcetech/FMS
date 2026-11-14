@@ -94,6 +94,21 @@ try {
     await button(name).click();
     await page.getByText('Changes saved.', { exact: true }).waitFor();
   }
+  await button('Sites').click();
+  await button('Add site').click();
+  await basic('SITE001', 'Marina Campus');
+  assert.equal(
+    await page
+      .locator('form')
+      .getByRole('button', { name: /Choose client|Choose contract/ })
+      .count(),
+    0,
+  );
+  await page.getByLabel('Mon', { exact: true }).check();
+  await page.getByLabel('Tue', { exact: true }).check();
+  await saved('Save site');
+  checks.push('Independent site creation before any client or contract');
+  await button('Clients').click();
   await button('Add client').click();
   await button('Save client').click();
   await page.getByRole('alert').first().waitFor();
@@ -117,13 +132,6 @@ try {
   await saved('Save contract');
   checks.push('Contract create and client selector');
   await button('Sites').click();
-  await button('Add site').click();
-  await basic('SITE001', 'Marina Campus');
-  await choose('Client', 'Northstar Facilities');
-  await choose('Contract', 'Annual services');
-  await page.getByLabel('Mon', { exact: true }).check();
-  await page.getByLabel('Tue', { exact: true }).check();
-  await saved('Save site');
   await button('Marina Campus').click();
   await page
     .getByRole('navigation', { name: 'Site details' })
@@ -147,6 +155,60 @@ try {
     .filter({ hasText: 'Archive or reassign' })
     .waitFor();
   checks.push('Referenced location archive is blocked with a useful message');
+  await page.getByRole('link', { name: /Companies & sites/ }).click();
+  await page
+    .getByRole('navigation', { name: 'Management modules' })
+    .getByRole('button', { name: 'Contract allocations', exact: true })
+    .click();
+  await button('Add allocation').click();
+  await basic('AL001', 'Whole-site service');
+  await choose('Contract', 'Annual services');
+  await choose('Site', 'Marina Campus');
+  await page.getByLabel(/^Start date/).fill('2026-01-01');
+  await page.getByLabel(/^End date/).fill('2026-12-31');
+  await page.getByLabel(/^Status/).selectOption('active');
+  await saved('Save allocation');
+  await button('Add allocation').click();
+  await basic('AL002', 'Office occupancy');
+  await choose('Contract', 'Annual services');
+  await choose('Site', 'Marina Campus');
+  await choose('Space', 'First floor');
+  await page.getByLabel(/^Allocation type/).selectOption('exclusive_occupancy');
+  await page.getByLabel(/^Start date/).fill('2026-01-01');
+  await page.getByLabel(/^End date/).fill('2026-03-31');
+  await page.getByLabel(/^Status/).selectOption('active');
+  await saved('Save allocation');
+  await button('Edit Office occupancy').click();
+  await page.getByLabel(/^Status/).selectOption('terminated');
+  await page.getByLabel(/^Effective termination date/).fill('2026-02-15');
+  await saved('Save allocation');
+  await button('Office occupancy').click();
+  await page.getByRole('heading', { name: 'Allocation history' }).waitFor();
+  await page.getByText(/Revision 2 · terminated/).waitFor();
+  await mkdir('docs/evidence/correction', { recursive: true });
+  for (const [device, width, height] of [
+    ['desktop', 1440, 1000],
+    ['tablet', 768, 1024],
+    ['mobile', 390, 844],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+      true,
+    );
+    await page.screenshot({
+      path: `docs/evidence/correction/allocation-${device}.png`,
+      fullPage: true,
+    });
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  checks.push(
+    'Whole-site service, derived client, exclusive occupancy termination, immutable history and responsive layouts',
+  );
+
   await page.getByRole('link', { name: /Facilities & locations/ }).click();
   await button('Facility types').click();
   await button('Add facility type').click();

@@ -99,7 +99,7 @@ async function setup() {
       startDate: '2026-01-01',
       endDate: '2026-12-31',
     }),
-    site = await create('sites', { clientId: client, contractId: contract }),
+    site = await create('sites'),
     location = await create('locations', { siteId: site }),
     type = await create('facilityTypes');
   return { client, contract, site, location, type };
@@ -201,7 +201,7 @@ it('rejects direct metadata, unknown fields and invalid status writes', async ()
 });
 it('rejects missing and cross-site parents at the database boundary', async () => {
   const r = await setup();
-  const second = await create('sites', { clientId: r.client });
+  const second = await create('sites');
   const local = await create('locations', { siteId: second });
   const old = (
     await getDoc(doc(db, 'companies', 'a', 'locations', local))
@@ -283,13 +283,12 @@ it('archive protects parents; child archive releases references atomically', asy
     }),
   ).rejects.toThrow('active');
 });
-it('rejects contract/client mismatches and cross-site facility references', async () => {
+it('rejects legacy site ownership input and cross-site facility references', async () => {
   const r = await setup();
-  const client = await create('clients'),
-    site = await create('sites', { clientId: client });
+  const site = await create('sites');
   await expect(
-    create('sites', { clientId: client, contractId: r.contract }),
-  ).rejects.toThrow('different client');
+    create('sites', { clientId: r.client, contractId: r.contract }),
+  ).rejects.toThrow();
   await expect(
     create('facilities', {
       siteId: site,
@@ -314,7 +313,7 @@ it('does not permit fabricated counters or changing facility site', async () => 
       locationId: r.location,
       typeId: r.type,
     }),
-    site = await create('sites', { clientId: r.client });
+    site = await create('sites');
   await expect(edit('facilities', facility, { siteId: site })).rejects.toThrow(
     'between sites',
   );
@@ -370,6 +369,14 @@ it('validates deep hierarchy, retained contract relationships and independent mo
     create('locations', { siteId: r.site, parentId: parent }),
   ).rejects.toThrow();
   const second = await create('clients');
+  await create('contractAllocations', {
+    contractId: r.contract,
+    siteId: r.site,
+    allocationType: 'service_coverage',
+    startDate: '2026-01-01',
+    endDate: '2026-12-31',
+    status: 'active',
+  });
   await expect(
     edit('contracts', r.contract, { clientId: second }),
   ).rejects.toThrow('linked');
@@ -450,4 +457,293 @@ it('serializes concurrent parent changes without creating a cycle', async () => 
   expect(
     a?.values.parentId === other && b?.values.parentId === r.location,
   ).toBe(false);
+});
+
+it('creates physical sites before clients and preserves legacy site associations on edit', async () => {
+  const site = await create('sites');
+  const raw = (await getDoc(doc(db, 'companies', 'a', 'sites', site))).data()!;
+  expect(raw.schemaVersion).toBe(2);
+  expect(raw).not.toHaveProperty('clientId');
+  expect(raw).not.toHaveProperty('contractId');
+  const client = await create('clients');
+  await env.withSecurityRulesDisabled(async (c) => {
+    await updateDoc(doc(c.firestore(), 'companies', 'a', 'sites', site), {
+      schemaVersion: 1,
+      clientId: client,
+      contractId: '',
+    });
+    await updateDoc(doc(c.firestore(), 'companies', 'a', 'clients', client), {
+      refCount: 1,
+    });
+  });
+  const legacy = await recordById(db, 'a', 'sites', site);
+  expect(legacy?.legacyLinks?.clientId).toBe(client);
+  await edit('sites', site, { name: 'Physical place' });
+  expect(
+    (await getDoc(doc(db, 'companies', 'a', 'sites', site))).data()?.clientId,
+  ).toBe(client);
+  await assertFails(
+    updateDoc(doc(db, 'companies', 'a', 'sites', site), {
+      clientId: 'other',
+      revision: 3,
+      updatedAt: serverTimestamp(),
+      updatedBy: 'owner-a',
+    }),
+  );
+});
+async function allocationSetup() {
+  const r = await setup();
+  return {
+    ...r,
+    values: {
+      contractId: r.contract,
+      siteId: r.site,
+      locationId: r.location,
+      allocationType: 'exclusive_occupancy',
+      startDate: '2026-01-01',
+      endDate: '2026-03-31',
+      effectiveEndDate: '',
+      status: 'active',
+    },
+  };
+}
+it('derives client, supports whole-site services and keeps original occupancy after client turnover', async () => {
+  const r = await allocationSetup();
+  const a = await create('contractAllocations', r.values);
+  const record = (await recordById(db, 'a', 'contractAllocations', a))!;
+  expect(record.clientIdSnapshot).toBe(r.client);
+  await create('contractAllocations', {
+    ...r.values,
+    allocationType: 'service_coverage',
+    locationId: '',
+  });
+  await edit('contractAllocations', a, {
+    status: 'terminated',
+    effectiveEndDate: '2026-02-15',
+  });
+  await create('contractAllocations', {
+    ...r.values,
+    startDate: '2026-02-16',
+    endDate: '2026-04-01',
+  });
+  await expect(
+    create('contractAllocations', {
+      ...r.values,
+      startDate: '2026-02-15',
+      endDate: '2026-02-15',
+    }),
+  ).rejects.toThrow('overlapping');
+  expect(
+    (
+      await getDoc(
+        doc(db, 'companies', 'a', 'contractAllocations', a, 'history', '1'),
+      )
+    ).data()?.snapshot.endDate,
+  ).toBe('2026-03-31');
+  expect(
+    (
+      await getDoc(
+        doc(db, 'companies', 'a', 'contractAllocations', a, 'history', '2'),
+      )
+    ).data()?.snapshot.effectiveEndDate,
+  ).toBe('2026-02-15');
+  await assertFails(
+    updateDoc(
+      doc(db, 'companies', 'a', 'contractAllocations', a, 'history', '1'),
+      { snapshot: {} },
+    ),
+  );
+});
+it('atomically rejects racing exclusive and shared/exclusive overlaps but allows shared/shared', async () => {
+  const r = await allocationSetup();
+  const results = await Promise.allSettled([
+    create('contractAllocations', r.values),
+    create('contractAllocations', r.values),
+  ]);
+  expect(results.filter((x) => x.status === 'fulfilled')).toHaveLength(1);
+  await expect(
+    create('contractAllocations', {
+      ...r.values,
+      allocationType: 'shared_occupancy',
+    }),
+  ).rejects.toThrow('overlapping');
+  const shared = {
+    ...r.values,
+    allocationType: 'shared_occupancy',
+    startDate: '2026-04-01',
+    endDate: '2026-05-01',
+  };
+  await create('contractAllocations', shared);
+  await create('contractAllocations', shared);
+  await expect(
+    create('contractAllocations', {
+      ...shared,
+      allocationType: 'exclusive_occupancy',
+    }),
+  ).rejects.toThrow('overlapping');
+});
+it('validates activation, allocation identity, dates and tenant/location scope', async () => {
+  const r = await allocationSetup();
+  const draft = await create('contractAllocations', {
+    ...r.values,
+    status: 'draft',
+  });
+  await edit('contractAllocations', draft, { status: 'active' });
+  await expect(
+    edit('contractAllocations', draft, { startDate: '2026-01-02' }),
+  ).rejects.toThrow('immutable');
+  await expect(
+    create('contractAllocations', { ...r.values, startDate: '2025-12-31' }),
+  ).rejects.toThrow();
+  const site = await create('sites');
+  await expect(
+    create('contractAllocations', { ...r.values, siteId: site }),
+  ).rejects.toThrow('this site');
+  await assertFails(
+    getDoc(
+      doc(
+        env.authenticatedContext('owner-b').firestore(),
+        'companies',
+        'a',
+        'contractAllocations',
+        draft,
+      ),
+    ),
+  );
+  await assertFails(
+    updateDoc(
+      doc(db, 'companies', 'a', 'occupancyCalendars', r.location + '_2026'),
+      { slots: [] },
+    ),
+  );
+  await expect(
+    edit('locations', r.location, { status: 'archived' }),
+  ).rejects.toThrow();
+  await expect(
+    edit('contracts', r.contract, { startDate: '2026-02-01' }),
+  ).rejects.toThrow('linked');
+});
+it('enforces the bounded calendar limit and immutable lifecycle', async () => {
+  const r = await allocationSetup();
+  for (let i = 0; i < 12; i++)
+    await create('contractAllocations', {
+      ...r.values,
+      allocationType: 'shared_occupancy',
+    });
+  await expect(
+    create('contractAllocations', {
+      ...r.values,
+      allocationType: 'shared_occupancy',
+    }),
+  ).rejects.toThrow('12-allocation');
+  const fresh = await allocationSetup(),
+    id = await create('contractAllocations', fresh.values);
+  await edit('contractAllocations', id, { status: 'expired' });
+  await edit('contractAllocations', id, { status: 'archived' });
+  await expect(
+    edit('contractAllocations', id, { status: 'active' }),
+  ).rejects.toThrow('cannot change');
+  const another = await create('clients');
+  await edit('contracts', fresh.contract, { clientId: another });
+  expect(
+    (await recordById(db, 'a', 'contractAllocations', id))?.clientIdSnapshot,
+  ).toBe(fresh.client);
+}, 30000);
+it('server rejects forged overlapping reservations, client snapshots, out-of-contract dates and missing calendar writes', async () => {
+  const r = await allocationSetup(),
+    id = await create('contractAllocations', r.values);
+  const base = (
+    await getDoc(doc(db, 'companies', 'a', 'contractAllocations', id))
+  ).data()!;
+  const calendar = doc(
+    db,
+    'companies',
+    'a',
+    'occupancyCalendars',
+    r.location + '_2026',
+  );
+  const cal = (await getDoc(calendar)).data()!;
+  for (const attack of ['overlap', 'client', 'dates', 'missing-calendar']) {
+    const newId = 'forged_' + attack,
+      code = 'FORGED_' + attack.replace('-', '_').toUpperCase();
+    const payload = {
+      ...base,
+      code,
+      name: attack,
+      clientIdSnapshot: attack === 'client' ? 'wrong-client' : r.client,
+      allocationType: String(base.allocationType),
+      startDate: attack === 'overlap' ? '2026-01-01' : '2026-04-01',
+      endDate:
+        attack === 'dates'
+          ? '2027-04-30'
+          : attack === 'overlap'
+            ? '2026-01-02'
+            : '2026-04-30',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    const snapshot = Object.fromEntries(
+      [
+        'code',
+        'name',
+        'notes',
+        'status',
+        'contractId',
+        'siteId',
+        'locationId',
+        'allocationType',
+        'startDate',
+        'endDate',
+        'effectiveEndDate',
+        'clientIdSnapshot',
+      ].map((k) => [k, payload[k as keyof typeof payload]]),
+    );
+    const batch = writeBatch(db);
+    for (const [kind, target] of [
+      ['contracts', r.contract],
+      ['locations', r.location],
+    ]) {
+      const ref = doc(db, 'companies', 'a', kind, target),
+        parent = (await getDoc(ref)).data()!;
+      batch.update(ref, {
+        refCount: parent.refCount + 1,
+        witnessKind: 'contractAllocations',
+        witnessId: newId,
+        updatedAt: serverTimestamp(),
+        updatedBy: 'owner-a',
+      });
+    }
+    batch.set(doc(db, 'companies', 'a', 'contractAllocations', newId), payload);
+    batch.set(
+      doc(db, 'companies', 'a', 'codeClaims', 'contractAllocations_' + code),
+      { companyId: 'a', kind: 'contractAllocations', recordId: newId, code },
+    );
+    batch.set(
+      doc(db, 'companies', 'a', 'contractAllocations', newId, 'history', '1'),
+      {
+        companyId: 'a',
+        revision: 1,
+        actorUid: 'owner-a',
+        occurredAt: serverTimestamp(),
+        snapshot,
+      },
+    );
+    if (attack !== 'missing-calendar')
+      batch.set(calendar, {
+        ...cal,
+        revision: cal.revision + 1,
+        witnessId: newId,
+        updatedAt: serverTimestamp(),
+        slots: [
+          ...cal.slots,
+          {
+            allocationId: newId,
+            startDate: payload.startDate,
+            endDate: payload.endDate,
+            allocationType: payload.allocationType,
+          },
+        ],
+      });
+    await assertFails(batch.commit());
+  }
 });

@@ -1,0 +1,46 @@
+{
+  "project": "demo-facilityos-migration",
+  "company": "fixture",
+  "mode": "DRY_RUN",
+  "generatedAt": "2026-11-14T13:15:03.737Z",
+  "rows": [
+    {
+      "siteId": "site",
+      "sourceHash": "a6db1e0b9d0abd4e1c494a0bac654697ac4880f44ef473ce29e93639fbb5e50c",
+      "contractHash": "85736e3e82b2527fc23d6fe7054df39f85eb77b223896d49dbff1d426be63938",
+      "legacy": {
+        "clientId": "client",
+        "contractId": "contract"
+      },
+      "action": "DRAFT_ALLOCATION",
+      "issues": [],
+      "allocationId": "legacy_site",
+      "allocation": {
+        "contractId": "contract",
+        "clientIdSnapshot": "client",
+        "siteId": "site",
+        "locationId": "",
+        "allocationType": "service_coverage",
+        "startDate": "2026-01-01",
+        "endDate": "2026-12-31",
+        "status": "draft",
+        "effectiveEndDate": "",
+        "code": "MIG_292FF8DA54F30950D0702CB2",
+        "name": "Legacy allocation · Fixture site",
+        "notes": "Reviewed legacy association; activation requires separate validation."
+      }
+    },
+    {
+      "siteId": "unassigned",
+      "sourceHash": "b2e424865890786c5144cad4d4d760c5cae7a3fdc82fbca941aab52a4a4d4e07",
+      "contractHash": null,
+      "legacy": {
+        "clientId": "client",
+        "contractId": ""
+      },
+      "action": "DETACH_ONLY",
+      "issues": []
+    }
+  ],
+  "writes": 0
+}
