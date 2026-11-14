@@ -9,6 +9,7 @@ on:
         feature/phase1-site-contract-decoupling,
         feature/phase2-people-assets-inventory,
         feature/phase3-tasks-raci-approvals,
+        feature/phase4-scheduling-maintenance,
       ]
   pull_request:
 permissions:

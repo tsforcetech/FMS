@@ -15,6 +15,7 @@ import {
   type Phase2Kind,
   isAssignment,
 } from './operations';
+import { caseDefinitions, caseKinds } from './cases';
 
 const regex: Record<string, string> = {
   code: "'^[A-Z0-9][A-Z0-9_-]{0,39}$'",
@@ -202,6 +203,47 @@ export function generatedRules() {
     );
     lines.push(`  function counterIn_${t}(c,id,w,wid){return ${body}false;}`);
   }
+  // Phase 4 case transition tables, generated from cases.ts.
+  const byKind = (fn: (k: (typeof caseKinds)[number]) => string) =>
+    caseKinds.map((k) => `k=='${k}'?${fn(k)}:`).join('') + 'false';
+  const actionsWith = (
+    k: (typeof caseKinds)[number],
+    flag: keyof (typeof caseDefinitions)['workOrders']['actions'][string],
+  ) =>
+    list(
+      Object.entries(caseDefinitions[k].actions)
+        .filter(([, a]) => a[flag])
+        .map(([id]) => id),
+    );
+  lines.push(
+    '  function caseMove(k,a,f,t){return ' +
+      byKind(
+        (k) =>
+          '(' +
+          Object.entries(caseDefinitions[k].actions)
+            .map(
+              ([id, a]) => `a=='${id}'?(f in ${list(a.from)} && t=='${a.to}'):`,
+            )
+            .join('') +
+          'false)',
+      ) +
+      ';}',
+  );
+  lines.push(
+    `  function caseInitial(k){return ${caseKinds.map((k) => `k=='${k}'?'${caseDefinitions[k].initial}':`).join('')}'';}`,
+  );
+  for (const [name, flag] of [
+    ['caseReason', 'reason'],
+    ['caseAssigns', 'assigns'],
+    ['caseRedirects', 'redirects'],
+    ['caseResponds', 'responds'],
+    ['caseResolves', 'resolves'],
+    ['caseReopens', 'reopens'],
+    ['caseCloses', 'closes'],
+  ] as const)
+    lines.push(
+      `  function ${name}(k,a){return ${byKind((k) => `(a in ${actionsWith(k, flag)})`)};}`,
+    );
   lines.push('  // END GENERATED PHASE 2 VALIDATORS');
   return lines.join('\n');
 }
@@ -269,5 +311,24 @@ export function generatedIndexes(): Index[] {
   add('taskExceptions', [asc('status'), desc('detectedAt')]);
   add('templateVersions', [asc('templateId'), desc('version')]);
   add('templateVersions', [asc('templateId'), asc('state'), desc('version')]);
+  // Phase 4 queries.
+  for (const f of ['scheduleId', 'origin', 'assetId'])
+    add('tasks', [asc(f), asc('dueAt')]);
+  add('recurringSchedules', [asc('purpose'), asc('name')]);
+  add('recurringSchedules', [asc('purpose'), asc('status'), asc('name')]);
+  add('recurringSchedules', [asc('status'), asc('name')]);
+  for (const k of caseKinds) {
+    add(k, [asc('status'), desc('createdAt')]);
+    add(k, [asc('siteId'), desc('createdAt')]);
+    add(k, [asc('sourceId'), desc('createdAt')]);
+    add(k, [asc('status'), asc('resolutionDueAt')]);
+  }
+  add('workOrders', [asc('assetId'), desc('createdAt')]);
+  add('escalations', [asc('targetDepartmentId'), desc('createdAt')]);
+  add('caseEvents', [asc('kind'), asc('caseId'), asc('revision')]);
+  add('notifications', [asc('recipientUid'), desc('createdAt')]);
+  add('notifications', [asc('recipientUid'), asc('readAt')]);
+  add('stockMovements', [asc('workOrderId'), desc('createdAt')]);
+  add('taskExceptions', [asc('siteId'), desc('detectedAt')]);
   return out;
 }

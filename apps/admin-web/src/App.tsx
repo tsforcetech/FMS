@@ -76,6 +76,25 @@ import {
 import { AccessPage, CompanySettings, RolesPage } from './management/Admin';
 import { clearLabelCache, type Context } from './management/context';
 import { TaskArea } from './management/Tasks';
+import { ScheduleArea } from './management/Schedules';
+import {
+  GroupedWorkload,
+  StaffWorkload,
+  TaskCalendar,
+} from './management/Calendar';
+import {
+  AssetHistory,
+  CaseArea,
+  MaintenanceDashboard,
+  ReportedIssues,
+  SlaMonitor,
+} from './management/Cases';
+import {
+  NotificationCenter,
+  NotificationSettings,
+  SchedulerMonitor,
+} from './management/Notifications';
+import { unreadCount } from './management/notifyStore';
 import {
   Avatar,
   IconCircle,
@@ -674,13 +693,12 @@ function Workspace({ services }: { services: FirebaseServices }) {
             >
               <Search />
             </button>
-            <button
-              className="icon-btn hide-sm"
-              aria-label="Notifications (coming in a later phase)"
-              title="Notifications arrive in a later phase"
-            >
-              <Bell />
-            </button>
+            <NotificationBell
+              services={services}
+              companyId={companyId}
+              uid={session.user?.uid || ''}
+              path={location.pathname}
+            />
             <label className="sr-only" htmlFor="company-select">
               Current company
             </label>
@@ -838,6 +856,36 @@ function Screen({
         page.screen === 'approvals' ||
         page.screen === 'taskHistory' ? (
         <TaskArea key={page.id} context={context} screen={page.screen} />
+      ) : page.screen === 'calendar' ? (
+        <TaskCalendar key={page.id} context={context} />
+      ) : page.screen === 'maintenanceCalendar' ? (
+        <TaskCalendar key={page.id} context={context} origin="maintenance" />
+      ) : page.screen === 'recurring' ? (
+        <ScheduleArea key={page.id} context={context} purpose="routine" />
+      ) : page.screen === 'pmPlans' ? (
+        <ScheduleArea key={page.id} context={context} purpose="maintenance" />
+      ) : page.screen === 'staffWorkload' ? (
+        <StaffWorkload context={context} />
+      ) : page.screen === 'groupedWorkload' ? (
+        <GroupedWorkload context={context} />
+      ) : page.screen === 'maintenanceDashboard' ? (
+        <MaintenanceDashboard context={context} />
+      ) : page.screen === 'workOrders' ||
+        page.screen === 'complaints' ||
+        page.screen === 'escalations' ? (
+        <CaseArea key={page.id} context={context} kind={page.screen} />
+      ) : page.screen === 'assetHistory' ? (
+        <AssetHistory context={context} />
+      ) : page.screen === 'reportedIssues' ? (
+        <ReportedIssues context={context} />
+      ) : page.screen === 'slaMonitor' ? (
+        <SlaMonitor context={context} />
+      ) : page.screen === 'notificationCenter' ? (
+        <NotificationCenter context={context} />
+      ) : page.screen === 'notificationSettings' ? (
+        <NotificationSettings context={context} />
+      ) : page.screen === 'schedulerMonitor' ? (
+        <SchedulerMonitor context={context} />
       ) : (
         <CompanySettings
           key={access.company.updatedAt.toMillis()}
@@ -972,5 +1020,47 @@ export default function App({ services }: { services: FirebaseServices }) {
         </SessionProvider>
       </ToastProvider>
     </Router>
+  );
+}
+/** Header bell with the unread count (refreshed on navigation and every minute). */
+function NotificationBell({
+  services,
+  companyId,
+  uid,
+  path,
+}: {
+  services: FirebaseServices;
+  companyId: string;
+  uid: string;
+  path: string;
+}) {
+  const navigate = useNavigate();
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let live = true;
+    const load = () =>
+      uid && companyId
+        ? unreadCount(services.db, companyId, uid)
+            .then((n) => live && setCount(n))
+            .catch(() => live && setCount(0))
+        : undefined;
+    load();
+    const t = setInterval(load, 60000);
+    window.addEventListener('fos-notifications', load);
+    return () => {
+      live = false;
+      clearInterval(t);
+      window.removeEventListener('fos-notifications', load);
+    };
+  }, [services, companyId, uid, path]);
+  return (
+    <button
+      className="icon-btn bell"
+      aria-label={count ? `Notifications, ${count} unread` : 'Notifications'}
+      onClick={() => navigate('/notifications')}
+    >
+      <Bell />
+      {count > 0 && <span className="badge">{count > 99 ? '99+' : count}</span>}
+    </button>
   );
 }

@@ -509,6 +509,7 @@ export const taskActions = [
   'reject',
   'restart',
   'cancel',
+  'reschedule',
 ] as const;
 export type TaskAction = (typeof taskActions)[number];
 export const actionLabels: Record<TaskAction, string> = {
@@ -523,10 +524,11 @@ export const actionLabels: Record<TaskAction, string> = {
   reject: 'Rejected',
   restart: 'Rework started',
   cancel: 'Cancelled',
+  reschedule: 'Rescheduled',
 };
 /** Allowed transitions. Submit resolves to awaiting_approval or completed. */
 export const transitions: Record<
-  Exclude<TaskAction, 'create'>,
+  Exclude<TaskAction, 'create' | 'reschedule'>,
   { from: TaskStatus[]; to: (approvalRequired: boolean) => TaskStatus }
 > = {
   assign: { from: ['pending', 'assigned', 'paused'], to: () => 'assigned' },
@@ -546,8 +548,15 @@ export const transitions: Record<
     to: () => 'cancelled',
   },
 };
+/** Statuses in which a single occurrence may be moved to another time. */
+export const reschedulable: TaskStatus[] = [
+  'pending',
+  'assigned',
+  'paused',
+  'rework_required',
+];
 export function canPerform(
-  action: Exclude<TaskAction, 'create'>,
+  action: Exclude<TaskAction, 'create' | 'reschedule'>,
   status: TaskStatus,
 ) {
   return transitions[action].from.includes(status);

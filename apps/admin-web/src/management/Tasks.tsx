@@ -115,10 +115,10 @@ export function TaskStatusPill({ status }: { status: TaskStatus }) {
     </Pill>
   );
 }
-function PriorityPill({ p }: { p: string }) {
+export function PriorityPill({ p }: { p: string }) {
   return <Pill tone={priorityTone[p] || 'gray'}>{humanize(p)}</Pill>;
 }
-function Due({ task }: { task: Task }) {
+export function Due({ task }: { task: Task }) {
   const late = isOverdue(task.status, task.dueAt?.toDate() || null);
   return (
     <span
@@ -134,7 +134,7 @@ function Due({ task }: { task: Task }) {
     </span>
   );
 }
-function Name({
+export function Name({
   context,
   kind,
   id,
@@ -148,7 +148,7 @@ function Name({
 function Actor({ context, uid }: { context: Context; uid: string }) {
   return <>{uid === context.uid ? 'You' : 'User ' + uid.slice(0, 6)}</>;
 }
-function localInput(d: Date) {
+export function localInput(d: Date) {
   const off = d.getTimezoneOffset() * 60000;
   return new Date(d.getTime() - off).toISOString().slice(0, 16);
 }
@@ -736,24 +736,27 @@ export function TaskRegister({
 }
 
 /* ================================================================ new task */
-function NewTaskDrawer({
+export function NewTaskDrawer({
   context,
   onClose,
   onCreated,
+  initial,
 }: {
   context: Context;
   onClose: () => void;
   onCreated: (id: string) => void;
+  /** Prefill from a calendar slot or an asset. */
+  initial?: { start?: Date; siteId?: string; assetId?: string };
 }) {
-  const now = new Date();
+  const [now] = useState(() => initial?.start || new Date());
   const [templateId, setTemplateId] = useState(''),
     [version, setVersion] = useState<TemplateVersion | null>(),
     [v, setV] = useState({
       title: '',
-      siteId: '',
+      siteId: initial?.siteId || '',
       locationId: '',
       facilityId: '',
-      assetId: '',
+      assetId: initial?.assetId || '',
       departmentId: '',
       teamId: '',
       priority: 'medium' as Task['priority'],
@@ -785,7 +788,7 @@ function NewTaskDrawer({
           departmentId: x.departmentId || tpl?.values.departmentId || '',
           dueAt: localInput(
             new Date(
-              Date.now() +
+              now.getTime() +
                 Math.max(ver.content.estimatedMinutes, 60) * 60000 +
                 3600_000,
             ),
@@ -803,7 +806,7 @@ function NewTaskDrawer({
     return () => {
       live = false;
     };
-  }, [db, c, templateId]);
+  }, [db, c, templateId, now]);
   async function submit() {
     if (!version)
       return setError('Choose a template with a published version.');

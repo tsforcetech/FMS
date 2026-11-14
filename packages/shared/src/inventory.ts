@@ -109,6 +109,8 @@ export type MovementInput = {
   issuedToEmployeeId: string;
   issuedToLocationId: string;
   reversesId: string;
+  /** Optional work order the material was issued against (Phase 4). */
+  workOrderId?: string;
 };
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/);
 const optionalId = z.string().regex(/^[a-zA-Z0-9_-]{0,128}$/);
@@ -133,6 +135,7 @@ export const movementSchema = z
     issuedToEmployeeId: optionalId,
     issuedToLocationId: optionalId,
     reversesId: optionalId,
+    workOrderId: optionalId.optional(),
   })
   .strict()
   .superRefine((m, ctx) => {

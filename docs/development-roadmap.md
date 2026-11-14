@@ -17,7 +17,9 @@ Each phase requires implementation, tests and review before the next phase. Do n
 
 Phase 0, Phase 1 and the site/contract correction are merged. Phase 2 (people, assets, inventory) and the admin redesign are implemented and tested; see [phase2-report.md](phase2-report.md). Phase 2 Firestore rules and indexes are deployed to the live project (all indexes READY).
 
-Phase 3 (task templates, checklists, versioning, RACI, manual tasks, execution, approvals, rework and history) is implemented and tested on `feature/phase3-tasks-raci-approvals`; see [phase3-report.md](phase3-report.md). Its rules and indexes are deployed and it is merged to `main`. Phase 4 has not started.
+Phase 3 (task templates, checklists, versioning, RACI, manual tasks, execution, approvals, rework and history) is implemented and tested on `feature/phase3-tasks-raci-approvals`; see [phase3-report.md](phase3-report.md). Its rules and indexes are deployed and it is merged to `main`.
+
+Phase 4 (recurring schedules, scheduler, assignment, calendar and workload views, preventive maintenance, work orders, complaints, escalations, SLA and in-app notifications) is implemented and tested on `feature/phase4-scheduling-maintenance` without Blaze; see [phase4-report.md](phase4-report.md). Its rules and indexes are deployed and it is merged to `main`. Automatic scheduling, email/push and file uploads are pending activation. Phase 5 has not started.
 
 ## Phase 0 status
 
