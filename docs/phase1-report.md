@@ -1,6 +1,6 @@
 # Phase 1 implementation and review
 
-Status: development branch implementation; browser CI verification pending. Not merged or deployed to production.
+Status: implementation and CI verification complete on the development branch. Not merged or deployed to production.
 
 ## Foundation acceptance
 
@@ -37,7 +37,7 @@ Owners/admins of an active company can use operational modules. Staff and all ot
 
 - `npm run check`: passed (lint, TypeScript, 20 unit tests, production build).
 - `npm run test:rules`: passed, 34 tests including all Phase 0 regressions and new operational transaction/security scenarios.
-- `npm run test:browser`: authored; local Chromium could not launch because the workspace denies its singleton socket. Escalation is disallowed by workspace policy. GitHub CI runs the browser test and uploads screenshots/results; its result must be checked before claiming completion.
+- `npm run test:browser`: passed all nine checks in GitHub CI, with no page errors. Local Chromium was blocked by workspace socket restrictions; the successful browser execution took place in GitHub Actions against isolated demo emulators.
 - Tests cover duplicate-code races, tenant isolation, staff denial, stale edits, protected metadata, cycles, invalid parent/site links, archived dependencies, reference-counter tampering, calendar dates, time zones, valid CRUD and facility history.
 - Build warns about the main JavaScript bundle size (~971 KB before gzip); splitting can be improved separately.
 
@@ -55,3 +55,31 @@ Owners/admins of an active company can use operational modules. Staff and all ot
 ## Phase 2 compatibility
 
 Existing company/site/location/facility IDs are stable. Individually tracked equipment, furniture and fixtures can reference site/location/facility in the next phase. Quantity inventory and stock movements remain separate from asset identities. No Phase 2 records or screens were implemented. No Functions, Storage, scheduled jobs, new Firebase project or billing changes were introduced. The reference site and its DNS remain untouched.
+
+## Verified commit and review evidence
+
+Implementation commit: `6a349f5ca4e2413c1aa65f9fcbe25649b9488d38`.
+
+[Successful CI run 43461412628](https://github.com/tsforcetech/FMS/actions/runs/43461412628) passed dependency installation, formatting, lint, TypeScript, 20 unit tests, production build, 34 emulator tests and all nine browser checks. The subsequent report/evidence commit adds documentation, screenshots and rules header comments only; this CI result refers to the implementation commit above.
+
+Browser checks passed:
+
+1. Owner login, company loading and refresh persistence.
+2. Client validation, create and edit.
+3. Contract creation and client selection.
+4. Site, working days, root and child location creation.
+5. Referenced-location archive protection and useful error feedback.
+6. Facility type, facility creation/edit and condition history.
+7. Desktop, tablet and mobile detail layouts without page overflow.
+8. Archive, company switching and tenant data isolation.
+9. Logout and generic password-reset feedback for known and unknown accounts.
+
+Evidence is from isolated emulator fixtures, not production records. Email delivery was not tested. [Machine-readable results](evidence/phase1/browser-results.json), [desktop screenshot](evidence/phase1/phase1-desktop.png), [tablet screenshot](evidence/phase1/phase1-tablet.png), [mobile screenshot](evidence/phase1/phase1-mobile.png), and [password-reset screenshot](evidence/phase1/phase1-reset.png) are preserved in this branch. Desktop and mobile screenshots were visually reviewed. The [original CI artifact](https://github.com/tsforcetech/FMS/actions/runs/43461412628/artifacts/14056616785) contains the same evidence.
+
+Schema and data assumptions: [Phase 1 schema](database/phase1-schema.md). Rules: [Firestore rules](../firebase/firestore.rules). Index definitions: [Firestore indexes](../firebase/firestore.indexes.json).
+
+I've set up prototype Security Rules to keep the data in Firestore safe. They are designed to be secure for company-scoped owner/admin access, validated relationships, protected metadata and transactional archive integrity. However, you should review and verify them before broadly sharing your app. If you'd like, I can help you harden these rules.
+
+## Handoff and next actions
+
+Phase 1 is ready for branch review, subject to the deliberate limits above. Production acceptance requires explicit rollout authorization, review of rules and indexes, index readiness, and live smoke tests after deployment. No merge or deployment was performed. Phase 2 planning can use the stable company/site/location/facility references; arbitrary-depth hierarchy behavior and multi-reference reassignment should be resolved before expanding dependent workflows.

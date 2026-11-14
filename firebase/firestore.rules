@@ -1,3 +1,21 @@
+// Phase 1 prototype rules; review with docs/database/phase1-schema.md before rollout.
+// Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
+// Operational documents: companyId, schemaVersion=1, code, name, notes, status,
+// createdAt/updatedAt timestamps, createdBy/updatedBy UIDs, revision/refCount integers,
+// witnessKind/witnessId strings. Code, company, creation metadata and site identity are immutable.
+// clients: clientType, contactPerson, phone, email, address, country, vatNumber.
+// contracts: clientId, startDate/endDate calendar strings, serviceDescription.
+// sites: clientId, optional contractId, propertyType, address/country/city, timeZone,
+// workingDays, opensAt/closesAt, contactPerson, phone, description.
+// locations: siteId, optional parentId, locationType, floorNumber, description.
+// facilityTypes: description. facilities: siteId, locationId, typeId, condition, description.
+// Optional domain strings are present as ''. Validators below enforce all types/limits/enums.
+// codeClaims: immutable companyId/kind/recordId/code, created atomically with a new record.
+// facility history: companyId/revision/condition/status/actorUid/occurredAt, append-only,
+// bound to a new business revision. Client-attributed history is not a trusted audit trail.
+// Counters count active DIRECT ownership references; ancestors are protected transitively.
+// Bounded parent traversal and one-reference reassignment keep transactions within rule budgets.
+// Phase 0 users, memberships, discovery hints and trusted audit records retain protected ownership.
 rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
