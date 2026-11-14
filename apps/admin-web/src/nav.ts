@@ -28,7 +28,10 @@ import {
   ClipboardCheck,
   Hammer,
   ClipboardList,
-  SearchCheck,
+  Gauge,
+  FolderKanban,
+  UserCheck,
+  History,
   Settings,
   KeyRound,
   SlidersHorizontal,
@@ -52,7 +55,12 @@ export type Page = {
     | 'transfers'
     | 'roles'
     | 'access'
-    | 'company';
+    | 'company'
+    | 'taskDashboard'
+    | 'tasks'
+    | 'taskAssignments'
+    | 'approvals'
+    | 'taskHistory';
   /** Not yet available: shown with a phase label. */
   phase?: number;
   description?: string;
@@ -233,7 +241,48 @@ export const groups: Group[] = [
     id: 'operations',
     label: 'Operations',
     pages: [
-      { id: 'tasks', label: 'Tasks', icon: ClipboardCheck, phase: 3 },
+      {
+        id: 'task-dashboard',
+        label: 'Task dashboard',
+        icon: Gauge,
+        screen: 'taskDashboard',
+      },
+      {
+        id: 'task-categories',
+        label: 'Task categories',
+        icon: FolderKanban,
+        kinds: ['taskCategories'],
+      },
+      {
+        id: 'task-templates',
+        label: 'Task templates',
+        icon: ClipboardList,
+        kinds: ['taskTemplates'],
+      },
+      {
+        id: 'tasks',
+        label: 'Task register',
+        icon: ClipboardCheck,
+        screen: 'tasks',
+      },
+      {
+        id: 'task-assignments',
+        label: 'Task assignments',
+        icon: UserCheck,
+        screen: 'taskAssignments',
+      },
+      {
+        id: 'approvals',
+        label: 'Pending approvals',
+        icon: BadgeCheck,
+        screen: 'approvals',
+      },
+      {
+        id: 'task-history',
+        label: 'Task history',
+        icon: History,
+        screen: 'taskHistory',
+      },
       { id: 'maintenance', label: 'Maintenance', icon: Hammer, phase: 4 },
       {
         id: 'work-orders',
@@ -241,7 +290,6 @@ export const groups: Group[] = [
         icon: ClipboardList,
         phase: 4,
       },
-      { id: 'inspections', label: 'Inspections', icon: SearchCheck, phase: 3 },
     ],
   },
   {

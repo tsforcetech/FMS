@@ -39,7 +39,7 @@ const vite = spawn(
   },
 );
 const origin = 'http://127.0.0.1:5193';
-const evidence = 'docs/evidence/phase2';
+const evidence = 'docs/evidence/phase3';
 let browser;
 let page;
 const checks = [];
@@ -378,6 +378,8 @@ try {
     'Spillage',
   );
   await page.getByText('Adjustment (decrease) posted.').waitFor();
+  // Wait for the refreshed ledger so Reverse targets the newest transaction.
+  await page.locator('table.data').getByText('Spillage').waitFor();
   await page.getByRole('button', { name: 'Reverse' }).first().click();
   await button('Post reversal').click();
   await page.getByText('Transaction reversed.').waitFor();
@@ -388,6 +390,189 @@ try {
   await page.getByText('Reorder').first().waitFor();
   checks.push(
     'Opening, receipt, rejected over-issue, issue, transfer, adjustment, reversal and exact balances with reorder flag',
+  );
+
+  // ---------------------------------------------------------- phase 3 tasks
+  const signInAs = async (email) => {
+    await page.getByLabel('Profile menu').click();
+    await button('Sign out').click();
+    await page
+      .getByRole('heading', { name: 'Sign in to your workspace' })
+      .waitFor();
+    await page.getByLabel('Email address').fill(email);
+    await page.getByLabel('Password', { exact: true }).fill('Local-only-123!');
+    await button('Sign in').click();
+    await page.getByText(/Good (morning|afternoon|evening)/).waitFor();
+  };
+  const openTask = async (title) => {
+    await nav('Task register');
+    await page
+      .getByRole('button', { name: title, exact: true })
+      .first()
+      .click();
+    await page.getByRole('heading', { level: 1, name: title }).waitFor();
+  };
+  await nav('Task categories');
+  await add('task category');
+  await basic('HVAC', 'HVAC inspection');
+  await save('task category');
+  await nav('Task templates');
+  await add('task template');
+  await basic('AC-DAILY', 'Daily AC inspection');
+  await pick('Category', 'HVAC inspection');
+  await save('task template');
+  await open('Daily AC inspection');
+  await button('Build the checklist').click();
+  await page.getByLabel('Checklist title').fill('Daily AC inspection');
+  await page
+    .getByLabel('Instructions for staff')
+    .fill('Isolate power before opening panels.');
+  await page.getByRole('button', { name: /^Next:/ }).click();
+  await page.getByRole('button', { name: 'Add question' }).click();
+  await page.getByLabel(/^Question\*?$/).fill('AC operating normally');
+  await page.getByLabel('New question type').selectOption('temperature');
+  await page.getByRole('button', { name: 'Add question' }).click();
+  await page.getByLabel(/^Question\*?$/).fill('Supply air temperature');
+  await page.getByLabel('Expected from').fill('12');
+  await page.getByLabel('Expected to').fill('18');
+  await shoot('06-template-builder');
+  await page.getByRole('button', { name: /^Next:/ }).click();
+  await page.getByRole('button', { name: /^Next:/ }).click();
+  await button('Add responsibility').click();
+  await page.locator('.raci-row').nth(0).getByLabel('Designation').click();
+  await page
+    .getByRole('option', { name: /Technician/ })
+    .first()
+    .click();
+  await button('Add responsibility').click();
+  await page
+    .locator('.raci-row')
+    .nth(1)
+    .getByRole('button', { name: 'A · Accountable' })
+    .click();
+  await page.locator('.raci-row').nth(1).getByLabel('Designation').click();
+  await page
+    .getByRole('option', { name: /Technician/ })
+    .first()
+    .click();
+  await page.getByRole('button', { name: /^Next:/ }).click();
+  await page.getByRole('button', { name: /^Next:/ }).click();
+  await page.getByText('Ready to publish').waitFor();
+  await button('Save draft').click();
+  await page.getByText('Draft saved.').first().waitFor();
+  await button('Publish version 1').click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Publish', exact: true })
+    .click();
+  await page.getByText('Version 1 published.').first().waitFor();
+  await page.getByText('Version 1 is live for new tasks.').waitFor();
+  checks.push(
+    'Task category, template builder with checklist, ranges, RACI and immutable published version',
+  );
+
+  await nav('Task register');
+  await button('New task').click();
+  await pick('Task template', 'Daily AC inspection');
+  await drawer().getByText('Using version 1').waitFor();
+  await pick('Site', 'Marina Campus');
+  await pick('Location', 'Tower A');
+  await pick('Employee', 'Asha Rao');
+  await button('Create task').click();
+  await page.getByText('Task created.').first().waitFor();
+  await page
+    .getByRole('heading', { level: 1, name: 'Daily AC inspection' })
+    .waitFor();
+  await button('Start task').click();
+  await page.getByText('Task started.').first().waitFor();
+  await page.getByRole('radio', { name: 'Pass' }).click();
+  await page.getByLabel('Supply air temperature').fill('21');
+  await page.getByText(/outside the expected range/).waitFor();
+  await button('Save progress').click();
+  await page.getByText('Progress saved.').first().waitFor();
+  await shoot('07-task-execution');
+  await button('Submit checklist').click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Submit', exact: true })
+    .click();
+  await page.getByText('Submitted for approval.').first().waitFor();
+  await button('Approve').click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Approve', exact: true })
+    .click();
+  await page
+    .getByText(/another authorised reviewer/)
+    .first()
+    .waitFor();
+  checks.push(
+    'Manual task creation, start, saved progress, exception detection, submission and blocked self-approval',
+  );
+
+  await signInAs('supervisor@example.test');
+  await nav('Pending approvals');
+  await page
+    .getByRole('button', { name: 'Daily AC inspection', exact: true })
+    .first()
+    .click();
+  await button('Request rework').click();
+  await page
+    .getByLabel(/^What needs to be corrected/)
+    .fill('Re-check after filter clean');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Request rework', exact: true })
+    .click();
+  await page.getByText('Rework requested.').first().waitFor();
+  await signInAs('owner@example.test');
+  await openTask('Daily AC inspection');
+  await button('Start rework').click();
+  await page.getByText('Rework started.').first().waitFor();
+  await page.getByRole('radio', { name: 'Pass' }).click();
+  await page.getByLabel('Supply air temperature').fill('15');
+  await button('Submit checklist').click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Submit', exact: true })
+    .click();
+  await page.getByText('Submitted for approval.').first().waitFor();
+  await signInAs('supervisor@example.test');
+  await openTask('Daily AC inspection');
+  await button('Approve').click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Approve', exact: true })
+    .click();
+  await page.getByText('Submission approved.').first().waitFor();
+  await page.getByText('Completed').first().waitFor();
+  await page.getByRole('tab', { name: 'Timeline' }).click();
+  for (const label of [
+    'Created',
+    'Started',
+    'Submitted',
+    'Rework requested',
+    'Rework started',
+    'Approved',
+  ])
+    await page
+      .locator('.timeline')
+      .getByText(label, { exact: true })
+      .first()
+      .waitFor();
+  await page.getByRole('tab', { name: 'Submissions & reviews' }).click();
+  await page.getByText('Attempt 2').waitFor();
+  await page
+    .getByText('Re-check after filter clean', { exact: false })
+    .first()
+    .waitFor();
+  await shoot('08-task-history');
+  await nav('Task dashboard');
+  await page.getByText('Task overview').waitFor();
+  await shoot('09-task-dashboard');
+  await signInAs('owner@example.test');
+  checks.push(
+    'Supervisor rework request, resubmission, approval, timeline, submission history and task dashboard',
   );
 
   // ---------------------------------------------------------- admin
@@ -413,6 +598,17 @@ try {
     await page.getByText('Chiller unit').first().waitFor();
     await noOverflow(device + ' list');
     await shoot(`list-${device}`);
+    await page.goto(origin + '/tasks');
+    await page.getByText('Daily AC inspection').first().waitFor();
+    await page
+      .getByRole('button', { name: 'Daily AC inspection', exact: true })
+      .first()
+      .click();
+    await page
+      .getByRole('heading', { level: 1, name: 'Daily AC inspection' })
+      .waitFor();
+    await noOverflow(device + ' task detail');
+    await shoot(`task-${device}`);
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await button('Toggle navigation').click();
@@ -423,7 +619,7 @@ try {
   await button('Cancel').click();
   await page.setViewportSize({ width: 1440, height: 1000 });
   checks.push(
-    'Desktop, tablet and mobile dashboard, list and form without page overflow',
+    'Desktop, tablet and mobile dashboard, lists, task detail and form without page overflow',
   );
 
   // ---------------------------------------------------------- isolation & logout

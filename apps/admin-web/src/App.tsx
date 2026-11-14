@@ -75,6 +75,7 @@ import {
 } from './management/Assets';
 import { AccessPage, CompanySettings, RolesPage } from './management/Admin';
 import { clearLabelCache, type Context } from './management/context';
+import { TaskArea } from './management/Tasks';
 import {
   Avatar,
   IconCircle,
@@ -831,6 +832,12 @@ function Screen({
         <RolesPage />
       ) : page.screen === 'access' ? (
         <AccessPage context={context} />
+      ) : page.screen === 'taskDashboard' ||
+        page.screen === 'tasks' ||
+        page.screen === 'taskAssignments' ||
+        page.screen === 'approvals' ||
+        page.screen === 'taskHistory' ? (
+        <TaskArea key={page.id} context={context} screen={page.screen} />
       ) : (
         <CompanySettings
           key={access.company.updatedAt.toMillis()}
