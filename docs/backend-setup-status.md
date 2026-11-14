@@ -1,3 +1,5 @@
+> Release update, 14 November 2026: Phase 1 was explicitly authorized, merged as `1dd9a95`, and deployed to GitHub Pages. Firebase confirmed rules/index deployment; a subsequent read-only CLI check reported all 23 indexes READY. Statements below about Phase 1 being undeployed are historical. This correction branch has NOT been deployed or migrated.
+
 # Backend setup status
 
 Updated 13 November 2026. This status supersedes the earlier setup blockers in the foundation report.

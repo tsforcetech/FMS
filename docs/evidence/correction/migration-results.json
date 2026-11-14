@@ -1,0 +1,13 @@
+{
+  "environment": "isolated demo emulator",
+  "passed": [
+    "dry-run writes nothing",
+    "full original site backup",
+    "physical fields preserved",
+    "legacy references detached",
+    "reviewed draft allocation created",
+    "reference counters reconciled",
+    "replay creates no duplicates"
+  ],
+  "productionWrites": 0
+}

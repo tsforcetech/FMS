@@ -1,7 +1,13 @@
 name: FacilityOS checks
 on:
   push:
-    branches: [main, feature/phase0-foundation, feature/phase1-company-sites]
+    branches:
+      [
+        main,
+        feature/phase0-foundation,
+        feature/phase1-company-sites,
+        feature/phase1-site-contract-decoupling,
+      ]
   pull_request:
 permissions:
   contents: read
@@ -23,6 +29,7 @@ jobs:
       - run: npm run format:check
       - run: npm run check
       - run: npm run test:rules
+      - run: npm run test:migration
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4

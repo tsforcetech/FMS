@@ -1,3 +1,5 @@
+> Correction branch: new sites use schema 2 without client/contract ownership. See [the implemented relationship correction](../site-contract-correction-report.md) for allocations, occupancy and migration. The schema-1 site description below remains the legacy read/migration contract.
+
 # Phase 1 operational schema
 
 All records live beneath an authorized `companies/{companyId}`. No collection-group queries, public reads, staff operational access, hard deletes or browser-created tenants are enabled.

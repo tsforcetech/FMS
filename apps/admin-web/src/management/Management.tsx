@@ -251,7 +251,6 @@ function Editor({
       ...(key === 'siteId'
         ? { ...(kind === 'locations' ? { parentId: '' } : { locationId: '' }) }
         : {}),
-      ...(key === 'clientId' && kind === 'sites' ? { contractId: '' } : {}),
     }));
   }
   async function submit(e: FormEvent) {
@@ -319,6 +318,14 @@ function Editor({
             </label>
           ))}
         </div>
+      ) : f.reference && record && kind === 'contractAllocations' ? (
+        <p>
+          <ReferenceLabel
+            context={context}
+            kind={f.reference}
+            id={values[f.key]}
+          />
+        </p>
       ) : f.reference ? (
         <Selector
           context={context}
@@ -329,9 +336,7 @@ function Editor({
           filter={
             f.reference === 'locations'
               ? { key: 'siteId', value: values.siteId }
-              : f.reference === 'contracts'
-                ? { key: 'clientId', value: values.clientId }
-                : undefined
+              : undefined
           }
           onChange={(v) => change(f.key, v)}
         />
@@ -339,6 +344,11 @@ function Editor({
         <select
           id={formId + f.key}
           className="input"
+          disabled={
+            !!record &&
+            kind === 'contractAllocations' &&
+            f.key === 'allocationType'
+          }
           value={values[f.key]}
           onChange={(e) => change(f.key, e.target.value)}
         >
@@ -364,7 +374,12 @@ function Editor({
           type={f.type || 'text'}
           value={values[f.key]}
           maxLength={f.max || 200}
-          disabled={!!record && f.key === 'code'}
+          disabled={
+            !!record &&
+            (f.key === 'code' ||
+              (kind === 'contractAllocations' &&
+                ['startDate', 'endDate'].includes(f.key)))
+          }
           onChange={(e) =>
             change(
               f.key,
@@ -395,6 +410,36 @@ function Editor({
         Fields marked * are required. Codes stay reserved, including after
         archive.
       </p>
+      {kind === 'sites' && (
+        <p>
+          Sites are physical properties. Client and contract coverage is managed
+          through Contract allocations.
+        </p>
+      )}
+      {kind === 'sites' && record?.legacyLinks && (
+        <p role="status">
+          Legacy client links are preserved for migration review. Editing this
+          site does not remove or change them.
+        </p>
+      )}
+      {kind === 'contractAllocations' && (
+        <>
+          <p>
+            Service coverage may cover a whole site. Occupancy requires a space
+            and dates within one calendar year. Each space/year supports up to
+            12 retained bookings. Shared occupancy has no capacity cap, but
+            cannot overlap an exclusive booking.
+          </p>
+          <p>
+            Dates are inclusive. Termination releases dates after the effective
+            termination date. Identity and planned dates cannot be edited;
+            create a replacement allocation.
+          </p>
+          {values.contractId && (
+            <DerivedClient context={context} contractId={values.contractId} />
+          )}
+        </>
+      )}
       <form onSubmit={(e) => void submit(e)} noValidate>
         <fieldset disabled={busy}>
           <legend>Basic information</legend>
@@ -479,16 +524,14 @@ function SummaryCounts({
     let active = true;
     const requests: [Kind, string][] =
       kind === 'clients'
-        ? [
-            ['sites', 'clientId'],
-            ['contracts', 'clientId'],
-          ]
+        ? [['contracts', 'clientId']]
         : kind === 'contracts'
-          ? [['sites', 'contractId']]
+          ? [['contractAllocations', 'contractId']]
           : kind === 'sites'
             ? [
                 ['locations', 'siteId'],
                 ['facilities', 'siteId'],
+                ['contractAllocations', 'siteId'],
               ]
             : kind === 'locations'
               ? [['facilities', 'locationId']]
@@ -594,6 +637,94 @@ function History({ context, id }: { context: Context; id: string }) {
     </section>
   );
 }
+function DerivedClient({
+  context,
+  contractId,
+}: {
+  context: Context;
+  contractId: string;
+}) {
+  const [client, setClient] = useState('');
+  useEffect(() => {
+    let active = true;
+    recordById(
+      context.services.db,
+      context.company.companyId,
+      'contracts',
+      contractId,
+    ).then((r) => {
+      if (active) setClient(r?.values.clientId || '');
+    });
+    return () => {
+      active = false;
+    };
+  }, [context.services.db, context.company.companyId, contractId]);
+  return (
+    <p>
+      Client derived from contract:{' '}
+      {client ? (
+        <ReferenceLabel context={context} kind="clients" id={client} />
+      ) : (
+        'Loading…'
+      )}
+    </p>
+  );
+}
+function AllocationHistory({ context, id }: { context: Context; id: string }) {
+  const [rows, setRows] = useState<
+      { revision: number; status: string; date: string; end: string }[]
+    >([]),
+    [error, setError] = useState('');
+  useEffect(() => {
+    let active = true;
+    getDocs(
+      query(
+        collection(
+          context.services.db,
+          'companies',
+          context.company.companyId,
+          'contractAllocations',
+          id,
+          'history',
+        ),
+        orderBy('revision', 'desc'),
+        limit(20),
+      ),
+    )
+      .then((s) => {
+        if (active)
+          setRows(
+            s.docs.map((x) => {
+              const d = x.data();
+              return {
+                revision: d.revision,
+                status: d.snapshot.status,
+                date: d.occurredAt.toDate().toLocaleString(),
+                end: d.snapshot.effectiveEndDate || d.snapshot.endDate,
+              };
+            }),
+          );
+      })
+      .catch((e) => {
+        if (active) setError(failure(e));
+      });
+    return () => {
+      active = false;
+    };
+  }, [context.services.db, context.company.companyId, id]);
+  return (
+    <section>
+      <h3>Allocation history</h3>
+      <p>Latest 20 decisions. Earlier events remain preserved.</p>
+      {rows.map((r) => (
+        <p key={r.revision}>
+          Revision {r.revision} · {r.status} · through {r.end} · {r.date}
+        </p>
+      ))}
+      {error && <p role="alert">{error}</p>}
+    </section>
+  );
+}
 function ReferenceLabel({
   context,
   kind,
@@ -644,6 +775,7 @@ function Details({
         'Overview',
         'Locations',
         'Facilities',
+        'Contract allocations',
         'Related Assets',
         'Task Operations',
         'Maintenance',
@@ -717,7 +849,7 @@ function Details({
           {kind === 'clients' && (
             <RecordList
               context={context}
-              kind="sites"
+              kind="contracts"
               filter={{ key: 'clientId', value: record.id }}
               initial={{ clientId: record.id }}
             />
@@ -725,13 +857,25 @@ function Details({
           {kind === 'contracts' && (
             <RecordList
               context={context}
-              kind="sites"
+              kind="contractAllocations"
               filter={{ key: 'contractId', value: record.id }}
               initial={{
                 contractId: record.id,
-                clientId: record.values.clientId,
               }}
             />
+          )}
+          {kind === 'contractAllocations' && (
+            <>
+              <p>
+                Client at allocation:{' '}
+                <ReferenceLabel
+                  context={context}
+                  kind="clients"
+                  id={record.clientIdSnapshot!}
+                />
+              </p>
+              <AllocationHistory context={context} id={record.id} />
+            </>
           )}
           {kind === 'facilities' && (
             <>
@@ -744,6 +888,13 @@ function Details({
             </>
           )}
         </>
+      ) : tab === 'Contract allocations' ? (
+        <RecordList
+          context={context}
+          kind="contractAllocations"
+          filter={{ key: 'siteId', value: record.id }}
+          initial={{ siteId: record.id }}
+        />
       ) : tab === 'Locations' ? (
         <>
           <LocationTree
@@ -1311,7 +1462,7 @@ export function Management({
       ? ['facilities', 'locations', 'facilityTypes']
       : section === 'settings'
         ? ['company']
-        : ['clients', 'contracts', 'sites', 'company'];
+        : ['clients', 'contracts', 'sites', 'contractAllocations', 'company'];
   const [tab, setTab] = useState<Kind | 'company'>(tabs[0]);
   const [site, setSite] = useState('');
   const context = { services, company, uid };

@@ -23,7 +23,8 @@
     "seed:emulator": "node scripts/seed-emulator.mjs",
     "provision:owner": "node scripts/provision-owner.mjs",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
-    "test:browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs\""
+    "test:browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs\"",
+    "test:migration": "node scripts/site-migration-plan.test.mjs && firebase emulators:exec --project demo-facilityos-migration --only firestore \"node scripts/test-site-migration.mjs\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

@@ -6,6 +6,7 @@ export const kinds = [
   'clients',
   'contracts',
   'sites',
+  'contractAllocations',
   'locations',
   'facilityTypes',
   'facilities',
@@ -66,13 +67,6 @@ export const definitions: Record<
     title: 'Sites',
     singular: 'site',
     fields: [
-      {
-        key: 'clientId',
-        label: 'Client',
-        required: true,
-        reference: 'clients',
-      },
-      { key: 'contractId', label: 'Contract', reference: 'contracts' },
       {
         key: 'propertyType',
         label: 'Property type',
@@ -135,6 +129,41 @@ export const definitions: Record<
       { key: 'description', label: 'Description', type: 'textarea' },
     ],
   },
+  contractAllocations: {
+    title: 'Contract allocations',
+    singular: 'allocation',
+    fields: [
+      {
+        key: 'contractId',
+        label: 'Contract',
+        required: true,
+        reference: 'contracts',
+      },
+      { key: 'siteId', label: 'Site', required: true, reference: 'sites' },
+      {
+        key: 'locationId',
+        label: 'Space (empty for whole-site service)',
+        reference: 'locations',
+      },
+      {
+        key: 'allocationType',
+        label: 'Allocation type',
+        required: true,
+        options: [
+          'service_coverage',
+          'exclusive_occupancy',
+          'shared_occupancy',
+        ],
+      },
+      { key: 'startDate', label: 'Start date', required: true, type: 'date' },
+      { key: 'endDate', label: 'End date', required: true, type: 'date' },
+      {
+        key: 'effectiveEndDate',
+        label: 'Effective termination date',
+        type: 'date',
+      },
+    ],
+  },
   facilityTypes: {
     title: 'Facility types',
     singular: 'facility type',
@@ -168,11 +197,13 @@ export const definitions: Record<
   },
 };
 export function statuses(kind: Kind) {
-  return kind === 'facilities'
-    ? ['active', 'under_maintenance', 'out_of_service', 'archived']
-    : kind === 'contracts'
-      ? ['draft', 'active', 'expired', 'archived']
-      : ['active', 'archived'];
+  return kind === 'contractAllocations'
+    ? ['draft', 'active', 'terminated', 'expired', 'archived']
+    : kind === 'facilities'
+      ? ['active', 'under_maintenance', 'out_of_service', 'archived']
+      : kind === 'contracts'
+        ? ['draft', 'active', 'expired', 'archived']
+        : ['active', 'archived'];
 }
 export function fieldsFor(kind: Kind): FieldSpec[] {
   return [
@@ -210,9 +241,10 @@ export function inputSchema(kind: Kind) {
     if (f.type === 'date')
       v = s.refine(
         (x) =>
-          /^\d{4}-\d{2}-\d{2}$/.test(x) &&
-          !isNaN(Date.parse(x)) &&
-          new Date(x).toISOString().slice(0, 10) === x,
+          (!f.required && x === '') ||
+          (/^\d{4}-\d{2}-\d{2}$/.test(x) &&
+            !isNaN(Date.parse(x)) &&
+            new Date(x).toISOString().slice(0, 10) === x),
         'Enter a valid date',
       );
     if (f.type === 'time')
@@ -253,7 +285,42 @@ export function inputSchema(kind: Kind) {
     .object(shape)
     .strict()
     .superRefine((v, ctx) => {
-      if (kind === 'contracts' && v.endDate < v.startDate)
+      if (kind === 'contractAllocations') {
+        const error = (key: string, message: string) =>
+          ctx.addIssue({ code: 'custom', path: [key], message });
+        if (v.allocationType !== 'service_coverage') {
+          if (!v.locationId)
+            error('locationId', 'Choose a space for occupancy');
+          if (v.startDate.slice(0, 4) !== v.endDate.slice(0, 4))
+            error(
+              'endDate',
+              'Occupancy must fit one calendar year. Split multi-year contracts into annual allocations.',
+            );
+        }
+        if (
+          v.status === 'terminated' &&
+          (!v.effectiveEndDate ||
+            v.effectiveEndDate < v.startDate ||
+            v.effectiveEndDate > v.endDate)
+        )
+          error(
+            'effectiveEndDate',
+            'Choose a date within the allocation interval',
+          );
+        if (
+          !['terminated', 'archived'].includes(v.status) &&
+          v.effectiveEndDate
+        )
+          error(
+            'effectiveEndDate',
+            'Only termination uses an effective end date',
+          );
+      }
+
+      if (
+        ['contracts', 'contractAllocations'].includes(kind) &&
+        v.endDate < v.startDate
+      )
         ctx.addIssue({
           code: 'custom',
           path: ['endDate'],
@@ -264,7 +331,9 @@ export function inputSchema(kind: Kind) {
 export type Operation = {
   id: string;
   companyId: string;
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
+  legacyLinks?: { clientId: string; contractId: string };
+  clientIdSnapshot?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
@@ -291,12 +360,25 @@ export function parseOperation(
     refCount,
     witnessKind,
     witnessId,
-    ...values
+    clientIdSnapshot,
+    ...storedValues
   } = raw;
+  const legacyLinks =
+    kind === 'sites' && schemaVersion === 1
+      ? {
+          clientId: String(storedValues.clientId || ''),
+          contractId: String(storedValues.contractId || ''),
+        }
+      : undefined;
+  const values = { ...storedValues };
+  if (kind === 'sites') {
+    delete values.clientId;
+    delete values.contractId;
+  }
   const metadata = z
     .object({
       companyId: identifier,
-      schemaVersion: z.literal(1),
+      schemaVersion: z.union([z.literal(1), z.literal(2)]),
       createdAt: z.custom<Timestamp>((x) => x instanceof Timestamp),
       updatedAt: z.custom<Timestamp>((x) => x instanceof Timestamp),
       createdBy: z.string(),
@@ -318,15 +400,38 @@ export function parseOperation(
       witnessKind,
       witnessId,
     });
-  return { id, ...metadata, values: inputSchema(kind).parse(values) };
+  return {
+    id,
+    ...metadata,
+    legacyLinks,
+    ...(kind === 'contractAllocations'
+      ? {
+          clientIdSnapshot: z
+            .string()
+            .regex(/^[a-zA-Z0-9_-]{1,128}$/)
+            .parse(clientIdSnapshot),
+        }
+      : {}),
+    values: inputSchema(kind).parse(values),
+  };
 }
 export function referencePaths(kind: Kind, v: Values): string[] {
-  if (v.status === 'archived') return [];
+  if (
+    v.status === 'archived' ||
+    (kind === 'contractAllocations' &&
+      ['terminated', 'expired'].includes(v.status))
+  )
+    return [];
   return definitions[kind].fields
     .filter(
       (f) =>
         f.reference &&
         v[f.key] &&
+        !(
+          kind === 'contractAllocations' &&
+          f.key === 'siteId' &&
+          v.locationId
+        ) &&
         !(kind === 'facilities' && f.key === 'siteId') &&
         !(kind === 'locations' && f.key === 'siteId' && v.parentId),
     )
@@ -373,8 +478,6 @@ export type Contract = Operation & {
 };
 export type Site = Operation & {
   values: CommonValues & {
-    clientId: string;
-    contractId: string;
     propertyType: string;
     address: string;
     country: string;

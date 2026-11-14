@@ -21,7 +21,6 @@ describe('operational form validation', () => {
       ...defaultValues('sites'),
       code: 'S1',
       name: 'Site',
-      clientId: 'client',
     };
     expect(inputSchema('sites').safeParse(base).success).toBe(true);
     expect(

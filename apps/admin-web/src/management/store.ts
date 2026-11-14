@@ -15,6 +15,9 @@ import {
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import {
+  allocationSlot,
+  reserveSlot,
+  type OccupancySlot,
   definitions,
   inputSchema,
   parseOperation,
@@ -106,6 +109,42 @@ export async function saveRecord(
         'This record changed. Close the form and reload before editing.',
       );
     const old = snap.exists() ? parseOperation(kind, id, snap.data()) : null;
+    if (kind === 'contractAllocations' && old) {
+      if (
+        [
+          'contractId',
+          'siteId',
+          'locationId',
+          'allocationType',
+          'startDate',
+          'endDate',
+        ].some((k) => v[k] !== old.values[k])
+      )
+        throw Error(
+          'Allocation identity and dates are immutable. Close this allocation and create a replacement.',
+        );
+      const allowed: Record<string, string[]> = {
+        draft: ['draft', 'active', 'archived'],
+        active: ['active', 'terminated', 'expired'],
+        terminated: ['terminated', 'archived'],
+        expired: ['expired', 'archived'],
+        archived: ['archived'],
+      };
+      if (!allowed[old.values.status].includes(v.status))
+        throw Error('This allocation cannot change to that status.');
+      if (
+        old.values.effectiveEndDate &&
+        v.effectiveEndDate !== old.values.effectiveEndDate
+      )
+        throw Error('Termination dates cannot change after the decision.');
+    }
+    if (
+      kind === 'contractAllocations' &&
+      !old &&
+      !['draft', 'active'].includes(v.status)
+    )
+      throw Error('Create a draft or active allocation.');
+
     if (
       old &&
       definitions[kind].fields.filter(
@@ -123,10 +162,10 @@ export async function saveRecord(
       old &&
       kind === 'contracts' &&
       old.refCount > 0 &&
-      old.values.clientId !== v.clientId
+      ['clientId', 'startDate', 'endDate'].some((k) => old.values[k] !== v[k])
     )
       throw new Error(
-        'Reassign linked sites before changing the contract client.',
+        'Close linked allocations before changing the contract client or dates.',
       );
     if (old && v.status === 'archived' && old.refCount > 0)
       throw new Error('Archive or reassign active linked records first.');
@@ -136,8 +175,22 @@ export async function saveRecord(
       );
     if (old && kind === 'facilities' && old.values.siteId !== v.siteId)
       throw new Error('Facilities cannot move between sites in this phase.');
-    const oldRefs = referencePaths(kind, old?.values || { status: 'archived' }),
-      newRefs = referencePaths(kind, v);
+    const legacyRefs = (status: string) =>
+      old?.legacyLinks && status !== 'archived'
+        ? [
+            ...(old.legacyLinks.clientId
+              ? ['clients/' + old.legacyLinks.clientId]
+              : []),
+            ...(old.legacyLinks.contractId
+              ? ['contracts/' + old.legacyLinks.contractId]
+              : []),
+          ]
+        : [];
+    const oldRefs = [
+        ...referencePaths(kind, old?.values || { status: 'archived' }),
+        ...legacyRefs(old?.values.status || 'archived'),
+      ],
+      newRefs = [...referencePaths(kind, v), ...legacyRefs(v.status)];
     const paths = [...new Set([...oldRefs, ...newRefs])];
     const parents = await Promise.all(
       paths.map((p) => tx.get(doc(db, `companies/${company}/${p}`))),
@@ -151,13 +204,6 @@ export async function saveRecord(
       )
         throw new Error('Choose an active linked record.');
     }
-    if (
-      kind === 'sites' &&
-      v.contractId &&
-      parents.find((p) => p.id === v.contractId)?.data()?.clientId !==
-        v.clientId
-    )
-      throw new Error('The contract belongs to a different client.');
     if (
       kind === 'facilities' &&
       parents.find((p) => p.id === v.locationId)?.data()?.siteId !== v.siteId
@@ -189,6 +235,71 @@ export async function saveRecord(
         parent = s.data().parentId;
       }
     }
+    let clientIdSnapshot = old?.clientIdSnapshot;
+    let calendarWrite:
+      | { ref: ReturnType<typeof doc>; data: Record<string, unknown> }
+      | undefined;
+    if (kind === 'contractAllocations') {
+      const contract = await tx.get(
+        doc(db, 'companies', company, 'contracts', v.contractId),
+      );
+      if (!contract.exists()) throw Error('Contract is missing.');
+      clientIdSnapshot = old?.clientIdSnapshot || contract.data().clientId;
+      if (!old || (old.values.status === 'draft' && v.status === 'active')) {
+        if (contract.data().status !== 'active')
+          throw Error('Choose an active contract.');
+        if (
+          v.startDate < contract.data().startDate ||
+          v.endDate > contract.data().endDate
+        )
+          throw Error('Allocation dates must fit within the contract dates.');
+        if (clientIdSnapshot !== contract.data().clientId)
+          throw Error('Contract client changed. Create a new allocation.');
+      }
+      if (v.locationId) {
+        const loc = await tx.get(
+          doc(db, 'companies', company, 'locations', v.locationId),
+        );
+        if (!loc.exists() || loc.data().siteId !== v.siteId)
+          throw Error('Choose a location in this site.');
+      }
+      const activation =
+        v.status === 'active' && (!old || old.values.status === 'draft');
+      const termination =
+        v.status === 'terminated' && old?.values.status === 'active';
+      if (
+        v.allocationType !== 'service_coverage' &&
+        (activation || termination)
+      ) {
+        const year = v.startDate.slice(0, 4),
+          ref = doc(
+            db,
+            'companies',
+            company,
+            'occupancyCalendars',
+            v.locationId + '_' + year,
+          ),
+          cal = await tx.get(ref);
+        const slots = reserveSlot(
+          (cal.data()?.slots || []) as OccupancySlot[],
+          allocationSlot(id, v),
+        );
+        calendarWrite = {
+          ref,
+          data: {
+            companyId: company,
+            siteId: v.siteId,
+            locationId: v.locationId,
+            year,
+            slots,
+            revision: (cal.data()?.revision || 0) + 1,
+            witnessId: id,
+            updatedAt: serverTimestamp(),
+            updatedBy: uid,
+          },
+        };
+      }
+    }
     const claim = doc(
       db,
       'companies',
@@ -214,7 +325,9 @@ export async function saveRecord(
     tx.set(target, {
       ...v,
       companyId: company,
-      schemaVersion: 1,
+      schemaVersion: kind === 'sites' ? old?.schemaVersion || 2 : 1,
+      ...(old?.legacyLinks || {}),
+      ...(kind === 'contractAllocations' ? { clientIdSnapshot } : {}),
       createdAt: old?.createdAt || serverTimestamp(),
       createdBy: old?.createdBy || uid,
       ...meta,
@@ -225,6 +338,15 @@ export async function saveRecord(
     });
     if (!old)
       tx.set(claim, { kind, recordId: id, code: v.code, companyId: company });
+    if (calendarWrite) tx.set(calendarWrite.ref, calendarWrite.data);
+    if (kind === 'contractAllocations')
+      tx.set(doc(target, 'history', String(revision)), {
+        companyId: company,
+        revision,
+        actorUid: uid,
+        occurredAt: serverTimestamp(),
+        snapshot: { ...v, clientIdSnapshot },
+      });
     if (kind === 'facilities')
       tx.set(doc(target, 'history', String(revision)), {
         companyId: company,

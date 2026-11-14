@@ -34,6 +34,7 @@ service cloud.firestore {
   function optionalContact(d) {return d.get('contactEmail','') is string && d.get('contactEmail','').size()<=200 && d.get('contactPhone','') is string && d.get('contactPhone','').size()<=200 && d.get('address','') is string && d.get('address','').size()<=2000 && d.get('country','') is string && d.get('country','').size()<=200;}
   function known(k) {return k in ['clients','contracts','sites','locations','facilityTypes','facilities'];}
   function active(d) {return d.get('status','archived') != 'archived';}
+  function referenced(k,d){return active(d) && (k!='contractAllocations'||!(d.status in ['terminated','expired']));}
   function counter(c,k,id) {
    let d=request.resource.data;
    let w=d.witnessKind;
@@ -71,13 +72,14 @@ service cloud.firestore {
    let d=request.resource.data;
    return (k=='clients' || k=='facilityTypes')
     || (k=='contracts' && ref(c,k,id,'clientId','clients'))
-    || (k=='sites' && ref(c,k,id,'clientId','clients') && ref(c,k,id,'contractId','contracts') && (!active(d) || d.contractId=='' || getAfter(/databases/$(database)/documents/companies/$(c)/$('contracts')/$(d.contractId)).data.clientId==d.clientId))
+    || (k=='sites' && (d.schemaVersion==2 || (ref(c,k,id,'clientId','clients') && ref(c,k,id,'contractId','contracts'))))
+    || (k=='contractAllocations' && allocationRelations(c,id))
     || (k=='locations' && ref(c,k,id,'siteId','sites') && ref(c,k,id,'parentId','locations') && (!active(d) || chain4(c,id,d.siteId,d.parentId)))
     || (k=='facilities' && ref(c,k,id,'locationId','locations') && ref(c,k,id,'typeId','facilityTypes') && (!active(d) || getAfter(/databases/$(database)/documents/companies/$(c)/$('locations')/$(d.locationId)).data.siteId==d.siteId));
   }
   function business(c,k,id) {
    let d=request.resource.data;
-   return d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$')
+   return d.companyId==c && (d.schemaVersion==1 || (k=='sites'&&d.schemaVersion==2)) && id.matches('^[a-zA-Z0-9_-]{1,128}$')
     && d.code is string && d.code.matches('^[A-Z0-9][A-Z0-9_-]{0,39}$')
     && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
     && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
@@ -93,11 +95,71 @@ service cloud.firestore {
   }
   function shape_clients(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber']) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
   function shape_contracts(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'startDate', 'endDate', 'serviceDescription']) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
-  function shape_sites(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description']) && d.status in ['active', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
+  function shape_sites(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description']) && d.status in ['active', 'archived'] && ((d.schemaVersion==2 && !d.keys().hasAny(['clientId','contractId'])) || (d.schemaVersion==1 && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$')))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
   function shape_locations(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'parentId', 'locationType', 'floorNumber', 'description']) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
   function shape_facilityTypes(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'description']) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
   function shape_facilities(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'locationId', 'typeId', 'condition', 'description']) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
-  function shape(k,d) {return k=='clients' ? shape_clients(d) : k=='contracts' ? shape_contracts(d) : k=='sites' ? shape_sites(d) : k=='locations' ? shape_locations(d) : k=='facilityTypes' ? shape_facilityTypes(d) : k=='facilities' ? shape_facilities(d) : false;}
+  function shape(k,d) {return k=='clients' ? shape_clients(d) : k=='contracts' ? shape_contracts(d) : k=='sites' ? shape_sites(d) : k=='locations' ? shape_locations(d) : k=='facilityTypes' ? shape_facilityTypes(d) : k=='facilities' ? shape_facilities(d) : k=='contractAllocations'?shape_allocations(d):false;}
+
+  // Allocations preserve their original contract/client and planned interval; no hard delete.
+  function shape_allocations(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','contractId','siteId','locationId','allocationType','startDate','endDate','effectiveEndDate','clientIdSnapshot'])
+   && d.status in ['draft','active','terminated','expired','archived']
+   && d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.clientIdSnapshot.matches('^[a-zA-Z0-9_-]{1,128}$')
+   && d.locationId is string && (d.locationId==''||d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$'))
+   && d.allocationType in ['service_coverage','exclusive_occupancy','shared_occupancy'] && calendar(d.startDate)&&calendar(d.endDate)&&d.startDate<=d.endDate
+   && (d.allocationType=='service_coverage'||(d.locationId!=''&&d.startDate.split('-')[0]==d.endDate.split('-')[0]))
+   && d.effectiveEndDate is string && (d.effectiveEndDate==''||(calendar(d.effectiveEndDate)&&d.effectiveEndDate>=d.startDate&&d.effectiveEndDate<=d.endDate))
+   && (d.status!='terminated'||d.effectiveEndDate!='') && (d.status in ['terminated','archived']||d.effectiveEndDate=='');}
+  function allocationRelations(c,id){
+   let d=request.resource.data;let old=exists(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(id))?get(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(id)).data:{};
+   let was=old.get('status','archived') in ['draft','active'];let now=d.status in ['draft','active'];
+   let targetKind=d.locationId==''?'sites':'locations';let targetId=d.locationId==''?d.siteId:d.locationId;
+   return (was==now||(increment(c,'contractAllocations',id,'contracts',d.contractId,now?1:-1)&&increment(c,'contractAllocations',id,targetKind,targetId,now?1:-1)))
+    && (!now||getAfter(/databases/$(database)/documents/companies/$(c)/$(targetKind)/$(targetId)).data.status!='archived')
+    && (d.locationId==''||getAfter(/databases/$(database)/documents/companies/$(c)/locations/$(d.locationId)).data.siteId==d.siteId);
+  }
+  function allocationCounter(c,k,id){
+   let d=request.resource.data;let old=exists(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId))?get(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId)).data:{};
+   let after=getAfter(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId)).data;
+   let was=old.get('status','archived') in ['draft','active'];let now=after.status in ['draft','active'];
+   return k in ['contracts','sites','locations'] && was!=now && (k=='contracts'?after.contractId==id:k=='sites'?after.siteId==id&&after.locationId=='':after.locationId==id)
+    && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
+    && d.refCount is int&&d.refCount==resource.data.refCount+(now?1:-1)&&d.refCount>=0&&d.updatedAt==request.time&&d.updatedBy==request.auth.uid;
+  }
+  function allocationUpdateShape(d,b){return d.diff(b).affectedKeys().hasOnly(['name','notes','status','effectiveEndDate','revision','updatedAt','updatedBy']) && d.status in ['draft','active','terminated','expired','archived'] && d.effectiveEndDate is string && (d.effectiveEndDate==b.effectiveEndDate||(calendar(d.effectiveEndDate)&&d.effectiveEndDate>=d.startDate&&d.effectiveEndDate<=d.endDate)) && (d.status!='terminated'||d.effectiveEndDate!='') && (d.status in ['terminated','archived']||d.effectiveEndDate=='');}
+  function allocationValid(c,id,creating){let d=request.resource.data;return id.matches('^[a-zA-Z0-9_-]{1,128}$')&&d.companyId==c&&d.schemaVersion==1&&d.code.matches('^[A-Z0-9][A-Z0-9_-]{0,39}$')&&d.name is string&&d.name.size()>0&&d.name.size()<=120&&d.notes is string&&d.notes.size()<=2000&&d.refCount==0&&d.witnessKind==''&&d.witnessId==''&&d.updatedAt==request.time&&d.updatedBy==request.auth.uid&&(creating?shape_allocations(d):allocationUpdateShape(d,resource.data))&&allocationRelations(c,id);}
+  function allocationSnapshot(d){return {'code':d.code,'name':d.name,'notes':d.notes,'status':d.status,'contractId':d.contractId,'siteId':d.siteId,'locationId':d.locationId,'allocationType':d.allocationType,'startDate':d.startDate,'endDate':d.endDate,'effectiveEndDate':d.effectiveEndDate,'clientIdSnapshot':d.clientIdSnapshot};}
+  function slot(id,d){return {'allocationId':id,'startDate':d.startDate,'endDate':d.effectiveEndDate==''?d.endDate:d.effectiveEndDate,'allocationType':d.allocationType};}
+  function allocationChange(c,id,creating){
+   let d=request.resource.data;let b=creating?{}:resource.data;
+   let contract=get(/databases/$(database)/documents/companies/$(c)/contracts/$(d.contractId)).data;
+   let starting=creating||(b.status=='draft'&&d.status=='active');
+   let reserving=d.allocationType!='service_coverage'&&((d.status=='active'&&(creating||b.status=='draft'))||(d.status=='terminated'&&b.status=='active'));
+   let h=getAfter(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(id)/history/$(string(d.revision))).data;
+   return (creating?d.status in ['draft','active']:(true
+    && d.status in {'draft':['draft','active','archived'],'active':['active','terminated','expired'],'terminated':['terminated','archived'],'expired':['expired','archived'],'archived':['archived']}[b.status]
+    && (d.effectiveEndDate==b.effectiveEndDate||(b.status=='active'&&d.status=='terminated'))))
+    && (!starting||(contract.status=='active'&&d.clientIdSnapshot==contract.clientId&&d.startDate>=contract.startDate&&d.endDate<=contract.endDate))
+    && h.snapshot==allocationSnapshot(d) && h.actorUid==request.auth.uid && h.occurredAt==request.time
+    && (!reserving||calendarContains(c,id,d));
+  }
+  function calendarContains(c,id,d){let a=getAfter(/databases/$(database)/documents/companies/$(c)/occupancyCalendars/$(d.locationId+'_'+d.startDate.split('-')[0])).data;return a.witnessId==id&&slot(id,d) in a.slots;}
+  function noConflict(a,b){return a.allocationId==b.allocationId||a.endDate<b.startDate||b.endDate<a.startDate||(a.allocationType=='shared_occupancy'&&b.allocationType=='shared_occupancy');}
+  function slotChange(before,after,index,witness,expected){return index>=after.size()||(index>=before.size()?after[index]==expected:(before[index]==after[index]||(before[index].allocationId==witness&&after[index]==expected&&after[index].startDate==before[index].startDate&&after[index].endDate<=before[index].endDate&&after[index].allocationType==before[index].allocationType)));}
+  function slotConflict(slots,index,expected){return index>=slots.size()||noConflict(slots[index],expected);}
+  function validCalendar(c,id,creating){
+   let d=request.resource.data;let b=creating?{'slots':[],'revision':0}:resource.data;
+   let before=exists(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId))?get(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId)).data:{};
+   let a=getAfter(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId)).data;let expected=slot(d.witnessId,a);
+   return d.keys().hasOnly(['companyId','siteId','locationId','year','slots','revision','witnessId','updatedAt','updatedBy'])
+    && d.companyId==c&&d.siteId==a.siteId&&d.locationId==a.locationId&&d.year==a.startDate.split('-')[0]&&id==d.locationId+'_'+d.year
+    && d.updatedAt==request.time&&d.updatedBy==request.auth.uid&&d.revision==b.revision+1
+    && a.allocationType!='service_coverage' && a.revision==before.get('revision',0)+1
+    && ((a.status=='active'&&before.get('status','draft')=='draft')||(a.status=='terminated'&&before.status=='active'))
+    && d.slots is list && d.slots.size()>0&&d.slots.size()<=12 && expected in d.slots
+    && d.slots.size()==b.slots.size()+(a.status=='active'?1:0)
+    && (creating||(d.siteId==b.siteId&&d.locationId==b.locationId&&d.year==b.year))
+    && (a.status=='active'?(d.slots==b.slots.concat([expected]) && (b.slots.size()<=0||noConflict(b.slots[0],expected)) && (b.slots.size()<=1||noConflict(b.slots[1],expected)) && (b.slots.size()<=2||noConflict(b.slots[2],expected)) && (b.slots.size()<=3||noConflict(b.slots[3],expected)) && (b.slots.size()<=4||noConflict(b.slots[4],expected)) && (b.slots.size()<=5||noConflict(b.slots[5],expected)) && (b.slots.size()<=6||noConflict(b.slots[6],expected)) && (b.slots.size()<=7||noConflict(b.slots[7],expected)) && (b.slots.size()<=8||noConflict(b.slots[8],expected)) && (b.slots.size()<=9||noConflict(b.slots[9],expected)) && (b.slots.size()<=10||noConflict(b.slots[10],expected)) && (b.slots.size()<=11||noConflict(b.slots[11],expected))):d.slots==b.slots.removeAll([slot(d.witnessId,before)]).concat([expected]));}
   match /users/{uid} {
    allow get: if signedIn() && request.auth.uid == uid;
    allow list, create, delete: if false;
@@ -138,7 +200,7 @@ service cloud.firestore {
     allow get: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId)
      && request.resource.data.keys().hasOnly(['kind','recordId','code','companyId'])
-     && request.resource.data.companyId==companyId && known(request.resource.data.kind)
+     && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
      && claimId==request.resource.data.kind+'_'+request.resource.data.code
      && !exists(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId))
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
@@ -147,22 +209,25 @@ service cloud.firestore {
    match /{kind}/{id} {
     allow read: if known(kind) && admin(companyId) && activeCompany(companyId);
     allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
-     && business(companyId,kind,id)
+     && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
      && request.resource.data.status!='archived' && request.resource.data.revision==1 && request.resource.data.refCount==0
      && request.resource.data.witnessKind=='' && request.resource.data.witnessId==''
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
-     && (kind!='facilities' || facilityHistory(companyId,id));
+     && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true));
     allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
-     request.resource.data.refCount!=resource.data.refCount ? counter(companyId,kind,id) : (
+     request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):counter(companyId,kind,id)) : (
       business(companyId,kind,id)
+      && request.resource.data.schemaVersion==resource.data.schemaVersion
+      && (kind!='sites'||(request.resource.data.get('clientId','')==resource.data.get('clientId','')&&request.resource.data.get('contractId','')==resource.data.get('contractId','')))
       && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy
       && request.resource.data.code==resource.data.code && request.resource.data.revision==resource.data.revision+1
       && request.resource.data.diff(resource.data).affectedKeys().intersection(['clientId','contractId','siteId','parentId','locationId','typeId'].toSet()).size()<=1
       && request.resource.data.refCount==resource.data.refCount && request.resource.data.witnessKind==resource.data.witnessKind && request.resource.data.witnessId==resource.data.witnessId
       && (!(kind in ['locations','facilities']) || request.resource.data.siteId==resource.data.siteId)
-      && (kind!='contracts' || resource.data.refCount==0 || request.resource.data.clientId==resource.data.clientId)
+      && (kind!='contracts' || resource.data.refCount==0 || (request.resource.data.clientId==resource.data.clientId&&request.resource.data.startDate==resource.data.startDate&&request.resource.data.endDate==resource.data.endDate))
       && (kind!='facilities' || facilityHistory(companyId,id))
+      && (kind!='contractAllocations'||allocationChange(companyId,id,false))
      ));
     allow delete: if false;
    }
@@ -176,6 +241,35 @@ service cloud.firestore {
      && request.resource.data.condition==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.condition
      && request.resource.data.status==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.status
      && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
+    allow update,delete: if false;
+   }
+
+   match /contractAllocations/{id} {
+    allow read: if admin(companyId)&&activeCompany(companyId);
+    allow create: if admin(companyId)&&activeCompany(companyId)&&allocationValid(companyId,id,true)
+     && request.resource.data.createdAt==request.time&&request.resource.data.createdBy==request.auth.uid&&request.resource.data.revision==1
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$('contractAllocations_'+request.resource.data.code)).data.recordId==id
+     && allocationChange(companyId,id,true);
+    allow update: if admin(companyId)&&activeCompany(companyId)&&allocationValid(companyId,id,false)
+     && request.resource.data.createdAt==resource.data.createdAt&&request.resource.data.createdBy==resource.data.createdBy&&request.resource.data.code==resource.data.code&&request.resource.data.revision==resource.data.revision+1
+     && allocationChange(companyId,id,false);
+    allow delete: if false;
+   }
+   match /occupancyCalendars/{id} {
+    allow get: if admin(companyId)&&activeCompany(companyId);
+    allow create: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,true);
+    allow update: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,false);
+    allow list,delete: if false;
+   }
+   match /contractAllocations/{id}/history/{event} {
+    allow read: if admin(companyId)&&activeCompany(companyId);
+    allow create: if admin(companyId)&&activeCompany(companyId)
+     && request.resource.data.keys().hasOnly(['companyId','revision','actorUid','occurredAt','snapshot'])
+     && request.resource.data.companyId==companyId && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time
+     && event==string(request.resource.data.revision)
+     && request.resource.data.snapshot==allocationSnapshot(getAfter(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data)
+     && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data.revision
+     && (!exists(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id))||request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data.revision+1);
     allow update,delete: if false;
    }
    // Future site-scoped modules remain closed until their own permission tests exist.
