@@ -41,6 +41,7 @@ import {
   AlertCircle,
   FolderKanban,
   ClipboardList,
+  Timer,
 } from 'lucide-react';
 import {
   definitions,
@@ -123,6 +124,7 @@ export const kindIcons: Record<Kind, LucideIcon> = {
   stores: Warehouse,
   taskCategories: FolderKanban,
   taskTemplates: ClipboardList,
+  slaPolicies: Timer,
 };
 const kindTone: Partial<Record<Kind, Tone>> = {
   clients: 'violet',

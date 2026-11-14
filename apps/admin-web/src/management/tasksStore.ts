@@ -32,6 +32,7 @@ import {
   type Priority,
 } from '@facilityos/shared';
 import { UserError } from './store';
+import { adminUids, linkedUids, notifySafely } from './notifyStore';
 
 export type TemplateVersion = {
   id: string;
@@ -69,6 +70,8 @@ export type Task = {
   attempt: number;
   draftAnswers: Record<string, string>;
   occurrenceKey: string;
+  scheduleId?: string;
+  origin?: 'manual' | 'schedule' | 'maintenance';
   cancelReason: string;
   exceptionCount: number;
   evidencePending: boolean;
@@ -396,7 +399,7 @@ export async function createTask(
   });
   return id;
 }
-function event(
+export function event(
   c: string,
   taskId: string,
   revision: number,
@@ -497,6 +500,14 @@ export async function transitionTask(
       ),
     );
   });
+  if (action === 'assign')
+    await notifySafely(db, c, uid, linkedUids(db, c, options.assigneeIds!), {
+      type: task.assigneeIds.length ? 'task_reassigned' : 'task_assigned',
+      recordKind: 'tasks',
+      recordId: task.id,
+      eventKey: `r${task.revision + 1}`,
+      body: `${task.reference} ${task.title}`,
+    });
 }
 /** Saves in-progress answers without changing the task status. */
 export async function saveProgress(
@@ -616,6 +627,20 @@ export async function submitTask(
     }
     await batch.commit();
   }
+  if (task.approvalRequired)
+    await notifySafely(
+      db,
+      c,
+      uid,
+      adminUids(db, c).then((u) => u.filter((x) => x !== uid)),
+      {
+        type: 'task_awaiting_approval',
+        recordKind: 'tasks',
+        recordId: task.id,
+        eventKey: `a${attempt}`,
+        body: `${task.reference} ${task.title}`,
+      },
+    );
   return result;
 }
 function exceptionBase(c: string, task: Task, attempt: number, uid: string) {
@@ -748,6 +773,14 @@ export async function reviewTask(
       ),
     );
   });
+  if (decision !== 'approve')
+    await notifySafely(db, c, uid, linkedUids(db, c, task.assigneeIds), {
+      type: decision === 'reject' ? 'task_rejected' : 'task_rework',
+      recordKind: 'tasks',
+      recordId: task.id,
+      eventKey: `a${task.attempt}`,
+      body: `${task.reference} ${task.title}: ${reason.trim().slice(0, 200)}`,
+    });
 }
 
 /* ================================================================ queries */

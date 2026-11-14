@@ -38,6 +38,8 @@ export const phase2Kinds = [
   // Phase 3 masters reuse the same generated-rule machinery.
   'taskCategories',
   'taskTemplates',
+  // Phase 4
+  'slaPolicies',
 ] as const;
 export const kinds = [...phase1Kinds, ...phase2Kinds] as const;
 export type Kind = (typeof kinds)[number];
@@ -1151,6 +1153,71 @@ export const definitions: Record<Kind, Definition> = {
         label: 'Description',
         type: 'textarea',
         section: 'General',
+      },
+    ],
+  },
+  slaPolicies: {
+    title: 'SLA policies',
+    singular: 'SLA policy',
+    description:
+      'Response and resolution targets by priority. The most specific policy (site and department) wins.',
+    columns: ['priority', 'appliesTo', 'responseMinutes', 'resolutionMinutes'],
+    fields: [
+      {
+        key: 'priority',
+        label: 'Priority',
+        required: true,
+        options: ['critical', 'high', 'medium', 'low'],
+        section: 'Targets',
+      },
+      {
+        key: 'appliesTo',
+        label: 'Applies to',
+        required: true,
+        options: ['all', 'workOrders', 'complaints', 'escalations'],
+        section: 'Targets',
+      },
+      {
+        key: 'responseMinutes',
+        label: 'Response target (minutes)',
+        required: true,
+        type: 'integer',
+        minValue: 1,
+        maxValue: 525600,
+        section: 'Targets',
+      },
+      {
+        key: 'resolutionMinutes',
+        label: 'Resolution target (minutes)',
+        required: true,
+        type: 'integer',
+        minValue: 1,
+        maxValue: 525600,
+        section: 'Targets',
+      },
+      {
+        key: 'hoursMode',
+        label: 'Clock',
+        required: true,
+        options: ['calendar', 'business'],
+        section: 'Targets',
+        help: 'Business hours follow the site working days and opening hours, skipping holidays.',
+      },
+      {
+        key: 'siteId',
+        label: 'Site',
+        reference: 'sites',
+        counted: false,
+        section: 'Scope',
+        help: 'Leave empty for every site.',
+      },
+      {
+        key: 'departmentId',
+        label: 'Department',
+        reference: 'departments',
+        counted: false,
+        section: 'Scope',
+        help: 'Leave empty for every department.',
       },
     ],
   },

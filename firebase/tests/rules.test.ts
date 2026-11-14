@@ -199,7 +199,7 @@ describe('tenant security rules', () => {
       }),
     );
     await assertFails(
-      getDoc(doc(db('owner-a'), 'companies', 'a', 'workOrders', 's')),
+      getDoc(doc(db('owner-a'), 'companies', 'a', 'invoices', 's')),
     );
   });
   it('allows own membership without exposing other staff', async () => {

@@ -1,0 +1,40 @@
+name: Task scheduler
+# Generates recurring task occurrences and due/overdue/SLA notifications every
+# 30 minutes, independently of any open browser. Pending activation until the
+# repository secrets SCHEDULER_EMAIL and SCHEDULER_PASSWORD are added for a
+# dedicated scheduler account (see docs/phase4-report.md). Without them the job
+# exits without doing anything.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Sign in and list companies only
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: task-scheduler
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run scheduler
+        env:
+          SCHEDULER_EMAIL: ${{ secrets.SCHEDULER_EMAIL }}
+          SCHEDULER_PASSWORD: ${{ secrets.SCHEDULER_PASSWORD }}
+          SCHEDULER_COMPANIES: ${{ vars.SCHEDULER_COMPANIES }}
+          SCHEDULER_DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+        run: npx tsx scripts/scheduler.ts

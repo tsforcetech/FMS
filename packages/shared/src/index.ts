@@ -129,3 +129,5 @@ export * from './operations';
 export * from './allocations';
 export * from './inventory';
 export * from './tasks';
+export * from './schedule';
+export * from './cases';
