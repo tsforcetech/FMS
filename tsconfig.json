@@ -12,11 +12,16 @@
     "resolveJsonModule": true,
     "types": ["vite/client", "node"],
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "paths": {
+      "@admin/*": ["./apps/admin-web/src/*"]
+    }
   },
   "include": [
     "apps/admin-web/src",
     "apps/admin-web/vite.config.ts",
+    "apps/staff-web/src",
+    "apps/staff-web/vite.config.ts",
     "packages",
     "firebase/tests",
     "vitest*.ts"

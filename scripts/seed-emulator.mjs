@@ -12,6 +12,7 @@ for (const [uid, email, name] of [
   ['local-owner', 'owner@example.test', 'Local Owner'],
   ['local-staff', 'staff@example.test', 'Local Staff'],
   ['local-supervisor', 'supervisor@example.test', 'Local Supervisor'],
+  ['localtech', 'tech@example.test', 'Local Technician'],
 ]) {
   try {
     await auth.getUser(uid);
@@ -29,7 +30,7 @@ for (const [uid, email, name] of [
   await db.doc(`users/${uid}`).set({ ...meta, uid, displayName: name });
   // The supervisor is an admin of company A only, so approvals can be reviewed
   // by someone other than the submitter.
-  for (const companyId of uid === 'local-supervisor'
+  for (const companyId of uid === 'local-supervisor' || uid === 'localtech'
     ? ['local-company-a']
     : ['local-company-a', 'local-company-b']) {
     const batch = db.batch();
@@ -52,7 +53,9 @@ for (const [uid, email, name] of [
           ? 'owner'
           : uid === 'local-supervisor'
             ? 'admin'
-            : 'staff',
+            : uid === 'localtech'
+              ? 'technician'
+              : 'staff',
       status: 'active',
     });
     batch.set(db.doc(`users/${uid}/companyAccess/${companyId}`), { companyId });

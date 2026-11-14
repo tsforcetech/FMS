@@ -89,7 +89,8 @@ export type Page = {
     | 'slaMonitor'
     | 'notificationCenter'
     | 'notificationSettings'
-    | 'schedulerMonitor';
+    | 'schedulerMonitor'
+    | 'staffAccess';
   /** Not yet available: shown with a phase label. */
   phase?: number;
   description?: string;
@@ -439,6 +440,12 @@ export const groups: Group[] = [
         screen: 'company',
       },
       { id: 'access', label: 'User access', icon: KeyRound, screen: 'access' },
+      {
+        id: 'staff-access',
+        label: 'Staff access',
+        icon: Link2,
+        screen: 'staffAccess',
+      },
       {
         id: 'scheduler',
         label: 'Scheduler monitor',

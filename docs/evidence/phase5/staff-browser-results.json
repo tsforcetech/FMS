@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "Admin links a provisioned technician login to one employee and site through Staff access",
+    "Login without a linked employee is refused with guidance",
+    "My Day: own tasks only, overdue first, shift from records, start-next action",
+    "Start, conditional and range validation, save progress, review summary with failed checks, submit for approval",
+    "Issue reported from a task with carried site/location and a linked work order reference",
+    "Supervisor rework reaches the technician; correction resubmitted as attempt 2 and approved with notification",
+    "Work order start, assistance request and resolution within the state machine; no verify for technicians",
+    "Calendar, history, shift profile and Arabic right-to-left layout",
+    "No horizontal overflow at 320, 375, 390, 768, 1024 and 1440 px",
+    "Signed-out sessions return to sign-in, including deep links"
+  ],
+  "environment": "local demo emulators only"
+}
