@@ -1,4 +1,4 @@
-/** Architecture contracts only. No Phase 0 collection writes or operational screens. */
+/** Future-phase architecture contracts. Operational Phase 1 models live in operations.ts. */
 import type { Timestamp } from 'firebase/firestore';
 import type { CompanyRole } from './index';
 export interface TenantRecord {
@@ -10,36 +10,6 @@ export interface TenantRecord {
   createdBy: string;
   updatedBy: string;
   archivedAt?: Timestamp;
-}
-export interface Client extends TenantRecord {
-  name: string;
-  contactEmail?: string;
-}
-export interface Contract extends TenantRecord {
-  clientId: string;
-  startAt: Timestamp;
-  endAt: Timestamp;
-  status: 'draft' | 'active' | 'expired';
-}
-export interface Site extends TenantRecord {
-  clientId: string;
-  contractId?: string;
-  name: string;
-  timeZone: string;
-  type: string;
-}
-export interface Location extends TenantRecord {
-  siteId: string;
-  parentLocationId: string | null;
-  name: string;
-  kind: 'building' | 'floor' | 'zone' | 'room' | 'outdoor' | 'custom';
-}
-export interface Facility extends TenantRecord {
-  siteId: string;
-  locationId: string;
-  typeId: string;
-  name: string;
-  condition: string;
 }
 export interface Asset extends TenantRecord {
   siteId: string;

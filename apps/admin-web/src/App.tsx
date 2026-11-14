@@ -63,6 +63,7 @@ import {
 } from '@facilityos/shared';
 import type { FirebaseServices } from './firebase';
 import { loadAccess, loadProfile } from './data';
+import { Management, ManagementSummary } from './management/Management';
 
 type Access = { company: Company; member: Membership };
 type Session = {
@@ -579,7 +580,7 @@ function Workspace({ services }: { services: FirebaseServices }) {
           <div className="help-card">
             <strong>Simple. Clear. Connected.</strong>
             <p>Every check, repair and request in one place.</p>
-            <span className="badge teal">Phase 0 · Foundation</span>
+            <span className="badge teal">Phase 1 · Management</span>
           </div>
         </div>
       </aside>
@@ -657,7 +658,15 @@ function Workspace({ services }: { services: FirebaseServices }) {
                   </span>
                 </div>
                 {location.pathname === '/' ? (
-                  <Dashboard access={access} />
+                  <Dashboard access={access} services={services} />
+                ) : currentModule?.phase === 1 ? (
+                  <Management
+                    key={currentModule.id}
+                    services={services}
+                    company={access.company}
+                    uid={access.member.uid}
+                    section={currentModule.id}
+                  />
                 ) : currentModule ? (
                   <Message title={'Coming in Phase ' + currentModule.phase}>
                     <p>
@@ -685,7 +694,7 @@ function Workspace({ services }: { services: FirebaseServices }) {
                   </button>
                 )}
                 <p className="footer-note">
-                  FacilityOS · Phase 0 admin foundation
+                  FacilityOS · Company & facility management
                 </p>
               </>
             )}
@@ -791,7 +800,13 @@ function TenantView({
     );
   return children({ member, company });
 }
-function Dashboard({ access }: { access: Access }) {
+function Dashboard({
+  access,
+  services,
+}: {
+  access: Access;
+  services: FirebaseServices;
+}) {
   return (
     <>
       <section className="summary-banner">
@@ -799,16 +814,15 @@ function Dashboard({ access }: { access: Access }) {
           <span className="eyebrow" style={{ color: '#c2e9e2' }}>
             YOUR COMPANY · CONNECTED
           </span>
-          <h2 className="section-gap">
-            A clear foundation for your facilities.
-          </h2>
+          <h2 className="section-gap">Your facilities, organised.</h2>
           <p>
-            Your company information is connected. Facility setup and daily
-            operations will be introduced in the next development phases.
+            Manage clients, contracts, sites and physical facilities in your
+            company workspace.
           </p>
         </div>
         <ShieldCheck size={42} />
       </section>
+      <ManagementSummary services={services} company={access.company} />
       <div className="foundation-grid">
         <article className="card">
           <span className="eyebrow">COMPANY PROFILE</span>
@@ -837,15 +851,15 @@ function Dashboard({ access }: { access: Access }) {
           </dl>
         </article>
         <article className="card">
-          <h3>Ready for the next step</h3>
-          <p>Company and facility setup is planned for Phase 1.</p>
+          <h3>Manage your facilities</h3>
+          <p>Set up your clients, sites and flexible location hierarchy.</p>
           <ul className="section-gap">
             <li>Clients, contracts and sites</li>
             <li>Buildings, rooms and outdoor areas</li>
             <li>Facility types and locations</li>
           </ul>
           <NavLink to="/companies-sites" className="btn secondary section-gap">
-            View planned module
+            Open management
             <ArrowRight size={16} />
           </NavLink>
         </article>

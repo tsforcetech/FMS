@@ -1,5 +1,13 @@
 # Security model
 
+## Phase 1 development branch
+
+The operational rules on this branch add owner/admin CRUD for clients, contracts, sites, locations, facility types and facilities, plus bounded safe company-profile edits. See [Phase 1 schema](../database/phase1-schema.md) and [verification report](../phase1-report.md). Phase 0 role/provisioning restrictions remain. These changes have not been deployed to the live Firebase project.
+
+Transactions and rules bind code claims, direct-reference counter changes and facility history to the exact business-record change. Archive requires zero active incoming references. Cross-site transfers, role changes and hard deletion remain denied. Every operational read/write checks canonical active tenant membership. Complex reassignments require one relationship change per save; parent chains are bounded. These are prototype rules requiring review before public rollout.
+
+## Phase 0 baseline (historical)
+
 Deny by default. Only Phase 0 profiles, company discovery hints, canonical memberships, company headers and direct audit reads are enabled. Even owners cannot modify company ownership, memberships, role grants or audit records from the client. Company profile editing and user invitations are deferred.
 
 | Principal          | Profile                                | Discovery hints       | Company header                | Own membership                                                      | Audit                      | Future modules       |

@@ -15,9 +15,10 @@ Updated 13 November 2026. This status supersedes the earlier setup blockers in t
 - The deployed security rules were retrieved and matched the repository source exactly.
 - The Cloud Billing API confirmed billing is disabled.
 
-## Remaining
+## Application and development status
 
-- Complete real browser login/logout, persistence, password-reset delivery and desktop/mobile visual checks.
-- GitHub Pages test publication is now authorized. The workflow builds the admin app with the repository base path and hash routing. Enabling Pages and confirming the deployed login screen remain pending. No Firebase Hosting or reference-website change is included.
-
-Backend provisioning and authenticated backend verification succeeded. Final client acceptance remains pending; Phase 1 has not started.
+- The foundation was merged into main and GitHub Pages deployed successfully at https://tsforcetech.github.io/FMS/#/login .
+- Real browser owner sign-in, company loading and persistence after refresh were verified. Live logout/reset delivery and responsive visual acceptance remain separate checks; emulator regression coverage is retained.
+- Phase 1 is implemented on `feature/phase1-company-sites`. New operational rules/indexes are committed for review, not deployed. The earlier statement that deployed rules match the repository applies to the Phase 0 main revision, not this development branch.
+- See [Phase 1 report](phase1-report.md) for current test evidence, limits and pending rollout steps.
+- No Firebase Hosting, billing or reference-website/DNS change is included.

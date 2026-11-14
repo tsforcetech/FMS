@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "Owner login, company loading and refresh persistence",
+    "Client validation, create and edit",
+    "Contract create and client selector",
+    "Site, working days, root and child location creation",
+    "Referenced location archive is blocked with a useful message",
+    "Facility type, facility create/edit and condition history",
+    "Desktop, tablet and mobile detail layouts without page overflow",
+    "Archive, company switching and no tenant data leakage",
+    "Logout and account-enumeration-safe password reset for known and unknown email"
+  ],
+  "viewports": ["1440x1000", "768x1024", "390x844"],
+  "pageErrors": [],
+  "environment": "local demo emulators only"
+}

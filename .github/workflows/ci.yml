@@ -1,7 +1,7 @@
-name: Phase 0 checks
+name: FacilityOS checks
 on:
   push:
-    branches: [main, feature/phase0-foundation]
+    branches: [main, feature/phase0-foundation, feature/phase1-company-sites]
   pull_request:
 permissions:
   contents: read
@@ -23,4 +23,12 @@ jobs:
       - run: npm run format:check
       - run: npm run check
       - run: npm run test:rules
-# No deployment job; deployment needs a separately approved project and URL.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase1-browser-evidence
+          path: docs/evidence/
+          if-no-files-found: ignore
+# This workflow validates only. Production Pages deployment remains tied to main.
