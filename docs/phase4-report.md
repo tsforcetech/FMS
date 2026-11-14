@@ -2,7 +2,7 @@
 
 Date: 14 November 2026. Branch: `feature/phase4-scheduling-maintenance`, started from `main` at `534d07a` (Phase 3 merged and deployed).
 
-Firebase stays on the **Spark** plan. No paid service, Cloud Function, Cloud Storage bucket or service-account key was added. `https://fms.flowb.io/` and its DNS were not touched. Nothing from this phase is deployed or merged yet (see [Release status](#release-status)).
+Firebase stays on the **Spark** plan. No paid service, Cloud Function, Cloud Storage bucket or service-account key was added. `https://fms.flowb.io/` and its DNS were not touched. Rules, indexes and UI were released with the owner's approval (see [Release status](#release-status)).
 
 ## Activation status
 
@@ -68,9 +68,10 @@ Indexes: 30 new (177 of 200), generated and verified.
 
 ## Release status
 
-- **Not deployed.** Phase 4 rules and 30 indexes are not in `facilityos-43386` yet. The Phase 3 rules currently live do not allow Phase 4 collections, so the Phase 4 UI must not be published before the rules and indexes are deployed.
-- **Not merged** into `main` (GitHub Pages publishes from `main`).
-- Release steps once approved: deploy rules and indexes → wait for indexes READY → merge → Pages deploys → add the scheduler secrets to activate automatic runs → confirm a server run in the Scheduler monitor. Rollback: redeploy rules/indexes from `534d07a` and revert the merge.
+- **Firestore rules and indexes deployed** to `facilityos-43386` on 14 November 2026 with the owner's approval. The released ruleset was read back and matches `firebase/firestore.rules` exactly; all 177 composite indexes report READY. Cloud Billing still reports `billingEnabled: false` (Spark).
+- **Merged to `main`** with the owner's approval; GitHub Pages publishes the UI from `main`: https://tsforcetech.github.io/FMS/
+- Automatic scheduling remains **pending activation** until the scheduler secrets are added (see above).
+- Rollback: redeploy rules and indexes from `534d07a` and revert the merge commit.
 
 ## Costs and paid-service notes (for decision only; nothing enabled)
 
