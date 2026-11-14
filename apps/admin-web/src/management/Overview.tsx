@@ -25,6 +25,11 @@ import { kindIcons } from './Records';
 import { pages } from '../nav';
 import { IconCircle, Pill, Skeleton, type Tone } from '../ui/kit';
 
+/** Friendly first name; falls back to the part before @ when the display name is an email. */
+function firstName(name: string) {
+  const base = name.includes('@') ? name.split('@')[0] : name.split(' ')[0];
+  return base.charAt(0).toUpperCase() + base.slice(1);
+}
 type Counts = Partial<
   Record<Kind | 'stockBalances' | 'legacySites', number | null>
 >;
@@ -262,7 +267,7 @@ export function Overview({
       <header className="page-head">
         <div>
           <h1>
-            {greeting(context.company.timeZone)}, {name.split(' ')[0]}{' '}
+            {greeting(context.company.timeZone)}, {firstName(name)}{' '}
             <span aria-hidden>👋</span>
           </h1>
           <p>
@@ -585,7 +590,7 @@ function QuickActions({ name }: { name: string }) {
         <h2>
           What would you
           <br />
-          like to do, <b>{name.split(' ')[0]}?</b>
+          like to do, <b>{firstName(name)}?</b>
         </h2>
         <p>Jump to any module or start a common task.</p>
       </div>
