@@ -312,8 +312,10 @@ export function generatedIndexes(): Index[] {
   add('templateVersions', [asc('templateId'), desc('version')]);
   add('templateVersions', [asc('templateId'), asc('state'), desc('version')]);
   // Phase 4 queries.
-  for (const f of ['scheduleId', 'origin', 'assetId'])
+  for (const f of ['scheduleId', 'origin', 'assetId']) {
     add('tasks', [asc(f), asc('dueAt')]);
+    add('tasks', [asc(f), desc('dueAt')]);
+  }
   add('recurringSchedules', [asc('purpose'), asc('name')]);
   add('recurringSchedules', [asc('purpose'), asc('status'), asc('name')]);
   add('recurringSchedules', [asc('status'), asc('name')]);

@@ -20,4 +20,4 @@ All documents live under `companies/{companyId}`, carry `companyId` and `schemaV
 
 ## Indexes
 
-30 new composite indexes (177 of 200): tasks by scheduleId/origin/assetId + dueAt; schedules by purpose/status + name; cases by status/site/source + createdAt and status + resolutionDueAt; work orders by asset; escalations by target department; caseEvents by kind + caseId + revision; notifications by recipient + createdAt/readAt; stock movements by work order; task exceptions by site.
+33 new composite indexes (180 of 200): tasks by scheduleId/origin/assetId + dueAt; schedules by purpose/status + name; cases by status/site/source + createdAt and status + resolutionDueAt; work orders by asset; escalations by target department; caseEvents by kind + caseId + revision; notifications by recipient + createdAt/readAt; stock movements by work order; task exceptions by site.

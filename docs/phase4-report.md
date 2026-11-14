@@ -53,7 +53,7 @@ See [Phase 4 schema](database/phase4-schema.md). Summary of the rules:
 - Notifications are readable only by their recipient, who can only set `readAt` once.
 - Staff (non-admin) still have no portal access; staff are **not** made admins to work around it (Phase 5).
 
-Indexes: 30 new (177 of 200), generated and verified.
+Indexes: 33 new (180 of 200), generated and verified.
 
 ## Verification (executed on this branch)
 
@@ -68,7 +68,7 @@ Indexes: 30 new (177 of 200), generated and verified.
 
 ## Release status
 
-- **Firestore rules and indexes deployed** to `facilityos-43386` on 14 November 2026 with the owner's approval. The released ruleset was read back and matches `firebase/firestore.rules` exactly; all 177 composite indexes report READY. Cloud Billing still reports `billingEnabled: false` (Spark).
+- **Firestore rules and indexes deployed** to `facilityos-43386` on 14 November 2026 with the owner's approval. The released ruleset was read back and matches `firebase/firestore.rules` exactly; all 180 composite indexes report READY (3 descending task indexes were added right after release, when the live smoke test showed the maintenance dashboard needed them). Cloud Billing still reports `billingEnabled: false` (Spark).
 - **Merged to `main`** with the owner's approval; GitHub Pages publishes the UI from `main`: https://tsforcetech.github.io/FMS/
 - Automatic scheduling remains **pending activation** until the scheduler secrets are added (see above).
 - Rollback: redeploy rules and indexes from `534d07a` and revert the merge commit.
