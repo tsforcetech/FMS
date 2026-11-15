@@ -15,6 +15,7 @@ jobs:
     env:
       VITE_BASE_PATH: /FMS/
       VITE_STAFF_BASE_PATH: /FMS/staff/
+      VITE_CUSTOMER_BASE_PATH: /FMS/customer/
       VITE_ROUTER_MODE: hash
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +28,8 @@ jobs:
       - run: npm run check
       # The staff portal is published beside the admin app at /FMS/staff/.
       - run: cp -r apps/staff-web/dist apps/admin-web/dist/staff
+      # Phase 7: the customer portal is published at /FMS/customer/.
+      - run: cp -r apps/customer-web/dist apps/admin-web/dist/customer
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/admin-web/dist

@@ -16,6 +16,9 @@ const staffRoles = [
   'technician',
   'staff',
   'viewer',
+  // Phase 7: customer portal logins. They are linked to a client (never an
+  // employee) in Administration → Customer access.
+  'customer',
 ];
 const { values } = parseArgs({
   options: {
@@ -78,6 +81,10 @@ await db.runTransaction(async (tx) => {
     throw new Error('Company not found or not active.');
   if (m.exists && ['owner', 'admin'].includes(m.data().role))
     throw new Error('This login is an owner/admin. Refusing to change it.');
+  if (m.exists && (m.data().role === 'customer') !== (role === 'customer'))
+    throw new Error(
+      'Refusing to convert between a staff login and a customer login. Use a separate email address.',
+    );
   const meta = {
     schemaVersion: 1,
     updatedAt: FieldValue.serverTimestamp(),
@@ -116,5 +123,7 @@ console.log(
   `Provisioned ${role} login ${user.uid} in company ${company}. Share this one-time password-setup link with the person privately:\n${link}`,
 );
 console.log(
-  'Next: link the login to the employee in Administration → Staff access.',
+  role === 'customer'
+    ? 'Next: link the login to the client in Administration → Customer access.'
+    : 'Next: link the login to the employee in Administration → Staff access.',
 );
