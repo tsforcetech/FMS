@@ -1,0 +1,45 @@
+name: Android app
+# Builds the FacilityOS Android test APK (debug-signed) from apps/mobile and
+# publishes it as a downloadable workflow artifact. A release (Play) build
+# needs the signing secrets FOS_KEYSTORE_BASE64, FOS_KEYSTORE_PASSWORD,
+# FOS_KEY_ALIAS and FOS_KEY_PASSWORD; without them only the debug APK is built.
+on:
+  push:
+    branches: [main, feature/phase6-mobile-apps]
+    paths:
+      [
+        'apps/**',
+        'packages/**',
+        'package-lock.json',
+        '.github/workflows/android.yml',
+      ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: cp .env.live.example .env.production.local
+      - run: npm run build -w @facilityos/mobile
+      - run: npx cap sync android
+        working-directory: apps/mobile
+      - run: ./gradlew assembleDebug --no-daemon
+        working-directory: apps/mobile/android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: facilityos-android-debug-apk
+          path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

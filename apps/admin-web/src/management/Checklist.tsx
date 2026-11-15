@@ -14,6 +14,7 @@ import {
   type VersionContent,
 } from '@facilityos/shared';
 import { Pill } from '../ui/kit';
+import type { ReactNode } from 'react';
 
 function Choice({
   options,
@@ -56,13 +57,17 @@ function Answer({
   value,
   onChange,
   disabled,
+  renderEvidence,
 }: {
   q: Question;
   value: string;
   onChange: (v: string) => void;
   disabled?: boolean;
+  renderEvidence?: (q: Question) => ReactNode;
 }) {
   const id = 'answer-' + q.id;
+  if (deferredAnswerTypes.includes(q.type) && renderEvidence)
+    return <>{renderEvidence(q)}</>;
   if (deferredAnswerTypes.includes(q.type)) {
     const Icon =
       q.type === 'photo' ? Camera : q.type === 'qr' ? QrCode : MapPin;
@@ -70,8 +75,8 @@ function Answer({
       <div className="deferred-answer">
         <Icon size={18} />
         {q.type === 'photo'
-          ? 'Photo upload arrives when file storage is enabled (Phase 4). Recorded as evidence pending.'
-          : 'Available in the mobile app (Phase 6). Recorded as evidence pending.'}
+          ? 'Photos are taken in the FacilityOS mobile app. Cloud upload is pending activation, so evidence is recorded as pending.'
+          : 'Captured in the FacilityOS mobile app. Recorded here as evidence pending.'}
       </div>
     );
   }
@@ -228,12 +233,15 @@ export function ChecklistForm({
   onChange,
   disabled,
   showErrors,
+  renderEvidence,
 }: {
   content: Pick<VersionContent, 'questions' | 'sections'>;
   answers: Record<string, string>;
   onChange?: (answers: Record<string, string>) => void;
   disabled?: boolean;
   showErrors?: boolean;
+  /** Mobile app: renders native capture controls for photo/QR/GPS questions. */
+  renderEvidence?: (q: Question) => ReactNode;
 }) {
   const visible = visibleQuestions(content, answers);
   const countable = visible.filter(
@@ -301,12 +309,17 @@ export function ChecklistForm({
                     value={v}
                     disabled={disabled || !onChange}
                     onChange={(x) => onChange?.({ ...answers, [q.id]: x })}
+                    renderEvidence={renderEvidence}
                   />
-                  {r.error && (showErrors || v.trim()) && (
-                    <span className="err" role="alert">
-                      {r.error}
-                    </span>
-                  )}
+                  {r.error &&
+                    (showErrors || v.trim()) &&
+                    !(
+                      renderEvidence && deferredAnswerTypes.includes(q.type)
+                    ) && (
+                      <span className="err" role="alert">
+                        {r.error}
+                      </span>
+                    )}
                   {r.exception && (
                     <span className={'exception ' + r.exception.severity}>
                       <AlertTriangle size={14} />{' '}

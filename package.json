@@ -6,6 +6,7 @@
   "workspaces": [
     "apps/admin-web",
     "apps/staff-web",
+    "apps/mobile",
     "packages/*"
   ],
   "engines": {
@@ -13,7 +14,7 @@
   },
   "scripts": {
     "dev": "npm run dev -w @facilityos/admin-web",
-    "build": "npm run build -w @facilityos/admin-web && npm run build -w @facilityos/staff-web",
+    "build": "npm run build -w @facilityos/admin-web && npm run build -w @facilityos/staff-web && npm run build -w @facilityos/mobile",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -27,7 +28,8 @@
     "test:browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs\"",
     "test:migration": "node scripts/site-migration-plan.test.mjs && firebase emulators:exec --project demo-facilityos-migration --only firestore \"node scripts/test-site-migration.mjs\"",
     "dev:staff": "npm run dev -w @facilityos/staff-web",
-    "test:staff-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/staff-browser-test.ts\""
+    "test:staff-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/staff-browser-test.ts\"",
+    "test:mobile-runtime": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/mobile-runtime-test.ts\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

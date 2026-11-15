@@ -27,6 +27,17 @@ export function lookup(context: Context, kind: Kind, id: string) {
     );
   return cache.get(key)!;
 }
+/** Seeds the label cache (the mobile app restores names saved for offline use). */
+export function primeLabel(
+  context: Context,
+  kind: Kind,
+  id: string,
+  name: string,
+  code = '',
+) {
+  const key = `${context.company.companyId}/${kind}/${id}`;
+  if (!cache.has(key)) cache.set(key, Promise.resolve({ name, code }));
+}
 /** Resolves a linked record's display name, cached per company. */
 export function useLabel(context: Context, kind: Kind | undefined, id: string) {
   const [label, setLabel] = useState<{ name: string; code: string } | null>();

@@ -11,6 +11,7 @@ on:
         feature/phase3-tasks-raci-approvals,
         feature/phase4-scheduling-maintenance,
         feature/phase5-staff-web,
+        feature/phase6-mobile-apps,
       ]
   pull_request:
 permissions:
@@ -37,6 +38,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run test:staff-browser
+      - run: npm run test:mobile-runtime
       - uses: actions/upload-artifact@v4
         if: always()
         with:

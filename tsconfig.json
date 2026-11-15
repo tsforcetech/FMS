@@ -14,7 +14,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "@admin/*": ["./apps/admin-web/src/*"]
+      "@admin/*": ["./apps/admin-web/src/*"],
+      "@staff/*": ["./apps/staff-web/src/*"]
     }
   },
   "include": [

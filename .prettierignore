@@ -3,3 +3,6 @@ dist
 package-lock.json
 firebase/firestore.rules
 docs/evidence
+apps/mobile/android
+apps/mobile/ios
+apps/mobile/dist-test

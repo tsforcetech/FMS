@@ -1,0 +1,190 @@
+/* Mobile app additions on top of the staff portal layout. */
+.m-shell .s-top {
+  padding-top: calc(10px + env(safe-area-inset-top));
+}
+.m-sync {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  white-space: nowrap;
+}
+.m-sync.ok svg {
+  color: #7ee2a8;
+}
+.m-sync.busy {
+  background: var(--amber);
+}
+.m-sync.bad {
+  background: var(--red);
+}
+.m-sync.off {
+  background: #475569;
+}
+.spin {
+  animation: m-spin 1s linear infinite;
+}
+@keyframes m-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.s-offline.in-page {
+  position: static;
+  border-radius: 14px;
+}
+.m-att {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.m-att.in {
+  background: rgba(18, 161, 80, 0.35);
+}
+.m-evidence {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.m-ev-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px dashed var(--blue-line);
+}
+.m-ev-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.m-ev-card .btn,
+.m-scan-btn,
+.m-big {
+  min-height: 56px;
+  justify-content: center;
+  font-size: 17px;
+}
+.m-scan-btn {
+  min-height: 84px;
+  font-size: 19px;
+}
+.m-scanner {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #0b1220;
+  color: #fff;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px
+    calc(16px + env(safe-area-inset-bottom));
+}
+.m-scanner-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.m-scanner .icon-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+.m-viewfinder {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  min-height: 260px;
+}
+.m-viewfinder video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m-frame {
+  position: absolute;
+  inset: 18%;
+  border: 3px solid #7ee2a8;
+  border-radius: 18px;
+  box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.35);
+}
+.m-manual {
+  display: grid;
+  gap: 8px;
+}
+.m-manual label {
+  font-weight: 600;
+}
+.m-op.done {
+  opacity: 0.7;
+}
+.m-op.conflict,
+.m-op.failed,
+.m-op.blocked {
+  border-color: var(--red-line);
+  background: var(--red-soft);
+}
+.m-att-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.m-att-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+.m-more {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 16px 16px 0;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.m-more-link {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.m-evidence.inline {
+  margin-top: 0;
+}
+.m-evidence.inline .m-ev-card {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.m-evidence.inline .m-ev-title {
+  display: none;
+}

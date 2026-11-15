@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FacilityOS</string>
+    <string name="title_activity_main">FacilityOS</string>
+    <string name="package_name">com.sharaco.facilityos</string>
+    <string name="custom_url_scheme">com.sharaco.facilityos</string>
+</resources>

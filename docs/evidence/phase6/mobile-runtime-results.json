@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Sign-in with the linked technician; My Day lists only their tasks; sync status shown",
+    "Check-in with server time and an explicit GPS reading with accuracy",
+    "Real QR decode from the camera stream, matched to the task asset; GPS evidence captured",
+    "Offline draft, save and submit queued; queue, identity and tasks survive an offline restart; storage is ciphertext only",
+    "Reconnection syncs start, evidence, save and submit in order; server shows awaiting approval with verified QR and GPS evidence",
+    "A change made offline to a task cancelled on the server becomes a review item; the server state wins",
+    "Scan tab: authorized asset opens with my tasks; out-of-scope and foreign codes are refused",
+    "Arabic RTL, no overflow at 320/360/412 px, and sign-out destroys the encrypted device copy and its key"
+  ],
+  "runtime": "Chromium (mobile viewport) with fake camera and emulated GPS; local emulators only"
+}
