@@ -60,10 +60,14 @@ function token() {
     .replace(/=+$/, '');
 }
 export function inviteLink(c: string, t: string) {
-  const base = window.location.origin + import.meta.env.BASE_URL;
+  const env = (import.meta as { env?: Record<string, string> }).env || {};
+  const browser = typeof window !== 'undefined';
+  const base = browser
+    ? window.location.origin + (env.BASE_URL || '/')
+    : env.BASE_URL || '/';
   const hash =
-    import.meta.env.VITE_ROUTER_MODE === 'hash' ||
-    window.location.hash.startsWith('#/');
+    env.VITE_ROUTER_MODE === 'hash' ||
+    (browser && window.location.hash.startsWith('#/'));
   return `${base}${hash ? '#/' : ''}join?c=${encodeURIComponent(c)}&t=${encodeURIComponent(t)}`;
 }
 export async function createInvitation(
