@@ -34,6 +34,7 @@
     "dev:platform": "npm run dev -w @facilityos/platform-web",
     "test:staff-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/staff-browser-test.ts\"",
     "test:phase7-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/phase7-browser-test.ts\"",
+    "test:phase8-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/phase8-browser-test.ts\"",
     "test:mobile-runtime": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/mobile-runtime-test.ts\""
   },
   "devDependencies": {

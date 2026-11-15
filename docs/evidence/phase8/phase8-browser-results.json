@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Starter pack installs departments, designations, categories and DRAFT checklists; re-installing is idempotent; no schedules are created",
+    "Onboarding shows real progress, saves branding and can be resumed at any step",
+    "Import Center: template, CSV upload, mapping, dry run (no writes), preview with duplicates/invalid rows, import, repeat-file detection, history",
+    "Excel and PDF exports download real files with the filtered rows; each export writes a metadata-only audit entry",
+    "Invitation link → account creation → email verification required → accept creates exactly the invited role",
+    "A tenant owner cannot use the platform console (no platform claim)",
+    "Platform console: plan versioning, assignment after usage reconciliation, suspension to read-only (data intact, banner shown), reactivation, audit log",
+    "No horizontal overflow on Phase 8 admin and platform screens at 390 and 768 px"
+  ],
+  "environment": "local demo emulators only"
+}

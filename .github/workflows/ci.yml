@@ -39,6 +39,7 @@ jobs:
       - run: npm run test:browser
       - run: npm run test:staff-browser
       - run: npm run test:phase7-browser
+      - run: npm run test:phase8-browser
       - run: npm run test:mobile-runtime
       - uses: actions/upload-artifact@v4
         if: always()

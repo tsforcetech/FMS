@@ -80,6 +80,8 @@ export function Join({ services }: { services: FirebaseServices }) {
     setError('');
     try {
       await user.reload();
+      // The security rules read email_verified from the ID token, so refresh it after verifying.
+      await (services.auth.currentUser || user).getIdToken(true);
       const role = await acceptInvitation(
         services.db,
         c,

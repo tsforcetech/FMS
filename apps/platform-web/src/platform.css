@@ -57,6 +57,9 @@
   color: #93c5fd;
   justify-self: start;
 }
+.p-main > * {
+  min-width: 0;
+}
 .p-main {
   padding: 24px clamp(16px, 3vw, 32px);
   display: grid;
@@ -89,7 +92,10 @@
 }
 @media (max-width: 760px) {
   .p-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .p-main .dash-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .p-side {
     position: static;
