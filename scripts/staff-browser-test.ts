@@ -220,6 +220,14 @@ try {
   await saveDraft(db, C, owner, v, v.content, true);
   const local = (h: number) =>
     new Date(Date.now() + h * 3600000).toISOString().slice(0, 16);
+  // Due times must stay on today's date in the company time zone (Asia/Dubai,
+  // UTC+4) whatever time the suite runs: clamp "later today" and "earlier today".
+  const dubaiNow = new Date(Date.now() + 4 * 3600000);
+  const sinceMidnight = dubaiNow.getUTCHours() + dubaiNow.getUTCMinutes() / 60;
+  const later = (h: number) =>
+    Math.max(0.05, Math.min(h, 23.9 - sinceMidnight));
+  const earlier = (h: number) =>
+    -Math.max(0.05, Math.min(h, sinceMidnight - 0.1));
   const base = {
     versionId: vid,
     siteId: site,
@@ -236,21 +244,21 @@ try {
     title: 'AC Inspection – Floor 2',
     assigneeIds: [ravi],
     priority: 'medium',
-    dueAt: local(3),
+    dueAt: local(later(3)),
   });
   const t2 = await createTask(db, C, owner, {
     ...base,
     title: 'Plant room check',
     assigneeIds: [ravi],
     priority: 'high',
-    dueAt: local(-2),
+    dueAt: local(earlier(2)),
   });
   await createTask(db, C, owner, {
     ...base,
     title: 'Someone else’s task',
     assigneeIds: [other],
     priority: 'medium',
-    dueAt: local(2),
+    dueAt: local(later(2)),
   });
   const wo = await createCase(db, C, owner, 'workOrders', {
     ...emptyCase('workOrders'),
