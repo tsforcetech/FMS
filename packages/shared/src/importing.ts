@@ -355,8 +355,13 @@ function stockRow(
   if (!raw.materialCode) errors.push('Material code: Required');
   else if (!material)
     errors.push(`Material code: no material with code “${raw.materialCode}”`);
-  if (!/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,3})?$/.test(raw.quantity))
-    errors.push('Quantity: enter a number of zero or more (up to 3 decimals)');
+  if (
+    !/^(0|[1-9][0-9]{0,8})(\.[0-9]{1,3})?$/.test(raw.quantity) ||
+    !(Number(raw.quantity) > 0)
+  )
+    errors.push(
+      'Quantity: enter a number greater than zero (up to 3 decimals)',
+    );
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(raw.movementDate) ||
     isNaN(Date.parse(raw.movementDate))

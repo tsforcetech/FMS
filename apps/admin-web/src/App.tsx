@@ -65,6 +65,10 @@ import {
 } from '@facilityos/shared';
 import type { FirebaseServices } from './firebase';
 import { loadAccess, loadProfile } from './data';
+import { Join } from './Join';
+import { OnboardingWizard } from './management/Onboarding';
+import { ImportCenter } from './management/ImportCenter';
+import { Invitations, PlanUsage } from './management/SaasPages';
 import { ReportsArea, type ReportScreen } from './management/Reports';
 import {
   AuditHistory,
@@ -855,6 +859,15 @@ function Screen({
   return (
     <>
       {head}
+      {access.company.status === 'read_only' && page.screen !== 'planUsage' && (
+        <div className="banner tone-amber" role="status">
+          <div>
+            <strong>Read-only subscription.</strong> Your data stays available
+            to view and export, but changes are paused. See Administration →
+            Plan &amp; usage.
+          </div>
+        </div>
+      )}
       {page.kinds ? (
         <RecordPage
           key={page.id}
@@ -910,6 +923,14 @@ function Screen({
         <SchedulerMonitor context={context} />
       ) : page.screen === 'staffAccess' ? (
         <StaffAccessPage context={context} />
+      ) : page.screen === 'onboarding' ? (
+        <OnboardingWizard context={context} />
+      ) : page.screen === 'importCenter' ? (
+        <ImportCenter context={context} />
+      ) : page.screen === 'invitations' ? (
+        <Invitations context={context} />
+      ) : page.screen === 'planUsage' ? (
+        <PlanUsage context={context} />
       ) : page.screen === 'operations' ? (
         <OperationalMonitoring context={context} />
       ) : page.screen === 'auditHistory' ? (
@@ -1057,6 +1078,7 @@ export default function App({ services }: { services: FirebaseServices }) {
         <SessionProvider services={services}>
           <Routes>
             <Route path="/login" element={<Login services={services} />} />
+            <Route path="/join" element={<Join services={services} />} />
             <Route path="*" element={<Gate services={services} />} />
           </Routes>
         </SessionProvider>

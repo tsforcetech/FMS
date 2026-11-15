@@ -69,6 +69,8 @@ export const memberSchema = z
     uid: z.string().min(1),
     role: roleSchema,
     status: z.enum(['active', 'inactive']),
+    // Phase 8: memberships created by accepting an invitation record it.
+    inviteId: z.string().optional(),
   })
   .strict();
 export const profileSchema = z

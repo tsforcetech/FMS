@@ -60,6 +60,10 @@ import {
   DatabaseBackup,
   Contact,
   Inbox,
+  Rocket,
+  FileUp,
+  MailPlus,
+  CreditCard,
   type LucideIcon,
 } from 'lucide-react';
 import type { Kind } from '@facilityos/shared';
@@ -118,7 +122,11 @@ export type Page = {
     | 'retention'
     | 'backup'
     | 'customerAccess'
-    | 'serviceRequests';
+    | 'serviceRequests'
+    | 'onboarding'
+    | 'importCenter'
+    | 'invitations'
+    | 'planUsage';
   /** Not yet available: shown with a phase label. */
   phase?: number;
   description?: string;
@@ -534,10 +542,34 @@ export const groups: Group[] = [
     label: 'Administration',
     pages: [
       {
+        id: 'onboarding',
+        label: 'Company setup',
+        icon: Rocket,
+        screen: 'onboarding',
+      },
+      {
         id: 'company',
         label: 'Company settings',
         icon: Settings,
         screen: 'company',
+      },
+      {
+        id: 'import',
+        label: 'Import data',
+        icon: FileUp,
+        screen: 'importCenter',
+      },
+      {
+        id: 'invitations',
+        label: 'Invitations',
+        icon: MailPlus,
+        screen: 'invitations',
+      },
+      {
+        id: 'plan',
+        label: 'Plan & usage',
+        icon: CreditCard,
+        screen: 'planUsage',
       },
       { id: 'access', label: 'User access', icon: KeyRound, screen: 'access' },
       {
