@@ -1,3 +1,5 @@
+import { bumpQuota, isQuotaKind, readQuota } from './usage';
+import type { LimitKey } from '@facilityos/shared';
 import {
   collection,
   doc,
@@ -176,6 +178,9 @@ export async function saveRecord(
         'This record changed. Close the form and reload before editing.',
       );
     const old = snap.exists() ? parseOperation(kind, id, snap.data()) : null;
+    // Phase 8: plan quota — read before any write in this transaction.
+    const quota =
+      !old && isQuotaKind(kind) ? await readQuota(tx, db, company) : null;
     if (kind === 'contractAllocations' && old) {
       if (
         [
@@ -495,6 +500,7 @@ export async function saveRecord(
         });
     }
     const revision = (old?.revision || 0) + 1;
+    if (quota) bumpQuota(tx, quota, kind as LimitKey, id);
     tx.set(target, {
       ...v,
       companyId: company,

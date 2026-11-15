@@ -42,6 +42,7 @@ import {
   type TaskStatus,
   type VersionContent,
 } from '@facilityos/shared';
+import { bumpQuota, readQuota } from './usage';
 import { UserError } from './store';
 import { event, transitionTask, type Task } from './tasksStore';
 import { adminUids, linkedUids, notify } from './notifyStore';
@@ -311,12 +312,14 @@ export async function saveSchedule(
     const id = doc(col(db, c, 'recurringSchedules')).id;
     await runTransaction(db, async (tx) => {
       const v = await tx.get(ref(db, c, 'templateVersions', input.versionId));
+      const quota = await readQuota(tx, db, c);
       if (
         !v.exists() ||
         v.data().state !== 'published' ||
         v.data().templateId !== input.templateId
       )
         throw new UserError('Choose a published template version.');
+      bumpQuota(tx, quota, 'recurringSchedules', id);
       tx.set(ref(db, c, 'recurringSchedules', id), {
         ...clean,
         status: input.status === 'draft' ? 'draft' : 'active',

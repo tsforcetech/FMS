@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { openStatuses, type TaskStatus } from '@facilityos/shared';
 import { UserError } from './store';
+import { bumpQuota, readQuota } from './usage';
 import type { Task, TaskException } from './tasksStore';
 import type { CaseRecord } from './casesStore';
 
@@ -102,6 +103,7 @@ export async function linkStaff(
       tx.get(ref(db, c, 'staffLinks', uid)),
       tx.get(ref(db, c, 'employeeLinks', input.employeeId)),
     ]);
+    const quota = existing.exists() ? null : await readQuota(tx, db, c);
     if (
       !m.exists() ||
       m.data().status !== 'active' ||
@@ -143,6 +145,7 @@ export async function linkStaff(
           'This employee is already linked to another login. Revoke that link first.',
         );
     }
+    if (quota) bumpQuota(tx, quota, 'staffLinks', uid);
     tx.set(ref(db, c, 'staffLinks', uid), {
       companyId: c,
       schemaVersion: 1,
