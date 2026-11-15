@@ -1,3 +1,6 @@
+import { ExportMenu } from '../ui/ExportMenu';
+import { taskRegisterDataset } from './exportSets';
+import { exportBlocked } from './planGate';
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
@@ -559,11 +562,30 @@ export function TaskRegister({
         >
           <RefreshCw />
         </button>
+        <span style={{ marginLeft: 'auto' }} />
+        {!pending && (
+          <ExportMenu
+            db={context.services.db}
+            companyId={context.company.companyId}
+            companyName={context.company.name}
+            timeZone={context.company.timeZone}
+            uid={context.uid}
+            canSeeSensitive
+            disabledReason={exportBlocked(context)}
+            dataset={() =>
+              taskRegisterDataset(context, filter, rows, [
+                ...(status ? [{ label: 'Status', value: status }] : []),
+                ...(by !== 'none' && value
+                  ? [{ label: humanize(by), value }]
+                  : []),
+              ])
+            }
+          />
+        )}
         {allowCreate && (
           <button
             type="button"
             className="btn btn-primary"
-            style={{ marginLeft: 'auto' }}
             disabled={pending}
             onClick={() => setCreating(true)}
           >

@@ -1,3 +1,6 @@
+import { ExportMenu } from '../ui/ExportMenu';
+import { caseListDataset } from './exportSets';
+import { exportBlocked } from './planGate';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -246,6 +249,18 @@ function CaseList({
           <RefreshCw />
         </button>
         <span style={{ flex: 1 }} />
+        <ExportMenu
+          db={context.services.db}
+          companyId={context.company.companyId}
+          companyName={context.company.name}
+          timeZone={context.company.timeZone}
+          uid={context.uid}
+          canSeeSensitive
+          disabledReason={exportBlocked(context)}
+          dataset={() =>
+            caseListDataset(context, kind, { status, siteId }, rows || [])
+          }
+        />
         <button
           type="button"
           className="btn btn-primary"

@@ -1,3 +1,6 @@
+import { ExportMenu } from '../ui/ExportMenu';
+import { auditDataset, requestsDataset } from './exportSets';
+import { exportBlocked } from './planGate';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Activity,
@@ -314,6 +317,17 @@ export function AuditHistory({ context }: { context: Context }) {
             <option value="stock">Stock movements</option>
             <option value="transfer">Asset transfers</option>
           </select>
+          <span style={{ flex: 1 }} />
+          <ExportMenu
+            db={context.services.db}
+            companyId={context.company.companyId}
+            companyName={context.company.name}
+            timeZone={context.company.timeZone}
+            uid={context.uid}
+            canSeeSensitive
+            disabledReason={exportBlocked(context)}
+            dataset={() => auditDataset(rows, days, source)}
+          />
         </div>
         {error && <Banner tone="red">{error}</Banner>}
         {!data && !error && <Skeleton rows={6} />}
@@ -909,6 +923,16 @@ export function ServiceRequests({ context }: { context: Context }) {
             ))}
           </select>
           <span style={{ flex: 1 }} />
+          <ExportMenu
+            db={context.services.db}
+            companyId={context.company.companyId}
+            companyName={context.company.name}
+            timeZone={context.company.timeZone}
+            uid={context.uid}
+            canSeeSensitive
+            disabledReason={exportBlocked(context)}
+            dataset={() => requestsDataset(context, data || [], status)}
+          />
           <button
             type="button"
             className="icon-btn"

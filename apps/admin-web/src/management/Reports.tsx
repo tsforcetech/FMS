@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   BarChart3,
   FileCheck2,
@@ -20,7 +27,22 @@ import {
   taskMetrics,
   toLocal,
 } from '@facilityos/shared';
-import { formatDate, formatInstant, type Context } from './context';
+import { formatDate, formatInstant, useLabel, type Context } from './context';
+import { ExportMenu } from '../ui/ExportMenu';
+import { exportBlocked } from './planGate';
+import type { Dataset } from './exportStore';
+import {
+  attendanceDataset,
+  casesDataset,
+  complianceDataset,
+  costsDataset,
+  inventoryDataset,
+  siteDataset,
+  staffDataset,
+  summaryDataset,
+  tasksDataset,
+  type ReportScope,
+} from './reportExports';
 import { Name } from './Tasks';
 import { Picker } from './Picker';
 import {
@@ -282,6 +304,25 @@ function useLoad<T>(fn: () => Promise<T>, deps: unknown[]) {
   return { data, error, reload: () => setV((x) => x + 1) };
 }
 
+const ScopeCtx = createContext<ReportScope | null>(null);
+const useScope = () => useContext(ScopeCtx)!;
+function Xp({ context, make }: { context: Context; make: () => Dataset }) {
+  return (
+    <div className="toolbar report-export">
+      <span style={{ flex: 1 }} />
+      <ExportMenu
+        db={context.services.db}
+        companyId={context.company.companyId}
+        companyName={context.company.name}
+        timeZone={context.company.timeZone}
+        uid={context.uid}
+        canSeeSensitive
+        disabledReason={exportBlocked(context)}
+        dataset={make}
+      />
+    </div>
+  );
+}
 export function ReportsArea({
   context,
   screen,
@@ -297,6 +338,11 @@ export function ReportsArea({
     siteId: '',
   });
   const r = useMemo(() => rangeOf(f, tz), [f, tz]);
+  const siteName = useLabel(context, 'sites', f.siteId).text;
+  const scope = useMemo(
+    () => ({ r, siteId: f.siteId, siteName }),
+    [r, f.siteId, siteName],
+  );
   const body =
     screen === 'complianceReport' ? (
       <Compliance context={context} />
@@ -337,7 +383,7 @@ export function ReportsArea({
           {formatDate(r.fromDate)} – {formatDate(r.toDate)} · {tz}
         </p>
       )}
-      {body}
+      <ScopeCtx.Provider value={scope}>{body}</ScopeCtx.Provider>
     </>
   );
 }
@@ -356,6 +402,7 @@ function Management({
 }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(async () => {
     const [counts, tasks, wo, cmp, esc] = await Promise.all([
       taskCounts(db, c, r, siteId),
@@ -389,6 +436,29 @@ function Management({
   return (
     <>
       <Truncated on={data.tasks.truncated} />
+      <Xp
+        context={context}
+        make={() =>
+          summaryDataset('reports.management', 'Management summary', scope, [
+            ['Open tasks', data.counts.open],
+            ['Overdue now', data.counts.overdue],
+            ['Awaiting approval', data.counts.awaiting],
+            ['Completed', data.counts.completed],
+            ['On-time completion %', m.onTimeRate],
+            ['Rework (extra attempts)', m.reworkCount],
+            ['Open critical cases', sla.openCritical],
+            ['SLA breaches', sla.responseBreached + sla.resolutionBreached],
+            ['Work orders raised', data.wo.rows.length],
+            ['Complaints raised', data.cmp.rows.length],
+            [
+              'From customer portal',
+              data.cmp.rows.filter((x) => x.sourceType === 'service_request')
+                .length,
+            ],
+            ['Escalations raised', data.esc.rows.length],
+          ])
+        }
+      />
       <Card
         title="Operations at a glance"
         note="Counts are server aggregates over tasks due in the period. Rates exclude cancelled tasks."
@@ -471,6 +541,7 @@ function TaskReport({
 }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(
     () => loadTasks(db, c, r),
     [db, c, r.from.getTime(), r.to.getTime()],
@@ -486,6 +557,10 @@ function TaskReport({
     <>
       <Truncated on={data.truncated} />
       <Definitions id="tasks" />
+      <Xp
+        context={context}
+        make={() => tasksDataset(context, scope, data.rows)}
+      />
       <Card
         title="Task performance"
         note={`Average time is recorded only where the task was started and submitted (${fmtPct(m.durationCoverage)} of completed tasks).`}
@@ -550,6 +625,7 @@ function StaffReport({
 }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(
     () => loadTasks(db, c, r),
     [db, c, r.from.getTime(), r.to.getTime()],
@@ -564,6 +640,10 @@ function StaffReport({
     <>
       <Truncated on={data.truncated} />
       <Definitions id="staff" />
+      <Xp
+        context={context}
+        make={() => staffDataset(context, scope, data.rows)}
+      />
       <Card
         title="Staff productivity"
         note="Planned workload uses each task's estimate; recorded time uses actual start and submission times. Compare people doing similar work only."
@@ -613,6 +693,7 @@ function StaffReport({
 function SiteReport({ context, r }: { context: Context; r: Range }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(
     async () => ({
       tasks: await loadTasks(db, c, r),
@@ -645,6 +726,16 @@ function SiteReport({ context, r }: { context: Context; r: Range }) {
   return (
     <>
       <Truncated on={data.tasks.truncated} />
+      <Xp
+        context={context}
+        make={() =>
+          siteDataset(context, scope, {
+            tasks: data.tasks.rows,
+            cases: data.cases.rows,
+            wo: data.wo.rows,
+          })
+        }
+      />
       <Card
         title="Site performance"
         note="SLA uses the targets stored on each case when it was raised."
@@ -701,6 +792,7 @@ function MaintenanceReport({
     c = context.company.companyId;
   const range = r as Range & { fromDate: string; toDate: string };
   const [adding, setAdding] = useState(false);
+  const scope = useScope();
   const { data, error, reload } = useLoad(
     async () => ({
       wo: await loadCases(
@@ -742,6 +834,22 @@ function MaintenanceReport({
     <>
       <Truncated on={data.wo.truncated || data.costs.truncated} />
       <Definitions id={assets ? 'assets' : 'maintenance'} />
+      <Xp
+        context={context}
+        make={() =>
+          casesDataset(
+            context,
+            scope,
+            ['workOrders'],
+            data.wo.rows,
+            'Work orders',
+          )
+        }
+      />
+      <Xp
+        context={context}
+        make={() => costsDataset(context, scope, data.costs.rows)}
+      />
       {mixed && (
         <Banner tone="amber">
           Costs are recorded in more than one currency; totals below add them
@@ -981,6 +1089,7 @@ function CostDrawer({
 function InventoryReport({ context, r }: { context: Context; r: Range }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(
     () => loadMovements(db, c, r),
     [db, c, r.from.getTime(), r.to.getTime()],
@@ -1008,6 +1117,7 @@ function InventoryReport({ context, r }: { context: Context; r: Range }) {
         </Banner>
       )}
       <Definitions id="inventory" />
+      <Xp context={context} make={() => inventoryDataset(context, scope)} />
       <Card
         title="Stock reconciliation"
         note="Opening + received − issued + transfers in − transfers out ± adjustments ± reversals = closing. Quantities only; no unit costs are recorded."
@@ -1061,6 +1171,7 @@ function AttendanceReport({
   const db = context.services.db,
     c = context.company.companyId;
   const range = r as Range & { fromDate: string; toDate: string };
+  const scope = useScope();
   const { data, error } = useLoad(
     () => loadAttendance(db, c, range.fromDate, range.toDate),
     [db, c, range.fromDate, range.toDate],
@@ -1077,6 +1188,10 @@ function AttendanceReport({
     <>
       <Truncated on={data.truncated} />
       <Definitions id="attendance" />
+      <Xp
+        context={context}
+        make={() => attendanceDataset(context, scope, data.rows)}
+      />
       <Card
         title="Attendance"
         note="Times are server timestamps. Corrections are made by supervisors with a reason and are flagged here. Location coordinates are not shown in reports."
@@ -1141,6 +1256,7 @@ function SlaReport({
 }) {
   const db = context.services.db,
     c = context.company.companyId;
+  const scope = useScope();
   const { data, error } = useLoad(async () => {
     const [wo, cmp, esc, reopened] = await Promise.all([
       loadCases(db, c, 'workOrders', r, caseDefinitions.workOrders.open),
@@ -1163,6 +1279,18 @@ function SlaReport({
     <>
       <Truncated on={data.wo.truncated || data.cmp.truncated} />
       <Definitions id="sla" />
+      <Xp
+        context={context}
+        make={() =>
+          casesDataset(
+            context,
+            scope,
+            ['workOrders', 'complaints', 'escalations'],
+            [...data.wo.rows, ...data.cmp.rows, ...data.esc.rows],
+            'SLA performance',
+          )
+        }
+      />
       <Card
         title="SLA performance"
         note="Breaches use the response and resolution targets stored on each case when it was raised, so later policy edits do not rewrite history."
@@ -1280,6 +1408,16 @@ function Compliance({ context }: { context: Context }) {
             <RefreshCw />
           </button>
           <span style={{ flex: 1 }} />
+          <ExportMenu
+            db={context.services.db}
+            companyId={context.company.companyId}
+            companyName={context.company.name}
+            timeZone={context.company.timeZone}
+            uid={context.uid}
+            canSeeSensitive
+            disabledReason={exportBlocked(context)}
+            dataset={() => complianceDataset(context)}
+          />
           <button
             type="button"
             className="btn btn-primary"

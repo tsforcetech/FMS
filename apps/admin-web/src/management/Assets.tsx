@@ -1,3 +1,6 @@
+import { ExportMenu } from '../ui/ExportMenu';
+import { balancesDataset, movementsDataset } from './exportSets';
+import { exportBlocked } from './planGate';
 import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
 import QRCode from 'qrcode';
 import { doc, getDoc, type QueryDocumentSnapshot } from 'firebase/firestore';
@@ -849,6 +852,16 @@ export function BalancesPage({ context }: { context: Context }) {
   return (
     <section className="card card-pad rise">
       <div className="toolbar">
+        <ExportMenu
+          db={context.services.db}
+          companyId={context.company.companyId}
+          companyName={context.company.name}
+          timeZone={context.company.timeZone}
+          uid={context.uid}
+          canSeeSensitive
+          disabledReason={exportBlocked(context)}
+          dataset={() => balancesDataset(context, filter)}
+        />
         <Segmented
           label="View balances by"
           value={by}
@@ -1376,10 +1389,20 @@ export function MovementsPage({ context }: { context: Context }) {
         >
           <RefreshCw />
         </button>
+        <span style={{ marginLeft: 'auto' }} />
+        <ExportMenu
+          db={context.services.db}
+          companyId={context.company.companyId}
+          companyName={context.company.name}
+          timeZone={context.company.timeZone}
+          uid={context.uid}
+          canSeeSensitive
+          disabledReason={exportBlocked(context)}
+          dataset={() => movementsDataset(context, type, rows)}
+        />
         <button
           type="button"
           className="btn btn-primary"
-          style={{ marginLeft: 'auto' }}
           disabled={pending}
           onClick={() => setPosting(true)}
         >

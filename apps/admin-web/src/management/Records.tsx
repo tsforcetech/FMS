@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useId, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { ExportMenu } from '../ui/ExportMenu';
+import { recordDataset } from './exportSets';
+import { exportBlocked } from './planGate';
 import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import {
@@ -810,10 +813,29 @@ export function RecordList({
         >
           <RefreshCw />
         </button>
+        <span style={{ marginLeft: 'auto' }} />
+        {!pending && (
+          <ExportMenu
+            db={context.services.db}
+            companyId={context.company.companyId}
+            companyName={context.company.name}
+            timeZone={context.company.timeZone}
+            uid={context.uid}
+            canSeeSensitive
+            disabledReason={exportBlocked(context)}
+            dataset={() =>
+              recordDataset(context, kind, {
+                rows,
+                status,
+                search: term,
+                filter: effectiveFilter,
+              })
+            }
+          />
+        )}
         <button
           type="button"
           className="btn btn-primary"
-          style={{ marginLeft: 'auto' }}
           disabled={pending}
           onClick={() => setEditing({})}
         >
