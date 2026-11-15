@@ -178,3 +178,15 @@ link fails `help:check`. Item 20 (Phases 0–8 preserved) is the regression tabl
 [docs/help/README.md](help/README.md).
 
 Phase 10 (interactive tutorials & tours) has not been started.
+
+## Release record
+
+- 15 November 2026 — release authorised by the product owner ("merge to main and publish"). No Firestore rules or index
+  changes in Phase 9.
+- `main` fast-forwarded to the Phase 9 branch. The first Pages run failed at `npm ci` (the new `help-web` workspace was missing
+  from `package-lock.json`); nothing was deployed by it. Fixed in `7e7bdab` (lock file + `poppler-utils` for PDF generation).
+- Pages run `43740020140` ✔ and Android app ✔ on `7e7bdab`.
+- Live: <https://tsforcetech.github.io/FMS/help/> — 150 public articles, 45 diagrams, 7 PDF manuals, 4 languages, version
+  0.9, build `7e7bdab`. Restricted articles return 404. Contextual help verified live (admin recurring tasks → article,
+  Arabic staff task screen → Arabic article page), search verified live, and the published admin bundle links to `/FMS/help/`.
+- `https://fms.flowb.io/` and its DNS are unchanged.
