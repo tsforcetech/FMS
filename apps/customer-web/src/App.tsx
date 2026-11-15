@@ -57,6 +57,52 @@ import {
   type ServiceRequest,
 } from '@admin/management/customerStore';
 import { Pill, friendly, useToast, type Tone } from '@admin/ui/kit';
+import { ExportMenu } from '@admin/ui/ExportMenu';
+import type { Dataset } from '@admin/management/exportStore';
+
+/** Customer-safe export: only fields the customer already sees in the portal. */
+function historyDataset(
+  s: Session,
+  list: ServiceRequest[],
+  place: string,
+): Dataset {
+  const rows = list.filter((r) => !place || r.allocationId === place);
+  const placeOf = (r: ServiceRequest) =>
+    placeName(s.link.places.find((p) => p.allocationId === r.allocationId));
+  return {
+    report: 'customer.history',
+    title: 'Service history',
+    audience: 'customer',
+    columns: [
+      { key: 'reference', label: 'Reference', type: 'text' },
+      { key: 'createdAt', label: 'Raised', type: 'datetime' },
+      { key: 'place', label: 'Location', type: 'text' },
+      { key: 'category', label: 'Category', type: 'text' },
+      { key: 'priority', label: 'Priority', type: 'text' },
+      { key: 'status', label: 'Status', type: 'status' },
+      { key: 'resolutionSummary', label: 'Resolution', type: 'text' },
+      {
+        key: 'description',
+        label: 'Description',
+        type: 'text',
+        optional: true,
+      },
+    ],
+    filters: [
+      {
+        label: 'Location',
+        value: place
+          ? placeOf(rows[0] || ({ allocationId: place } as ServiceRequest))
+          : 'All my locations',
+      },
+    ],
+    pageRows: rows.map((r) => ({
+      ...r,
+      place: placeOf(r),
+      status: statusLabel[r.status],
+    })),
+  };
+}
 
 /**
  * FacilityOS customer portal. A customer sees only the places listed on the
@@ -940,7 +986,17 @@ function History() {
   );
   return (
     <div className="s-page">
-      <h1 className="s-title">Service history</h1>
+      <div className="s-title-row">
+        <h1 className="s-title">Service history</h1>
+        <ExportMenu
+          db={s.services.db}
+          companyId={s.companyId}
+          companyName={`${s.companyName} · ${s.link.clientName}`}
+          timeZone={s.timeZone}
+          uid={s.uid}
+          dataset={() => historyDataset(s, list || [], place)}
+        />
+      </div>
       <label className="sr-only" htmlFor="h-place">
         Location
       </label>

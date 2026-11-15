@@ -1133,7 +1133,9 @@ service cloud.firestore {
    // ---------------------------------------------------------------- Phase 8 (tenant side)
    match /usage/{docId} {
     allow get: if admin(companyId) || supportOk(companyId) || plat(['owner','billing','viewer']);
-    allow create: if (plat(['owner']) || admin(companyId)) && docId=='counters' && !('plan' in co(companyId)) && usageNew(request.resource.data);
+    // Counters start at zero only for a company being registered in the same batch; existing companies get real
+    // counts from the trusted usage reconciliation (Admin SDK) — a tenant can never reset its own usage.
+    allow create: if plat(['owner']) && docId=='counters' && !exists(/databases/$(database)/documents/companies/$(companyId)) && usageNew(request.resource.data);
     allow update: if aa(companyId) && docId=='counters' && usageStep(companyId,request.resource.data,resource.data);
    }
    match /importSessions/{sessionId} {
