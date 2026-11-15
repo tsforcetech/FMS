@@ -1,0 +1,13 @@
+AssertionError [ERR_ASSERTION]: mobile dashboard has horizontal page overflow
++ actual - expected
+
++ [
++   'DIV.top-actions',
++   'DETAILS.profile',
++   'SUMMARY.',
++   'svg.[object SVGAnimatedString]',
++   'path.[object SVGAnimatedString]',
++   'DIV.menu-pop',
++   'scrollWidth 422'
++ ]
+- []
