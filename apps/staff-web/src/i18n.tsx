@@ -1,0 +1,364 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+
+/**
+ * Staff portal localization. Strings are looked up by key; a missing key in a
+ * language falls back to English, so partially translated languages are
+ * labelled "preview" in the selector and never show raw keys.
+ */
+const en = {
+  appName: 'FacilityOS Staff',
+  signInTitle: 'Sign in to start your day',
+  signInHelp: 'Use the work email and password your supervisor gave you.',
+  email: 'Email address',
+  password: 'Password',
+  signIn: 'Sign in',
+  signingIn: 'Signing in…',
+  forgot: 'Forgot your password?',
+  resetSent:
+    'If this email is eligible, you will receive password reset instructions.',
+  badLogin: 'The email or password is not correct.',
+  home: 'Home',
+  myTasks: 'My tasks',
+  report: 'Report',
+  alerts: 'Alerts',
+  profile: 'Profile',
+  more: 'More',
+  goodMorning: 'Good morning',
+  goodAfternoon: 'Good afternoon',
+  goodEvening: 'Good evening',
+  todaysWork: "Today's work",
+  assigned: 'Assigned',
+  pending: 'Pending',
+  inProgress: 'In progress',
+  completed: 'Completed',
+  overdue: 'Overdue',
+  rework: 'Rework',
+  awaitingApproval: 'Waiting for approval',
+  startNext: 'Start next task',
+  continueTask: 'Continue task',
+  nothingToday: 'No tasks for today',
+  nothingTodayHelp: 'When your supervisor assigns work, it appears here.',
+  allDone: 'All of today’s work is done. Well done!',
+  shiftToday: 'Shift today',
+  noShift: 'No shift assigned today',
+  onLeave: 'You are on approved leave today',
+  holiday: 'Holiday',
+  today: 'Today',
+  upcoming: 'Upcoming',
+  history: 'History',
+  calendar: 'Calendar',
+  search: 'Search tasks',
+  priority: 'Priority',
+  anyPriority: 'Any priority',
+  site: 'Site',
+  allSites: 'All my sites',
+  location: 'Location',
+  asset: 'Asset',
+  due: 'Due',
+  scheduled: 'Scheduled',
+  duration: 'About {n} min',
+  loadMore: 'Load more',
+  noTasks: 'No tasks here',
+  start: 'Start task',
+  pause: 'Pause',
+  resume: 'Resume',
+  openChecklist: 'Open checklist',
+  reportProblem: 'Report problem',
+  submitForApproval: 'Submit for approval',
+  markCompleted: 'Mark as completed',
+  saveProgress: 'Save progress',
+  saved: 'Progress saved.',
+  unsaved: 'You have unsaved answers.',
+  leaveWarning: 'You have unsaved answers. Leave without saving?',
+  next: 'Next',
+  back: 'Back',
+  review: 'Review answers',
+  stepOf: 'Step {a} of {b}',
+  remarks: 'Remarks (optional)',
+  required: 'Required',
+  fixErrors: 'Complete the highlighted answers first.',
+  failedChecks: 'Failed checks',
+  noFailed: 'All checks passed.',
+  evidencePending:
+    'Photo / QR / GPS evidence will be captured in the mobile app; it is recorded as pending.',
+  submitted: 'Submitted. Your supervisor will review it.',
+  completedMsg: 'Task completed.',
+  workReturned: 'Work returned for correction',
+  reworkReason: 'Reason from your supervisor',
+  restart: 'Start correction',
+  previousAnswers: 'Previous answers',
+  instructions: 'Instructions',
+  checklist: 'Checklist',
+  timeline: 'Task history',
+  reference: 'Reference',
+  status: 'Status',
+  responsible: 'Assigned to',
+  questions: '{n} questions',
+  issueTitle: 'Report a problem',
+  issueHelp: 'Tell us what is wrong. It goes straight to the maintenance team.',
+  category: 'Problem type',
+  severity: 'How serious?',
+  warning: 'Needs attention',
+  critical: 'Urgent / unsafe',
+  description: 'What is the problem?',
+  relatedTask: 'Related task',
+  alsoWorkOrder: 'Also request a repair (work order)',
+  send: 'Send report',
+  sending: 'Sending…',
+  reported: 'Problem reported',
+  referenceNo: 'Reference number',
+  myIssues: 'My reported problems',
+  workOrders: 'Work orders',
+  myWorkOrders: 'My work orders',
+  noWorkOrders: 'No work orders for you',
+  addUpdate: 'Add update',
+  requestAssistance: 'Request assistance',
+  note: 'Note',
+  notifications: 'Notifications',
+  markAllRead: 'Mark all read',
+  noNotifications: 'You are all caught up',
+  language: 'Language',
+  signOut: 'Sign out',
+  myShift: 'My shift',
+  workingDays: 'Working days',
+  upcomingLeave: 'Leave',
+  company: 'Company',
+  role: 'Role',
+  employeeId: 'Employee ID',
+  sites: 'Sites',
+  offline:
+    'You are offline. Your answers stay on this screen; save when the connection returns.',
+  retry: 'Try again',
+  permissionError: 'You do not have permission for this. Ask your supervisor.',
+  notLinked: 'Your login is not linked to an employee yet',
+  notLinkedHelp:
+    'Ask your administrator to link your account to your employee record. You cannot choose an identity yourself.',
+  revoked: 'Your staff access has been revoked',
+  inactiveEmployee: 'Your employee record is not active',
+  inactiveMember: 'You do not have access to this company',
+  approvals: 'Approvals',
+  approve: 'Approve',
+  requestRework: 'Return for correction',
+  reject: 'Reject',
+  reason: 'Reason',
+  noApprovals: 'Nothing waiting for your review',
+  preview: 'preview',
+  cancel: 'Cancel',
+  done: 'Done',
+  open: 'Open',
+  week: 'Week',
+  month: 'Month',
+  agenda: 'Agenda',
+  completedTasks: 'Completed tasks',
+  attendanceNote:
+    'Check-in/check-out and location attendance are planned for the mobile app and are not active.',
+};
+export type Key = keyof typeof en;
+type Dict = Partial<Record<Key, string>>;
+const ml: Dict = {
+  signInTitle: 'നിങ്ങളുടെ ദിവസം ആരംഭിക്കാൻ സൈൻ ഇൻ ചെയ്യുക',
+  email: 'ഇമെയിൽ വിലാസം',
+  password: 'പാസ്‌വേഡ്',
+  signIn: 'സൈൻ ഇൻ',
+  home: 'ഹോം',
+  myTasks: 'എന്റെ ജോലികൾ',
+  report: 'റിപ്പോർട്ട്',
+  alerts: 'അറിയിപ്പുകൾ',
+  profile: 'പ്രൊഫൈൽ',
+  goodMorning: 'സുപ്രഭാതം',
+  goodAfternoon: 'ശുഭ ഉച്ച',
+  goodEvening: 'ശുഭ സന്ധ്യ',
+  todaysWork: 'ഇന്നത്തെ ജോലി',
+  assigned: 'നൽകിയത്',
+  pending: 'ബാക്കി',
+  inProgress: 'നടക്കുന്നു',
+  completed: 'പൂർത്തിയായി',
+  overdue: 'സമയം കഴിഞ്ഞു',
+  rework: 'തിരുത്തൽ',
+  startNext: 'അടുത്ത ജോലി ആരംഭിക്കുക',
+  continueTask: 'ജോലി തുടരുക',
+  nothingToday: 'ഇന്ന് ജോലികളൊന്നുമില്ല',
+  today: 'ഇന്ന്',
+  upcoming: 'വരാനിരിക്കുന്നവ',
+  start: 'ജോലി ആരംഭിക്കുക',
+  pause: 'നിർത്തുക',
+  resume: 'തുടരുക',
+  reportProblem: 'പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക',
+  submitForApproval: 'അംഗീകാരത്തിനായി സമർപ്പിക്കുക',
+  markCompleted: 'പൂർത്തിയായതായി അടയാളപ്പെടുത്തുക',
+  saveProgress: 'പുരോഗതി സേവ് ചെയ്യുക',
+  next: 'അടുത്തത്',
+  back: 'പിന്നോട്ട്',
+  review: 'ഉത്തരങ്ങൾ പരിശോധിക്കുക',
+  workReturned: 'തിരുത്താനായി തിരികെ നൽകി',
+  issueTitle: 'ഒരു പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക',
+  description: 'എന്താണ് പ്രശ്നം?',
+  send: 'റിപ്പോർട്ട് അയയ്ക്കുക',
+  notifications: 'അറിയിപ്പുകൾ',
+  language: 'ഭാഷ',
+  signOut: 'സൈൻ ഔട്ട്',
+  myShift: 'എന്റെ ഷിഫ്റ്റ്',
+};
+const hi: Dict = {
+  signInTitle: 'अपना दिन शुरू करने के लिए साइन इन करें',
+  email: 'ईमेल पता',
+  password: 'पासवर्ड',
+  signIn: 'साइन इन',
+  home: 'होम',
+  myTasks: 'मेरे काम',
+  report: 'रिपोर्ट',
+  alerts: 'सूचनाएँ',
+  profile: 'प्रोफ़ाइल',
+  goodMorning: 'सुप्रभात',
+  goodAfternoon: 'नमस्कार',
+  goodEvening: 'शुभ संध्या',
+  todaysWork: 'आज का काम',
+  assigned: 'सौंपे गए',
+  pending: 'बाकी',
+  inProgress: 'जारी',
+  completed: 'पूरा हुआ',
+  overdue: 'समय निकल गया',
+  rework: 'सुधार',
+  startNext: 'अगला काम शुरू करें',
+  continueTask: 'काम जारी रखें',
+  nothingToday: 'आज कोई काम नहीं है',
+  today: 'आज',
+  upcoming: 'आगामी',
+  start: 'काम शुरू करें',
+  pause: 'रोकें',
+  resume: 'फिर से शुरू करें',
+  reportProblem: 'समस्या बताएं',
+  submitForApproval: 'मंज़ूरी के लिए भेजें',
+  markCompleted: 'पूरा हुआ चिह्नित करें',
+  saveProgress: 'प्रगति सहेजें',
+  next: 'आगे',
+  back: 'पीछे',
+  review: 'उत्तर जाँचें',
+  workReturned: 'काम सुधार के लिए लौटाया गया',
+  issueTitle: 'समस्या रिपोर्ट करें',
+  description: 'समस्या क्या है?',
+  send: 'रिपोर्ट भेजें',
+  notifications: 'सूचनाएँ',
+  language: 'भाषा',
+  signOut: 'साइन आउट',
+  myShift: 'मेरी शिफ़्ट',
+};
+const ar: Dict = {
+  signInTitle: 'سجّل الدخول لبدء يومك',
+  email: 'البريد الإلكتروني',
+  password: 'كلمة المرور',
+  signIn: 'تسجيل الدخول',
+  home: 'الرئيسية',
+  myTasks: 'مهامي',
+  report: 'إبلاغ',
+  alerts: 'التنبيهات',
+  profile: 'الملف الشخصي',
+  goodMorning: 'صباح الخير',
+  goodAfternoon: 'مساء الخير',
+  goodEvening: 'مساء الخير',
+  todaysWork: 'عمل اليوم',
+  assigned: 'مُسندة',
+  pending: 'قيد الانتظار',
+  inProgress: 'قيد التنفيذ',
+  completed: 'مكتملة',
+  overdue: 'متأخرة',
+  rework: 'إعادة العمل',
+  startNext: 'ابدأ المهمة التالية',
+  continueTask: 'متابعة المهمة',
+  nothingToday: 'لا توجد مهام اليوم',
+  today: 'اليوم',
+  upcoming: 'القادمة',
+  start: 'ابدأ المهمة',
+  pause: 'إيقاف مؤقت',
+  resume: 'استئناف',
+  reportProblem: 'الإبلاغ عن مشكلة',
+  submitForApproval: 'إرسال للاعتماد',
+  markCompleted: 'وضع علامة مكتملة',
+  saveProgress: 'حفظ التقدم',
+  next: 'التالي',
+  back: 'رجوع',
+  review: 'مراجعة الإجابات',
+  workReturned: 'أُعيد العمل للتصحيح',
+  issueTitle: 'الإبلاغ عن مشكلة',
+  description: 'ما هي المشكلة؟',
+  send: 'إرسال البلاغ',
+  notifications: 'الإشعارات',
+  language: 'اللغة',
+  signOut: 'تسجيل الخروج',
+  myShift: 'مناوبتي',
+};
+export const languages = [
+  {
+    code: 'en',
+    label: 'English',
+    dict: en as Dict,
+    dir: 'ltr',
+    complete: true,
+  },
+  { code: 'ml', label: 'മലയാളം', dict: ml, dir: 'ltr', complete: false },
+  { code: 'hi', label: 'हिन्दी', dict: hi, dir: 'ltr', complete: false },
+  { code: 'ar', label: 'العربية', dict: ar, dir: 'rtl', complete: false },
+] as const;
+export type Lang = (typeof languages)[number]['code'];
+export function translate(
+  lang: Lang,
+  key: Key,
+  vars: Record<string, string | number> = {},
+) {
+  const l = languages.find((x) => x.code === lang) || languages[0];
+  let s = l.dict[key] ?? en[key];
+  for (const [k, v] of Object.entries(vars))
+    s = s.replaceAll(`{${k}}`, String(v));
+  return s;
+}
+export function coverage(code: Lang) {
+  const l = languages.find((x) => x.code === code)!;
+  return Math.round(
+    (Object.keys(l.dict).length / Object.keys(en).length) * 100,
+  );
+}
+type I18n = {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (k: Key, v?: Record<string, string | number>) => string;
+};
+const Ctx = createContext<I18n>({
+  lang: 'en',
+  setLang: () => {},
+  t: (k, v) => translate('en', k, v),
+});
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(() => {
+    try {
+      const v = localStorage.getItem('fos-staff-lang') as Lang | null;
+      return v && languages.some((l) => l.code === v) ? v : 'en';
+    } catch {
+      return 'en';
+    }
+  });
+  useEffect(() => {
+    const l = languages.find((x) => x.code === lang)!;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = l.dir;
+  }, [lang]);
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    try {
+      localStorage.setItem('fos-staff-lang', l); // display preference only
+    } catch {
+      /* preference only */
+    }
+  };
+  return (
+    <Ctx.Provider value={{ lang, setLang, t: (k, v) => translate(lang, k, v) }}>
+      {children}
+    </Ctx.Provider>
+  );
+}
+export const useT = () => useContext(Ctx);

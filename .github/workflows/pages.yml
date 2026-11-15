@@ -14,6 +14,7 @@ jobs:
     timeout-minutes: 15
     env:
       VITE_BASE_PATH: /FMS/
+      VITE_STAFF_BASE_PATH: /FMS/staff/
       VITE_ROUTER_MODE: hash
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +25,8 @@ jobs:
       - run: npm ci
       - run: cp .env.live.example .env.production.local
       - run: npm run check
+      # The staff portal is published beside the admin app at /FMS/staff/.
+      - run: cp -r apps/staff-web/dist apps/admin-web/dist/staff
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/admin-web/dist

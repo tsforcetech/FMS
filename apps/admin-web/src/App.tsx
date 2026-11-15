@@ -95,6 +95,7 @@ import {
   SchedulerMonitor,
 } from './management/Notifications';
 import { unreadCount } from './management/notifyStore';
+import { StaffAccessPage } from './management/StaffAccess';
 import {
   Avatar,
   IconCircle,
@@ -886,6 +887,8 @@ function Screen({
         <NotificationSettings context={context} />
       ) : page.screen === 'schedulerMonitor' ? (
         <SchedulerMonitor context={context} />
+      ) : page.screen === 'staffAccess' ? (
+        <StaffAccessPage context={context} />
       ) : (
         <CompanySettings
           key={access.company.updatedAt.toMillis()}
