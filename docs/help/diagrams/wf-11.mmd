@@ -1,0 +1,19 @@
+%% title: Contract allocation
+%% articles: clients.allocations,ts.allocation-expired
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/allocations.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Admin] Contract allocations<br/>Add allocation"]:::admin
+  A --> B["Contract, site, optional space,<br/>type, dates (one calendar year)"]:::admin
+  B --> C{"Dates inside contract?"}
+  C -- No --> E1["Choose dates within<br/>the contract"]:::stop --> B
+  C -- Yes --> D{"Overlaps an exclusive<br/>occupancy of same space?"}
+  D -- Yes --> E2["Refused: overlap"]:::stop --> B
+  D -- No --> F["Saved as draft or active<br/>client copied from contract"]:::system
+  F --> G["Lifecycle: draft > active ><br/>terminated / expired > archived"]:::system
+  G --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

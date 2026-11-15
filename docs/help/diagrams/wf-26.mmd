@@ -1,0 +1,29 @@
+%% title: Automatic task generation
+%% articles: scheduling.generation,ts.scheduler-not-active,ts.no-eligible-staff
+%% sources: apps/admin-web/src/management/scheduling.ts,scripts/scheduler.ts,.github/workflows/scheduler.yml
+flowchart TD
+  S([Start]) --> A{"Trigger"}
+  A -- Manual --> B["[Admin] Scheduler monitor<br/>Run scheduler now"]:::admin
+  A -- Automatic --> C["Server job every 30 min<br/>(pending activation)"]:::system
+  B --> D["[System] For each active schedule:<br/>occurrences in window"]:::system
+  C --> D
+  D --> E{"Holiday or non-working day?"}
+  E -- Skip --> F["No task"]:::system
+  E -- Next working day --> G["Move date"]:::system --> H
+  E -- No / generate --> H{"Task for this occurrence<br/>already exists?"}
+  H -- Yes --> I["Counted as existing<br/>no duplicate"]:::system
+  H -- No --> J["Resolve assignee by strategy"]:::system
+  J --> K{"Eligible person?"}
+  K -- Yes --> L["Task assigned<br/>in-app notification"]:::system
+  K -- No --> M["Task unassigned<br/>with reason"]:::stop
+  F --> R["Run recorded:<br/>created, existing, unassigned"]:::system
+  I --> R
+  L --> R
+  M --> R
+  R --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

@@ -1,0 +1,22 @@
+%% title: Client registration
+%% articles: clients.clients
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Clients & contracts<br/>Clients: Add client"]:::admin
+  A --> B["Enter code, name, type,<br/>contact details"]:::admin
+  B --> C{"Valid and code unique?"}
+  C -- No --> E1["Fix and retry"]:::stop --> B
+  C -- Yes --> D["Client saved (active)"]:::system
+  D --> F{"Archive later?"}
+  F -- Yes --> G{"Active contracts<br/>linked?"}
+  G -- Yes --> E2["Archive or end<br/>contracts first"]:::stop
+  G -- No --> H["Client archived"]:::system
+  F -- No --> X([End])
+  E2 --> X
+  H --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

@@ -1,0 +1,26 @@
+%% title: Company onboarding
+%% articles: setup.wizard,gs.first-week,setup.branding,setup.company-settings
+%% sources: packages/shared/src/onboarding.ts,apps/admin-web/src/management/Onboarding.tsx,apps/admin-web/src/management/onboardingStore.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Open Administration<br/>Company setup"]:::admin
+  A --> B["[System] Progress read from<br/>real records + marked steps"]:::system
+  B --> C["Company info and<br/>logo & preferences"]:::admin
+  C --> D["First site, then<br/>buildings, floors, rooms"]:::admin
+  D --> E["Departments, employees<br/>(form or Import data)"]:::admin
+  E --> F["Assets and facilities"]:::admin
+  F --> G{"Use a starter pack?"}
+  G -- Yes --> H["Install pack: departments,<br/>categories, DRAFT checklists"]:::admin
+  G -- No --> I["Build templates manually"]:::admin
+  H --> J["Review and publish checklists"]:::admin
+  I --> J
+  J --> K["Create recurring schedules<br/>deliberately"]:::admin
+  K --> L["Invite staff and link<br/>logins to employees"]:::admin
+  L --> M{"All required steps done?"}
+  M -- No --> N["Leave and resume later<br/>nothing is duplicated"]:::system --> B
+  M -- Yes --> O["Review & activate:<br/>mark setup complete"]:::admin --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

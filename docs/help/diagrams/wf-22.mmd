@@ -1,0 +1,19 @@
+%% title: Checklist publishing
+%% articles: templates.publish
+%% sources: apps/admin-web/src/management/tasksStore.ts,packages/shared/src/tasks.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Open draft version"]:::admin
+  A --> B["Publish"]:::admin
+  B --> C{"Content valid? questions,<br/>RACI R; A when approval"}
+  C -- No --> E1["Fix first issue shown"]:::stop --> A
+  C -- Yes --> D["Version published<br/>and locked"]:::system
+  D --> F["New tasks and schedules<br/>use this version"]:::system
+  F --> G{"Need changes later?"}
+  G -- Yes --> H["Create new draft;<br/>existing tasks keep old version"]:::admin --> A
+  G -- No --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

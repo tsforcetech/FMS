@@ -1,0 +1,23 @@
+%% title: Shared site / multiple client occupancy
+%% articles: clients.allocations,customer.locations
+%% sources: packages/shared/src/allocations.ts,apps/admin-web/src/management/store.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["One site, several spaces"]:::system
+  A --> B["[Admin] Client A: exclusive<br/>allocation of Office 201"]:::admin
+  A --> C["[Admin] Client B: exclusive<br/>allocation of Office 202"]:::admin
+  A --> D["[Admin] Service coverage for<br/>whole site (no space)"]:::admin
+  B --> E{"Second exclusive on<br/>Office 201, same dates?"}
+  E -- Yes --> F["Refused"]:::stop
+  E -- No --> G["Shared/shared allowed"]:::system
+  B --> H["[Customer A] sees only Office 201"]:::customer
+  C --> I["[Customer B] sees only Office 202"]:::customer
+  F --> X([End])
+  G --> X
+  H --> X
+  I --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

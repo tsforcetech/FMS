@@ -1,0 +1,16 @@
+%% title: Asset transfer
+%% articles: assets.transfer
+%% sources: apps/admin-web/src/management/store.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Admin] Asset transfers or<br/>asset details: Transfer"]:::admin
+  A --> B["Destination site and location,<br/>date, reason"]:::admin
+  B --> C{"Asset archived or same<br/>location?"}
+  C -- Yes --> E1["Refused"]:::stop --> X([End])
+  C -- No --> D["[System] One transaction:<br/>transfer record + asset move<br/>+ reference counters"]:::system
+  D --> F["History kept in<br/>Asset transfers"]:::system --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

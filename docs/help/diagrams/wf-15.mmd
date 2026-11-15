@@ -1,0 +1,22 @@
+%% title: Shift and leave management
+%% articles: people.shifts,people.leave,scheduling.assignment,ts.no-eligible-staff
+%% sources: packages/shared/src/schedule.ts,apps/admin-web/src/management/scheduling.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Shifts: define times<br/>and working days"]:::admin
+  A --> B["Shift assignments to employees"]:::admin
+  B --> C["Leave records and holidays"]:::admin
+  C --> D["[System] Scheduler checks each<br/>candidate for each occurrence"]:::system
+  D --> E{"Active, not on leave,<br/>shift covers weekday?"}
+  E -- Yes --> F["Eligible: may be assigned"]:::system
+  E -- No --> G["Not eligible"]:::stop
+  G --> H{"Anyone eligible?"}
+  H -- No --> I["Task left unassigned<br/>with reason"]:::stop
+  H -- Yes --> F
+  F --> X([End])
+  I --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

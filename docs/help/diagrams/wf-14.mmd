@@ -1,0 +1,19 @@
+%% title: Staff site assignment
+%% articles: people.employees,setup.staff-access,ts.wrong-site
+%% sources: apps/admin-web/src/management/staffStore.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Admin] Employees: add<br/>site assignment (dates)"]:::admin
+  A --> B["[Admin] Staff access: choose<br/>sites or all sites"]:::admin
+  B --> C{"10 sites or fewer,<br/>or all sites?"}
+  C -- No --> E1["Choose at most 10<br/>or allow all"]:::stop --> B
+  C -- Yes --> D["Link scope saved"]:::system
+  D --> E["[Staff] Sees own tasks"]:::staff
+  D --> F["[Supervisor] also sees work<br/>in scoped sites"]:::staff
+  E --> X([End])
+  F --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

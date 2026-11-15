@@ -1,0 +1,20 @@
+%% title: RACI configuration
+%% articles: templates.raci,ref.raci-matrix
+%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/TemplateBuilder.tsx
+flowchart TD
+  S([Start]) --> A["[Admin] Template builder: RACI"]:::admin
+  A --> B["Add rows: R, A, C, I<br/>by designation, department,<br/>team or employee"]:::admin
+  B --> C{"At least one Responsible?"}
+  C -- No --> E1["Cannot publish"]:::stop --> B
+  C -- Yes --> D{"Approval required?"}
+  D -- Yes --> F{"Accountable named?"}
+  F -- No --> E2["Name an Accountable owner"]:::stop --> B
+  F -- Yes --> G
+  D -- No --> G["RACI saved with version"]:::system
+  G --> H["Note: RACI is a business<br/>assignment, not a permission"]:::system --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

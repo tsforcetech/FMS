@@ -1,0 +1,17 @@
+%% title: Asset registration
+%% articles: assets.register,assets.qr
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Assets > Asset register<br/>Add asset"]:::admin
+  A --> B["Category, class, site,<br/>location, tracking mode"]:::admin
+  B --> C{"Valid, location in site,<br/>plan asset limit OK?"}
+  C -- No --> E1["Fix or upgrade"]:::stop --> B
+  C -- Yes --> D["Asset saved"]:::system
+  D --> F["Print QR label from<br/>asset details"]:::admin
+  F --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

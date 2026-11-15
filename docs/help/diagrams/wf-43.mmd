@@ -1,0 +1,20 @@
+%% title: Management reporting
+%% articles: reports.dashboard,reports.tasks,reports.sla
+%% sources: packages/shared/src/reports.ts,apps/admin-web/src/management/Reports.tsx,apps/admin-web/src/management/reportsStore.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Reports & analytics"]:::admin
+  A --> B["Choose period and site"]:::admin
+  B --> C["[System] Counts from server<br/>aggregates; details in<br/>bounded pages"]:::system
+  C --> D{"More than 3,000 rows?"}
+  D -- Yes --> E["Partial period warning"]:::stop
+  D -- No --> F["Metrics from shared engine"]:::system
+  E --> F
+  F --> G{"Need a file?"}
+  G -- Yes --> H["Export (all matching records)"]:::admin --> X([End])
+  G -- No --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

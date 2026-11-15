@@ -1,0 +1,24 @@
+%% title: Bulk import and validation
+%% articles: import.overview,import.templates,import.resume,train.import,ts.import-failed,ts.duplicate-code
+%% sources: packages/shared/src/importing.ts,apps/admin-web/src/management/importStore.ts,apps/admin-web/src/management/ImportCenter.tsx
+flowchart TD
+  S([Start]) --> A["[Admin] Import data: module,<br/>download template"]:::admin
+  A --> B["Upload .xlsx/.csv"]:::admin
+  B --> C{"Type, size, rows OK?"}
+  C -- No --> E1["File refused"]:::stop --> B
+  C -- Yes --> D["Map columns"]:::admin
+  D --> E["Validate (dry run):<br/>nothing written"]:::system
+  E --> F["Preview: new, match, update,<br/>duplicate, invalid, skipped"]:::admin
+  F --> G{"Errors to fix?"}
+  G -- Yes --> H["Download error report"]:::admin --> B
+  G -- No --> I["Confirm import"]:::admin
+  I --> J["Rows saved one by one<br/>with normal checks"]:::system
+  J --> K{"Stopped or rows failed?"}
+  K -- Yes --> L["Status partial: re-upload<br/>same file to resume"]:::stop --> B
+  K -- No --> M["Completed; in history"]:::system --> X([End])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

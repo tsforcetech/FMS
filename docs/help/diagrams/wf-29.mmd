@@ -1,0 +1,21 @@
+%% title: Supervisor approval
+%% articles: tasks.approvals,staff.supervisor,train.approve-inspection
+%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts,apps/staff-web/src/screens/Approvals.tsx
+flowchart TD
+  S([Start]) --> A["[Supervisor/Admin] Pending approvals<br/>open submission"]:::admin
+  A --> B{"Reviewer is the submitter?"}
+  B -- Yes --> E1["Refused: another person<br/>must review"]:::stop --> X([End])
+  B -- No --> C{"Decision"}
+  C -- Approve --> D["completed"]:::system
+  C -- Request rework --> F["rework_required<br/>reason required"]:::system
+  C -- Reject --> G["rejected (final)<br/>reason required"]:::stop
+  D --> N["Assignee notified in-app"]:::system
+  F --> N
+  G --> N
+  N --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

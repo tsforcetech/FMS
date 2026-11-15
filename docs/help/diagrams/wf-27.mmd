@@ -1,0 +1,24 @@
+%% title: Staff checklist execution
+%% articles: staff.checklist,mobile.tasks,train.first-checklist
+%% sources: apps/staff-web/src/screens/TaskView.tsx,packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts
+flowchart TD
+  S([Start]) --> A["[Staff] My Day: open task"]:::staff
+  A --> B{"Status?"}
+  B -- assigned --> C["Start"]:::staff
+  B -- rework_required --> C2["Restart (new attempt)"]:::staff
+  B -- paused --> C3["Resume"]:::staff
+  C --> D["Answer questions step by step"]:::staff
+  C2 --> D
+  C3 --> D
+  D --> E{"Answer out of range<br/>or fail?"}
+  E -- Yes --> F["Exception flagged;<br/>may report a problem"]:::staff --> G
+  E -- No --> G["Save progress<br/>(can pause)"]:::staff
+  G --> H{"All required answers<br/>and evidence?"}
+  H -- No --> D
+  H -- Yes --> I["Review and submit"]:::staff --> X([See Task submission])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

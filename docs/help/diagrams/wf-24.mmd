@@ -1,0 +1,19 @@
+%% title: Manual task assignment
+%% articles: tasks.register,tasks.assignments
+%% sources: apps/admin-web/src/management/tasksStore.ts,apps/admin-web/src/management/Tasks.tsx
+flowchart TD
+  S([Start]) --> A["[Admin] Task register: New task"]:::admin
+  A --> B["Published version, title, site,<br/>location, assignees, due time"]:::admin
+  B --> C{"Valid?"}
+  C -- No --> E1["Fix and retry"]:::stop --> B
+  C -- Yes --> D{"Assignees chosen?"}
+  D -- Yes --> F["Status assigned<br/>in-app notification"]:::system
+  D -- No --> G["Status pending<br/>(unassigned queue)"]:::system
+  G --> H["[Supervisor/Admin] Assign later"]:::admin --> F
+  F --> X([Appears in staff My Day])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

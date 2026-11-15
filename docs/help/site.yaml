@@ -1,0 +1,189 @@
+# FacilityOS Help Center configuration. Read by scripts/help/*.ts.
+product: FacilityOS
+company: Sharaco Technologies
+version: '0.8'
+versionLabel: FacilityOS 0.8 (Phase 8 — exports, imports, onboarding, SaaS plans)
+published: '2026-11-15'
+languages:
+  - { id: en, label: English, dir: ltr }
+  - { id: ml, label: മലയാളം (Malayalam), dir: ltr }
+  - { id: hi, label: हिन्दी (Hindi), dir: ltr }
+  - { id: ar, label: العربية (Arabic), dir: rtl }
+
+# Left-hand navigation of the Help Center, in this order.
+modules:
+  - Getting Started
+  - Company Setup
+  - Sites & Locations
+  - Clients & Contracts
+  - Employees & Teams
+  - Assets & Inventory
+  - Task Management
+  - Task Templates
+  - Recurring Scheduling
+  - Task Calendar
+  - Maintenance & Work Orders
+  - Complaints & Escalations
+  - Staff Web
+  - Mobile Application
+  - Customer Portal
+  - Reports & Analytics
+  - Excel & PDF Exports
+  - Bulk Import
+  - SaaS Plans & Subscriptions
+  - Sharaco Platform Administration
+  - Role Guides
+  - Training & Quick Starts
+  - Troubleshooting
+  - FAQs
+  - Reference
+
+# Home-page categories.
+categories:
+  - { id: getting-started, label: Getting Started, icon: rocket }
+  - { id: administration, label: Administration, icon: settings }
+  - { id: daily-tasks, label: Daily Tasks, icon: clipboard }
+  - { id: maintenance, label: Maintenance, icon: wrench }
+  - { id: reports, label: Reports, icon: chart }
+  - { id: customer-portal, label: Customer Portal, icon: users }
+  - { id: billing, label: Billing, icon: card }
+  - { id: technical-support, label: Technical Support, icon: lifebuoy }
+
+home:
+  popular: [gs.overview, staff.checklist, scheduling.recurring, maintenance.work-orders, import.overview, exports.overview]
+  gettingStarted: [gs.first-week, setup.wizard, sites.create, people.employees, templates.builder, train.first-task]
+  workflows: [wf-02, wf-25, wf-27, wf-32, wf-41, wf-45]
+
+whatsNew:
+  - { version: '0.8', date: '2026-11-15', text: Excel and PDF export on every list and report, Import Center, company setup wizard with starter packs, plans and subscriptions, invitations and the Sharaco platform console., articles: [exports.overview, import.overview, setup.wizard, saas.plan-usage, setup.invitations] }
+  - { version: '0.7', date: '2026-11-15', text: Reports & analytics, management dashboard, customer portal, compliance records, maintenance costs, audit history and backup status., articles: [reports.dashboard, customer.requests, reports.compliance] }
+  - { version: '0.6', date: '2026-11-15', text: Android/iOS mobile app with QR scanning, photos, GPS, attendance and offline work., articles: [mobile.install, mobile.offline] }
+  - { version: '0.5', date: '2026-11-14', text: Staff web portal for day-to-day work., articles: [staff.my-day] }
+
+# Coverage map: every implemented screen → its help article. The check fails if an app screen
+# is missing here, or if an article listed here does not exist. `exclude` needs a reason.
+screens:
+  admin:
+    '': gs.navigation
+    sites: sites.create
+    locations: sites.locations
+    facilities: sites.facilities
+    facility-types: sites.facilities
+    clients: clients.clients
+    contracts: clients.contracts
+    allocations: clients.allocations
+    employees: people.employees
+    departments: people.departments
+    designations: people.departments
+    teams: people.teams
+    shifts: people.shifts
+    leave: people.leave
+    roles: gs.roles
+    assets: assets.register
+    asset-categories: assets.register
+    furniture: assets.register
+    equipment: assets.register
+    asset-transfers: assets.transfer
+    materials: inventory.materials
+    material-categories: inventory.materials
+    suppliers: inventory.materials
+    stores: inventory.materials
+    stock: inventory.balances
+    stock-transactions: inventory.movements
+    task-dashboard: tasks.dashboard
+    task-calendar: calendar.task-calendar
+    tasks: tasks.register
+    recurring-tasks: scheduling.recurring
+    staff-workload: tasks.assignments
+    site-team-view: tasks.assignments
+    task-assignments: tasks.assignments
+    approvals: tasks.approvals
+    task-history: tasks.history
+    task-categories: templates.categories
+    task-templates: templates.builder
+    maintenance: maintenance.dashboard
+    pm-plans: maintenance.pm
+    maintenance-calendar: maintenance.pm
+    work-orders: maintenance.work-orders
+    asset-history: maintenance.asset-history
+    reported-issues: cases.reported-issues
+    complaints: cases.complaints
+    service-requests: cases.customer-requests
+    escalations: cases.escalations
+    sla: cases.sla
+    sla-policies: cases.sla
+    notifications: setup.notifications
+    notification-settings: setup.notifications
+    management: reports.dashboard
+    report-tasks: reports.tasks
+    report-staff: reports.tasks
+    report-sites: reports.tasks
+    report-maintenance: reports.maintenance
+    report-assets: reports.maintenance
+    report-inventory: reports.inventory
+    report-attendance: reports.attendance
+    report-sla: reports.sla
+    compliance: reports.compliance
+    onboarding: setup.wizard
+    company: setup.company-settings
+    import: import.overview
+    invitations: setup.invitations
+    plan: saas.plan-usage
+    access: setup.user-access
+    staff-access: setup.staff-access
+    scheduler: scheduling.generation
+    customer-access: setup.customer-access
+    operations: setup.operations
+    audit: setup.audit
+    retention: setup.retention
+    backup: setup.backup
+    join: setup.invitations
+  staff:
+    /: staff.my-day
+    /tasks: staff.tasks
+    /task/:id: staff.checklist
+    /report: staff.report-issue
+    /issues: staff.report-issue
+    /work-orders: staff.work-orders
+    /work-orders/:id: staff.work-orders
+    /calendar: staff.calendar
+    /history: staff.tasks
+    /notifications: staff.notifications
+    /profile: staff.notifications
+    /approvals: staff.supervisor
+  mobile:
+    /: mobile.tasks
+    /tasks: mobile.tasks
+    /task/:id: mobile.tasks
+    /report-task/:id: staff.report-issue
+    /scan: mobile.qr
+    /issues: staff.report-issue
+    /report: staff.report-issue
+    /work-orders: staff.work-orders
+    /work-orders/:id: staff.work-orders
+    /calendar: staff.calendar
+    /history: staff.tasks
+    /notifications: staff.notifications
+    /approvals: staff.supervisor
+    /attendance: mobile.attendance
+    /sync: mobile.offline
+    /profile: mobile.language
+  customer:
+    /: customer.sign-in
+    /locations: customer.locations
+    /requests: customer.requests
+    /requests/:id: customer.confirm
+    /new: customer.requests
+    /history: customer.history
+    /updates: customer.updates
+    /profile: customer.updates
+  platform:
+    /: platform.overview
+    /companies: platform.companies
+    /companies/:id: platform.subscriptions
+    /plans: platform.plans
+    /subscriptions: platform.subscriptions
+    /billing: platform.billing
+    /audit: platform.audit
+    /health: platform.audit
+    /settings: platform.audit

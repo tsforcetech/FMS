@@ -1,0 +1,19 @@
+%% title: QR-based inspection
+%% articles: mobile.qr,ts.qr-invalid
+%% sources: apps/mobile/src/screens/Scan.tsx,apps/admin-web/src/management/fieldStore.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Staff] Mobile: Scan QR"]:::staff
+  A --> B{"Camera permission?"}
+  B -- No --> E1["Allow camera in settings"]:::stop --> X([End])
+  B -- Yes --> C["Read FacilityOS QR"]:::staff
+  C --> D{"Known asset, location<br/>or facility?"}
+  D -- No --> E2["Invalid QR"]:::stop --> X
+  D -- Yes --> E{"Matches the task's<br/>asset/location/facility?"}
+  E -- No --> E3["Evidence refused"]:::stop --> X
+  E -- Yes --> F["QR evidence recorded<br/>for the question"]:::system --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

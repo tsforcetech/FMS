@@ -1,0 +1,22 @@
+%% title: Complaint handling
+%% articles: cases.complaints,cases.customer-requests
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts
+flowchart TD
+  S([Start]) --> A["Complaint registered<br/>(admin, staff, client, task exception,<br/>customer request intake)"]:::admin
+  A --> B["open: SLA targets set<br/>from matching policy"]:::system
+  B --> C["[Admin] Assign"]:::admin
+  C --> D["[Assignee] Start"]:::staff
+  D --> E{"Needs repair work?"}
+  E -- Yes --> F["Create work order<br/>(linked, once)"]:::admin --> G
+  E -- No --> G["Resolve with note"]:::staff
+  G --> H["resolved"]:::system
+  H --> I{"Satisfied?"}
+  I -- Yes --> J["Close"]:::admin --> X([End])
+  I -- No --> K["Reopen with reason"]:::admin --> D
+  B --> L["Cancel with reason"]:::stop --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

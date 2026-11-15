@@ -1,0 +1,20 @@
+%% title: SLA breach handling
+%% articles: cases.sla,reports.sla
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/scheduling.ts,apps/admin-web/src/management/casesStore.ts
+flowchart TD
+  S([Start]) --> A["Case created: policy matched<br/>by priority, kind, site, dept"]:::system
+  A --> B["Response and resolution<br/>due times stored"]:::system
+  B --> C{"Responded before<br/>response due?"}
+  C -- No --> D["Response breached"]:::stop
+  C -- Yes --> E
+  D --> E{"Resolved before<br/>resolution due?"}
+  E -- Yes --> F["Within SLA"]:::system --> X([End])
+  E -- No --> G["Resolution breached"]:::stop
+  G --> H["Scheduler run sends sla_breach<br/>in-app notification once"]:::system
+  H --> I["[Admin] SLA monitoring:<br/>assign, escalate"]:::admin --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

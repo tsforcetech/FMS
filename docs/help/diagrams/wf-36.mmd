@@ -1,0 +1,22 @@
+%% title: Staff My Day workflow
+%% articles: staff.my-day,staff.sign-in,train.first-task
+%% sources: apps/staff-web/src/screens/MyDay.tsx,apps/staff-web/src/App.tsx
+flowchart TD
+  S([Start]) --> A["[Staff] Sign in"]:::staff
+  A --> B{"Login linked to an<br/>active employee?"}
+  B -- No --> E1["Not linked message"]:::stop --> X([End])
+  B -- Yes --> C["My Day: shift, counts,<br/>work in priority order"]:::staff
+  C --> D{"Work returned?"}
+  D -- Yes --> E["Open rework first"]:::staff --> F
+  D -- No --> F["Open next task"]:::staff
+  F --> G["Execute checklist"]:::staff
+  G --> H{"Problem found?"}
+  H -- Yes --> I["Report a problem"]:::staff --> C
+  H -- No --> C
+  C --> J["Notifications, calendar,<br/>work orders"]:::staff --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

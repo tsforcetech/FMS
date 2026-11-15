@@ -1,0 +1,18 @@
+%% title: Contract creation
+%% articles: clients.contracts
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Contracts: Add contract"]:::admin
+  A --> B["Choose active client,<br/>start and end dates"]:::admin
+  B --> C{"Dates valid and<br/>client active?"}
+  C -- No --> E1["Fix and retry"]:::stop --> B
+  C -- Yes --> D["Contract saved"]:::system
+  D --> F{"Change client or dates<br/>while allocations exist?"}
+  F -- Yes --> E2["Refused: linked records"]:::stop --> X([End])
+  F -- No --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

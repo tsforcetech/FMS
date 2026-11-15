@@ -1,0 +1,19 @@
+%% title: Customer request resolution
+%% articles: customer.confirm,cases.customer-requests,customer.updates
+%% sources: apps/admin-web/src/management/customerStore.ts,apps/admin-web/src/management/casesStore.ts
+flowchart TD
+  S([Start]) --> A["Complaint progresses:<br/>assign, start, work order"]:::admin
+  A --> B["[System] Request timeline gets<br/>customer-safe labels only"]:::system
+  B --> C["[Team] Optional reply message"]:::admin
+  C --> D["Complaint resolved with note"]:::admin
+  D --> E["Request resolved;<br/>resolution summary shown"]:::system
+  E --> F{"[Customer] Satisfied?"}
+  F -- Yes --> G["Confirm (once)"]:::customer --> X([End])
+  F -- No --> H["Ask to reopen with reason"]:::customer
+  H --> I["[Admin] Reopens complaint"]:::admin --> A
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

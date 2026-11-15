@@ -1,0 +1,17 @@
+%% title: Task template creation
+%% articles: templates.builder,templates.categories
+%% sources: apps/admin-web/src/management/TemplateBuilder.tsx,apps/admin-web/src/management/tasksStore.ts,packages/shared/src/tasks.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Task categories exist"]:::admin
+  A --> B["Task templates: add template<br/>(code, name, category)"]:::admin
+  B --> C["Open builder: draft version"]:::admin
+  C --> D["Sections and questions<br/>(yes/no, pass/fail, number, photo...)"]:::admin
+  D --> E["Conditions, expected ranges,<br/>required evidence, estimate"]:::admin
+  E --> F["Approval required?<br/>RACI roles"]:::admin
+  F --> G["Save draft"]:::admin --> X([Ready to publish])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

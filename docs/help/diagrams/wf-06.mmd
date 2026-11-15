@@ -1,0 +1,21 @@
+%% title: Plan upgrade/downgrade
+%% articles: platform.subscriptions,platform.plans,saas.plan-usage
+%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,apps/platform-web/src/App.tsx
+flowchart TD
+  S([Start]) --> A["[Platform billing] Open company<br/>choose new plan version"]:::platform
+  A --> B["Upgrade / downgrade"]:::platform
+  B --> C{"Subscription exists?"}
+  C -- No --> E1["Assign a plan first"]:::stop --> X([End])
+  C -- Yes --> D["[System] Subscription keeps dates,<br/>takes new version terms"]:::system
+  D --> F["Same batch: audit event +<br/>company entitlement snapshot"]:::system
+  F --> G{"Usage above new limits?"}
+  G -- Yes --> H["Existing data kept and readable;<br/>new creates over limit refused"]:::stop
+  G -- No --> I["New limits and features<br/>apply immediately"]:::system
+  H --> X
+  I --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

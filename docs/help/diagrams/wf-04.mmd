@@ -1,0 +1,23 @@
+%% title: Customer account linking
+%% articles: setup.customer-access,customer.sign-in,setup.invitations,ts.allocation-expired
+%% sources: apps/admin-web/src/management/customerStore.ts,apps/admin-web/src/management/Operations.tsx,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["Customer login with role customer<br/>(invitation or operator provisioning)"]:::system
+  A --> B["[Admin] Administration<br/>Customer access: link login"]:::admin
+  B --> C["Choose client and optional<br/>allocations (max 10)"]:::admin
+  C --> D{"Member role is customer<br/>and client active?"}
+  D -- No --> E1["Refused: staff or admin<br/>cannot be customers"]:::stop --> X([End])
+  D -- Yes --> E{"Client has allocations?"}
+  E -- No --> E2["Allocate a site or space<br/>to a contract first"]:::stop --> X
+  E -- Yes --> F["[System] Link saved with<br/>snapshot of allowed places"]:::system
+  F --> G["[Customer] Signs in to<br/>customer portal"]:::customer
+  G --> H["Sees only linked places<br/>and own client's requests"]:::customer
+  H --> I{"Admin revokes link?"}
+  I -- Yes --> J["Access removed immediately"]:::stop --> X
+  I -- No --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

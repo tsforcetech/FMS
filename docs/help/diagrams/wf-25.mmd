@@ -1,0 +1,20 @@
+%% title: Recurring task scheduling
+%% articles: scheduling.recurring,scheduling.assignment,train.cleaning-schedule
+%% sources: apps/admin-web/src/management/Schedules.tsx,packages/shared/src/schedule.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Recurring tasks<br/>New recurring task"]:::admin
+  A --> B["Name, published template,<br/>site, location"]:::admin
+  B --> C["Repeat pattern, start/end,<br/>time, duration, time zone"]:::admin
+  C --> D["Holiday rule: skip, next<br/>working day, generate anyway"]:::admin
+  D --> E["Assignment: queue, fixed,<br/>round-robin, least workload + pool"]:::admin
+  E --> F["Check occurrence preview"]:::admin
+  F --> G{"Template published?<br/>Plan schedule limit OK?"}
+  G -- No --> E1["Error: publish template<br/>or upgrade plan"]:::stop --> B
+  G -- Yes --> H["Schedule saved: Active"]:::system
+  H --> X([Tasks created when<br/>scheduler runs])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

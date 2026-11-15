@@ -1,0 +1,20 @@
+%% title: Customer service request
+%% articles: customer.requests,train.customer-request
+%% sources: apps/customer-web/src/App.tsx,apps/admin-web/src/management/customerStore.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Customer] New service request"]:::customer
+  A --> B["Choose active location,<br/>category, urgency, description"]:::customer
+  B --> C{"Location service period<br/>active and allowed?"}
+  C -- No --> E1["Ended / not allowed"]:::stop --> X([End])
+  C -- Yes --> D{"Same open request exists?"}
+  D -- Yes --> E2["Duplicate refused"]:::stop --> X
+  D -- No --> F["Request submitted<br/>reference SR-..."]:::system
+  F --> G["[Admin] Customer requests:<br/>Take in"]:::admin
+  G --> H["Complaint created (SLA from<br/>submission time), linked once"]:::system
+  H --> X2([See request resolution])
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

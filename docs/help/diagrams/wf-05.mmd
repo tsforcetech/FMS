@@ -1,0 +1,32 @@
+%% title: Subscription lifecycle
+%% articles: platform.subscriptions,saas.plan-usage,saas.read-only,ops.subscription-sweep
+%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,scripts/subscription-sweep.ts
+stateDiagram-v2
+  [*] --> trial: Assign plan with trial days
+  [*] --> active: Assign plan without trial
+  trial --> active: Renew
+  trial --> past_due: Trial ended
+  past_due --> active: Renew
+  past_due --> expired: 30 days unpaid
+  active --> renewal_due: 14 days before end
+  renewal_due --> active: Renew
+  renewal_due --> grace: Period ended
+  grace --> active: Renew
+  grace --> past_due: Grace days over
+  active --> suspended: Suspend
+  grace --> suspended: Suspend
+  past_due --> suspended: Suspend
+  suspended --> active: Reactivate
+  active --> cancelled: Cancel
+  suspended --> cancelled: Cancel
+  cancelled --> [*]
+  expired --> [*]
+  note right of suspended
+    suspended, cancelled, expired = read-only company
+    data kept, reads and exports allowed
+  end note
+  note left of past_due
+    date-based changes applied by the
+    subscription sweep (operator-run;
+    automation pending activation)
+  end note

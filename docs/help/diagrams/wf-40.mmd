@@ -1,0 +1,25 @@
+%% title: Offline synchronization and conflict resolution
+%% articles: mobile.conflicts,mobile.offline,ts.sync-conflict,ts.account-revoked
+%% sources: apps/mobile/src/offline/sync.ts,apps/mobile/src/offline/executor.ts
+flowchart TD
+  S([Start]) --> A["Sync now or automatic<br/>on reconnect"]:::system
+  A --> B{"Access still valid?"}
+  B -- No --> R["All pending ops blocked;<br/>device data cleared"]:::stop --> X([End])
+  B -- Yes --> C["Next pending operation"]:::system
+  C --> D{"Earlier op on same task failed?"}
+  D -- Yes --> K["Marked conflict"]:::stop --> C
+  D -- No --> E["Apply: server re-reads record<br/>and re-checks rules"]:::system
+  E --> F{"Result"}
+  F -- Applied --> G["done"]:::system --> C
+  F -- Already applied --> H["done (duplicate)"]:::system --> C
+  F -- Network error --> I["pending, stop for now"]:::system --> X
+  F -- Server changed --> K
+  F -- Other error --> L["failed"]:::stop --> C
+  K --> M["[Staff] Opens task online;<br/>server version wins"]:::staff
+  C -- none left --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

@@ -1,0 +1,22 @@
+%% title: Employee setup
+%% articles: people.employees,people.departments,train.add-employee,import.overview
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts
+flowchart TD
+  S([Start]) --> A["[Admin] Departments and<br/>designations exist"]:::admin
+  A --> B{"Many employees?"}
+  B -- Yes --> C["Import data: Employees<br/>(dry run first)"]:::admin
+  B -- No --> D["Employees: Add employee"]:::admin
+  C --> E{"Rows valid?"}
+  E -- No --> E1["Error report, fix file"]:::stop --> C
+  E -- Yes --> F
+  D --> F{"Plan employee limit?"}
+  F -- Reached --> E2["Refused: limit"]:::stop --> X([End])
+  F -- OK --> G["Employee saved<br/>(status, department, primary site)"]:::system
+  G --> H["Add site assignments,<br/>shift assignments, teams"]:::admin
+  H --> I["Optional: invite and link<br/>login (Staff access)"]:::admin --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a

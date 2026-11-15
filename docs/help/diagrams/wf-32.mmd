@@ -1,0 +1,30 @@
+%% title: Work order lifecycle
+%% articles: maintenance.work-orders,train.work-order,staff.work-orders
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts
+stateDiagram-v2
+  [*] --> reported: Created (manual, task, complaint, inspection)
+  reported --> reviewed: Review
+  reported --> assigned: Assign
+  reviewed --> assigned: Assign
+  assigned --> in_progress: Start
+  assigned --> on_hold: Hold
+  in_progress --> on_hold: Hold
+  on_hold --> in_progress: Resume
+  on_hold --> assigned: Assign
+  in_progress --> resolved: Resolve (note required)
+  resolved --> verified: Verify fix
+  resolved --> closed: Close
+  verified --> closed: Close
+  resolved --> in_progress: Reopen (reason)
+  verified --> in_progress: Reopen (reason)
+  closed --> in_progress: Reopen (reason)
+  reported --> cancelled: Cancel (reason)
+  reviewed --> cancelled: Cancel (reason)
+  assigned --> cancelled: Cancel (reason)
+  on_hold --> cancelled: Cancel (reason)
+  closed --> [*]
+  cancelled --> [*]
+  note right of in_progress
+    materials issued against the work order
+    post stock movements; SLA targets stored
+  end note

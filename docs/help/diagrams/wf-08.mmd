@@ -1,0 +1,22 @@
+%% title: Site and location creation
+%% articles: sites.create,sites.locations,sites.facilities,train.first-site
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts,firebase/firestore.rules
+flowchart TD
+  S([Start]) --> A["[Admin] Property > Sites<br/>Add site"]:::admin
+  A --> B{"Code unique and<br/>fields valid?"}
+  B -- No --> E1["Fix form errors"]:::stop --> A
+  B -- Yes --> Q{"Plan site limit reached?"}
+  Q -- Yes --> E2["Refused: upgrade or<br/>archive unused sites"]:::stop --> X([End])
+  Q -- No --> C["Site saved<br/>(no client or contract needed)"]:::system
+  C --> D["[Admin] Locations: add building"]:::admin
+  D --> F["Add floors and rooms<br/>with parent location"]:::admin
+  F --> G{"Parent in same site<br/>and depth allowed?"}
+  G -- No --> E3["Choose another parent"]:::stop --> F
+  G -- Yes --> H["Location tree saved"]:::system
+  H --> I["[Admin] Facilities: add<br/>facility in a location"]:::admin --> X
+  classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
+  classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
+  classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a
+  classDef platform fill:#fff7ed,stroke:#c2410c,color:#0f172a
+  classDef system fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef stop fill:#fee2e2,stroke:#b91c1c,color:#0f172a
