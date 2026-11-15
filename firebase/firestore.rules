@@ -1,4 +1,4 @@
-// Phase 1 + Phase 2 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
+// Phase 1 + Phase 2 + Phase 3 + Phase 4 + Phase 5 + Phase 6 + Phase 7 + Phase 8 rules; review with docs/database/phase1-schema.md and docs/database/phase2-schema.md before rollout.
 // Phase 2 people/asset/inventory validators are generated from packages/shared (see rules-generator.ts).
 // Tenant root: companies/{companyId}. Only canonical active owner/admin membership grants access.
 // Operational documents: companyId, schemaVersion=1, code, name, notes, status,
@@ -25,9 +25,14 @@ service cloud.firestore {
   // Rules 'let' bindings are re-evaluated on every use, so document data is passed as an argument (evaluated once).
   function admin(companyId){return signedIn() && adminDoc(member(companyId),companyId);}
   function adminDoc(m,companyId){return m.uid==request.auth.uid && m.companyId==companyId && m.status=='active' && m.role in ['owner','admin'];}
-  function activeCompany(companyId){return get(/databases/$(database)/documents/companies/$(companyId)).data.status == 'active';}
+  function activeCompany(companyId){return co(companyId).status == 'active' && (request.method in ['get','list'] || co(companyId).get('plan',{}).get('access','full')=='full');}
+  function stamped(d){return d.updatedAt==request.time && d.updatedBy==request.auth.uid;}
+  function born(d){return d.createdAt==request.time && d.createdBy==request.auth.uid;}
+  function aa(c){return admin(c) && activeCompany(c);}
+  function co(c){return get(/databases/$(database)/documents/companies/$(c)).data;}
 
-  function validZone(zone) {return zone is string && (zone.matches('^(Africa/Abidjan|Africa/Accra|Africa/Addis_Ababa|Africa/Algiers|Africa/Asmera|Africa/Bamako|Africa/Bangui|Africa/Banjul|Africa/Bissau|Africa/Blantyre|Africa/Brazzaville|Africa/Bujumbura|Africa/Cairo|Africa/Casablanca|Africa/Ceuta|Africa/Conakry|Africa/Dakar|Africa/Dar_es_Salaam|Africa/Djibouti|Africa/Douala|Africa/El_Aaiun|Africa/Freetown|Africa/Gaborone|Africa/Harare|Africa/Johannesburg|Africa/Juba|Africa/Kampala|Africa/Khartoum|Africa/Kigali|Africa/Kinshasa|Africa/Lagos|Africa/Libreville|Africa/Lome|Africa/Luanda|Africa/Lubumbashi|Africa/Lusaka|Africa/Malabo|Africa/Maputo|Africa/Maseru|Africa/Mbabane|Africa/Mogadishu|Africa/Monrovia|Africa/Nairobi|Africa/Ndjamena|Africa/Niamey|Africa/Nouakchott|Africa/Ouagadougou|Africa/Porto\\-Novo|Africa/Sao_Tome|Africa/Tripoli|Africa/Tunis|Africa/Windhoek|America/Adak|America/Anchorage|America/Anguilla|America/Antigua|America/Araguaina|America/Argentina/La_Rioja|America/Argentina/Rio_Gallegos|America/Argentina/Salta|America/Argentina/San_Juan|America/Argentina/San_Luis|America/Argentina/Tucuman|America/Argentina/Ushuaia|America/Aruba|America/Asuncion|America/Bahia|America/Bahia_Banderas|America/Barbados|America/Belem|America/Belize|America/Blanc\\-Sablon|America/Boa_Vista|America/Bogota|America/Boise|America/Buenos_Aires|America/Cambridge_Bay|America/Campo_Grande|America/Cancun|America/Caracas|America/Catamarca|America/Cayenne|America/Cayman|America/Chicago|America/Chihuahua|America/Ciudad_Juarez|America/Coral_Harbour|America/Cordoba|America/Costa_Rica|America/Coyhaique|America/Creston|America/Cuiaba|America/Curacao|America/Danmarkshavn|America/Dawson|America/Dawson_Creek|America/Denver|America/Detroit|America/Dominica|America/Edmonton)$') || zone.matches('^(America/Eirunepe|America/El_Salvador|America/Fort_Nelson|America/Fortaleza|America/Glace_Bay|America/Godthab|America/Goose_Bay|America/Grand_Turk|America/Grenada|America/Guadeloupe|America/Guatemala|America/Guayaquil|America/Guyana|America/Halifax|America/Havana|America/Hermosillo|America/Indiana/Knox|America/Indiana/Marengo|America/Indiana/Petersburg|America/Indiana/Tell_City|America/Indiana/Vevay|America/Indiana/Vincennes|America/Indiana/Winamac|America/Indianapolis|America/Inuvik|America/Iqaluit|America/Jamaica|America/Jujuy|America/Juneau|America/Kentucky/Monticello|America/Kralendijk|America/La_Paz|America/Lima|America/Los_Angeles|America/Louisville|America/Lower_Princes|America/Maceio|America/Managua|America/Manaus|America/Marigot|America/Martinique|America/Matamoros|America/Mazatlan|America/Mendoza|America/Menominee|America/Merida|America/Metlakatla|America/Mexico_City|America/Miquelon|America/Moncton|America/Monterrey|America/Montevideo|America/Montserrat|America/Nassau|America/New_York|America/Nome|America/Noronha|America/North_Dakota/Beulah|America/North_Dakota/Center|America/North_Dakota/New_Salem|America/Ojinaga|America/Panama|America/Paramaribo|America/Phoenix|America/Port\\-au\\-Prince|America/Port_of_Spain|America/Porto_Velho|America/Puerto_Rico|America/Punta_Arenas|America/Rankin_Inlet|America/Recife|America/Regina|America/Resolute|America/Rio_Branco|America/Santarem|America/Santiago|America/Santo_Domingo|America/Sao_Paulo|America/Scoresbysund|America/Sitka|America/St_Barthelemy|America/St_Johns|America/St_Kitts|America/St_Lucia|America/St_Thomas|America/St_Vincent|America/Swift_Current|America/Tegucigalpa|America/Thule|America/Tijuana|America/Toronto|America/Tortola|America/Vancouver|America/Whitehorse|America/Winnipeg|America/Yakutat|Antarctica/Casey|Antarctica/Davis|Antarctica/DumontDUrville|Antarctica/Macquarie)$') || zone.matches('^(Antarctica/Mawson|Antarctica/McMurdo|Antarctica/Palmer|Antarctica/Rothera|Antarctica/Syowa|Antarctica/Troll|Antarctica/Vostok|Arctic/Longyearbyen|Asia/Aden|Asia/Almaty|Asia/Amman|Asia/Anadyr|Asia/Aqtau|Asia/Aqtobe|Asia/Ashgabat|Asia/Atyrau|Asia/Baghdad|Asia/Bahrain|Asia/Baku|Asia/Bangkok|Asia/Barnaul|Asia/Beirut|Asia/Bishkek|Asia/Brunei|Asia/Calcutta|Asia/Chita|Asia/Colombo|Asia/Damascus|Asia/Dhaka|Asia/Dili|Asia/Dubai|Asia/Dushanbe|Asia/Famagusta|Asia/Gaza|Asia/Hebron|Asia/Hong_Kong|Asia/Hovd|Asia/Irkutsk|Asia/Jakarta|Asia/Jayapura|Asia/Jerusalem|Asia/Kabul|Asia/Kamchatka|Asia/Karachi|Asia/Katmandu|Asia/Khandyga|Asia/Kolkata|Asia/Krasnoyarsk|Asia/Kuala_Lumpur|Asia/Kuching|Asia/Kuwait|Asia/Macau|Asia/Magadan|Asia/Makassar|Asia/Manila|Asia/Muscat|Asia/Nicosia|Asia/Novokuznetsk|Asia/Novosibirsk|Asia/Omsk|Asia/Oral|Asia/Phnom_Penh|Asia/Pontianak|Asia/Pyongyang|Asia/Qatar|Asia/Qostanay|Asia/Qyzylorda|Asia/Rangoon|Asia/Riyadh|Asia/Saigon|Asia/Sakhalin|Asia/Samarkand|Asia/Seoul|Asia/Shanghai|Asia/Singapore|Asia/Srednekolymsk|Asia/Taipei|Asia/Tashkent|Asia/Tbilisi|Asia/Tehran|Asia/Thimphu|Asia/Tokyo|Asia/Tomsk|Asia/Ulaanbaatar|Asia/Urumqi|Asia/Ust\\-Nera|Asia/Vientiane|Asia/Vladivostok|Asia/Yakutsk|Asia/Yekaterinburg|Asia/Yerevan|Atlantic/Azores|Atlantic/Bermuda|Atlantic/Canary|Atlantic/Cape_Verde|Atlantic/Faeroe|Atlantic/Madeira|Atlantic/Reykjavik|Atlantic/South_Georgia|Atlantic/St_Helena)$') || zone.matches('^(Atlantic/Stanley|Australia/Adelaide|Australia/Brisbane|Australia/Broken_Hill|Australia/Darwin|Australia/Eucla|Australia/Hobart|Australia/Lindeman|Australia/Lord_Howe|Australia/Melbourne|Australia/Perth|Australia/Sydney|Europe/Amsterdam|Europe/Andorra|Europe/Astrakhan|Europe/Athens|Europe/Belgrade|Europe/Berlin|Europe/Bratislava|Europe/Brussels|Europe/Bucharest|Europe/Budapest|Europe/Busingen|Europe/Chisinau|Europe/Copenhagen|Europe/Dublin|Europe/Gibraltar|Europe/Guernsey|Europe/Helsinki|Europe/Isle_of_Man|Europe/Istanbul|Europe/Jersey|Europe/Kaliningrad|Europe/Kiev|Europe/Kirov|Europe/Kyiv|Europe/Lisbon|Europe/Ljubljana|Europe/London|Europe/Luxembourg|Europe/Madrid|Europe/Malta|Europe/Mariehamn|Europe/Minsk|Europe/Monaco|Europe/Moscow|Europe/Oslo|Europe/Paris|Europe/Podgorica|Europe/Prague|Europe/Riga|Europe/Rome|Europe/Samara|Europe/San_Marino|Europe/Sarajevo|Europe/Saratov|Europe/Simferopol|Europe/Skopje|Europe/Sofia|Europe/Stockholm|Europe/Tallinn|Europe/Tirane|Europe/Ulyanovsk|Europe/Vaduz|Europe/Vatican|Europe/Vienna|Europe/Vilnius|Europe/Volgograd|Europe/Warsaw|Europe/Zagreb|Europe/Zurich|Indian/Antananarivo|Indian/Chagos|Indian/Christmas|Indian/Cocos|Indian/Comoro|Indian/Kerguelen|Indian/Mahe|Indian/Maldives|Indian/Mauritius|Indian/Mayotte|Indian/Reunion|Pacific/Apia|Pacific/Auckland|Pacific/Bougainville|Pacific/Chatham|Pacific/Easter|Pacific/Efate|Pacific/Enderbury|Pacific/Fakaofo|Pacific/Fiji|Pacific/Funafuti|Pacific/Galapagos|Pacific/Gambier|Pacific/Guadalcanal|Pacific/Guam|Pacific/Honolulu|Pacific/Kiritimati|Pacific/Kosrae|Pacific/Kwajalein)$') || zone.matches('^(Pacific/Majuro|Pacific/Marquesas|Pacific/Midway|Pacific/Nauru|Pacific/Niue|Pacific/Norfolk|Pacific/Noumea|Pacific/Pago_Pago|Pacific/Palau|Pacific/Pitcairn|Pacific/Ponape|Pacific/Port_Moresby|Pacific/Rarotonga|Pacific/Saipan|Pacific/Tahiti|Pacific/Tarawa|Pacific/Tongatapu|Pacific/Truk|Pacific/Wake|Pacific/Wallis|UTC)$'));}
+  // IANA zone shape by region; the exact zone list is validated by the client schema (time-zones.json).
+  function validZone(zone) {return zone is string && zone.matches('^(UTC|(Africa|America|Antarctica|Arctic|Asia|Atlantic|Australia|Europe|Indian|Pacific|Etc)/[A-Za-z0-9_+-]{1,40}(/[A-Za-z0-9_+-]{1,40})?)$');}
   function calendar(value) {
    let parts=value.split('-');
    let year=int(parts[0]); let month=int(parts[1]); let day=int(parts[2]);
@@ -54,7 +59,7 @@ service cloud.firestore {
    return was!=now
     && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
     && d.refCount is int && d.refCount==resource.data.refCount+(now?1:-1) && d.refCount>=0
-    && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && stamped(d);
   }
   function increment(c,k,id,tk,tid,n) {
    return incremented(get(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,getAfter(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,k,id,n);
@@ -91,7 +96,7 @@ service cloud.firestore {
     && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
     && d.revision is int && d.revision>0
     && d.witnessKind is string && d.witnessId is string
-    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
+    && stamped(d)
     && shape(k,d) && relations(c,k,id);
   }
   function facilityHistory(c,id) {
@@ -99,12 +104,12 @@ service cloud.firestore {
    let h=getAfter(/databases/$(database)/documents/companies/$(c)/facilities/$(id)/history/$(string(d.revision))).data;
    return h.revision==d.revision && h.condition==d.condition && h.status==d.status && h.actorUid==request.auth.uid && h.occurredAt==request.time;
   }
-  function shape_clients(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber']) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
-  function shape_contracts(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'startDate', 'endDate', 'serviceDescription']) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
-  function shape_sites(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description']) && d.status in ['active', 'archived'] && ((d.schemaVersion==2 && !d.keys().hasAny(['clientId','contractId'])) || (d.schemaVersion==1 && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$')))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
-  function shape_locations(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'parentId', 'locationType', 'floorNumber', 'description']) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
-  function shape_facilityTypes(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'description']) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
-  function shape_facilities(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'locationId', 'typeId', 'condition', 'description']) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
+  function shape_clients(d) {return d.keys().hasOnly(metaKeys().concat(['clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber'])) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
+  function shape_contracts(d) {return d.keys().hasOnly(metaKeys().concat(['clientId', 'startDate', 'endDate', 'serviceDescription'])) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
+  function shape_sites(d) {return d.keys().hasOnly(metaKeys().concat(['clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description'])) && d.status in ['active', 'archived'] && ((d.schemaVersion==2 && !d.keys().hasAny(['clientId','contractId'])) || (d.schemaVersion==1 && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$')))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
+  function shape_locations(d) {return d.keys().hasOnly(metaKeys().concat(['siteId', 'parentId', 'locationType', 'floorNumber', 'description'])) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
+  function shape_facilityTypes(d) {return d.keys().hasOnly(metaKeys().concat(['description'])) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
+  function shape_facilities(d) {return d.keys().hasOnly(metaKeys().concat(['siteId', 'locationId', 'typeId', 'condition', 'description'])) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
   function shape(k,d) {return k=='clients' ? shape_clients(d) : k=='contracts' ? shape_contracts(d) : k=='sites' ? shape_sites(d) : k=='locations' ? shape_locations(d) : k=='facilityTypes' ? shape_facilityTypes(d) : k=='facilities' ? shape_facilities(d) : k=='contractAllocations'?shape_allocations(d):false;}
 
   // Allocations preserve their original contract/client and planned interval; no hard delete.
@@ -195,21 +200,21 @@ service cloud.firestore {
     && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
     && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
     && d.revision is int && d.revision>0 && d.witnessKind is string && d.witnessId is string
-    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
+    && stamped(d)
     ;
   }
   function create2(c,k,id){
    let d=request.resource.data;
-   return business2(c,k,id) && d.createdAt==request.time && d.createdBy==request.auth.uid
+   return business2(c,k,id) && born(d)
     && d.status!='archived' && d.revision==1 && d.refCount==0 && d.witnessKind=='' && d.witnessId==''
     && getAfter(/databases/$(database)/documents/companies/$(c)/codeClaims/$(k+'_'+d.code)).data.recordId==id
-    && (k!='assets' || d.lastTransferId=='');
+    && (k!='assets' || d.lastTransferId=='') && quota(c,k,id);
   }
   function update2(c,k,id){
    let d=request.resource.data; let b=resource.data;
    return business2(c,k,id) && d.schemaVersion==b.schemaVersion
     && d.createdAt==b.createdAt && d.createdBy==b.createdBy && d.code==b.code && d.revision==b.revision+1
-    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId;
+    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId && revive(c,k,id,d,b);
   }
   // Assets move only with a new transfer record created in the same transaction.
   function assetMove(c,id,b,d){
@@ -248,7 +253,7 @@ service cloud.firestore {
   function movementValid(c,id){
    let d=request.resource.data;
    return d.keys().hasOnly(['companyId','schemaVersion','movementType','materialId','fromStoreId','toStoreId','quantity','movementDate','reason','reference','notes','issuedToEmployeeId','issuedToLocationId','reversesId','fromBalanceAfter','toBalanceAfter','createdAt','createdBy','workOrderId'])
-    && d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$') && d.createdAt==request.time && d.createdBy==request.auth.uid
+    && d.companyId==c && d.schemaVersion==1 && id.matches('^[a-zA-Z0-9_-]{1,128}$') && born(d)
     && d.movementType in ['opening','receipt','issue','transfer','adjustment_in','adjustment_out','reversal']
     && d.quantity is int && d.quantity>0 && d.quantity<=1000000000000
     && d.materialId is string && d.materialId.matches('^[a-zA-Z0-9_-]{1,128}$') && optionalId(d.fromStoreId) && optionalId(d.toStoreId) && d.fromStoreId!=d.toStoreId
@@ -294,12 +299,12 @@ service cloud.firestore {
   function versionKeys(d){return d.keys().hasOnly(['companyId','schemaVersion','templateId','version','state','content','revision','createdAt','createdBy','updatedAt','updatedBy','publishedAt','publishedBy','retiredAt']);}
   function versionCreate(c,id,d){
    return versionKeys(d) && d.companyId==c && d.schemaVersion==1 && d.version is int && d.version>0 && d.templateId is string && id==d.templateId+'-v'+string(d.version)
-    && d.state=='draft' && d.revision==1 && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && d.state=='draft' && d.revision==1 && born(d) && stamped(d)
     && d.publishedAt==null && d.publishedBy=='' && d.retiredAt==null && versionContentOk(d.content)
     && get(/databases/$(database)/documents/companies/$(c)/taskTemplates/$(d.templateId)).data.status=='active';
   }
   function versionUpdate(d,b){
-   return versionKeys(d) && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+   return versionKeys(d) && d.revision==b.revision+1 && stamped(d)
     && (b.state=='draft'
      ? (d.diff(b).affectedKeys().hasOnly(['content','state','publishedAt','publishedBy','revision','updatedAt','updatedBy']) && versionContentOk(d.content)
         && ((d.state=='draft' && d.publishedAt==null && d.publishedBy=='')
@@ -314,7 +319,7 @@ service cloud.firestore {
   function eventOk(e,id,d,action,from){return e.taskId==id && e.revision==d.revision && e.action==action && e.fromStatus==from && e.toStatus==d.status && e.assigneeIds==d.assigneeIds && e.attempt==d.attempt && e.actorUid==request.auth.uid && e.at==request.time;}
   function taskCreate(c,id,d){
    return taskKeys(d) && d.companyId==c && d.schemaVersion==1 && d.revision==1 && d.attempt==1
-    && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && born(d) && stamped(d)
     && d.reference is string && d.reference.size()>0 && d.reference.size()<=40 && d.title is string && d.title.size()>0 && d.title.size()<=160 && d.notes is string && d.notes.size()<=2000
     && d.priority in ['low','medium','high','critical'] && d.dueAt is timestamp && (d.plannedStart==null || (d.plannedStart is timestamp && d.plannedStart<=d.dueAt))
     && d.assigneeIds is list && d.assigneeIds.size()<=10 && ((d.status=='assigned' && d.assigneeIds.size()>0) || (d.status=='pending' && d.assigneeIds.size()==0))
@@ -368,7 +373,7 @@ service cloud.firestore {
      || decisionOk(getAfter(/databases/$(database)/documents/companies/$(c)/taskApprovals/$(id+'_'+string(b.attempt))).data,e.action,b.attempt));
   }
   function taskUpdate(c,id,d,b){
-   return taskKeys(d) && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+   return taskKeys(d) && d.revision==b.revision+1 && stamped(d)
     && ((d.status==b.status && b.status=='in_progress' && d.diff(b).affectedKeys().hasOnly(['draftAnswers','revision','updatedAt','updatedBy']) && d.draftAnswers is map && d.draftAnswers.size()<=120)
      || (d.diff(b).affectedKeys().hasOnly(['status','assigneeIds','attempt','draftAnswers','cancelReason','exceptionCount','evidencePending','completedAt','plannedStart','dueAt','startedAt','submittedAt','revision','updatedAt','updatedBy'])
         && transitionOk(c,id,d,b,getAfter(/databases/$(database)/documents/companies/$(c)/taskEvents/$(id+'_'+string(d.revision))).data)));
@@ -430,7 +435,7 @@ service cloud.firestore {
   }
   function publishedVersion(v,templateId){return v.state=='published' && v.templateId==templateId;}
   function scheduleCreate(c,d){
-   return scheduleShape(c,d) && d.revision==1 && d.ruleVersion==1 && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+   return scheduleShape(c,d) && d.revision==1 && d.ruleVersion==1 && born(d) && stamped(d)
     && d.status in ['draft','active'] && d.generatedThrough=='' && d.lastRunAt==null && d.lastRunStatus=='' && d.retryCount==0
     && publishedVersion(get(/databases/$(database)/documents/companies/$(c)/templateVersions/$(d.versionId)).data,d.templateId)
     && get(/databases/$(database)/documents/companies/$(c)/sites/$(d.siteId)).data.status!='archived'
@@ -441,7 +446,7 @@ service cloud.firestore {
    return scheduleShape(c,d) && d.createdAt==b.createdAt && d.createdBy==b.createdBy && d.code==b.code && d.templateId==b.templateId && d.siteId==b.siteId && b.status!='archived'
     && ((d.diff(b).affectedKeys().hasOnly(['generatedThrough','lastRunAt','lastRunStatus','lastError','retryCount','status']) && d.lastRunAt==request.time
          && (d.status==b.status || (b.status=='active' && d.status=='completed')) && b.status=='active')
-     || (d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+     || (d.revision==b.revision+1 && stamped(d)
          && (d.ruleVersion==b.ruleVersion || d.ruleVersion==b.ruleVersion+1)
          && (d.versionId==b.versionId || publishedVersion(get(/databases/$(database)/documents/companies/$(c)/templateVersions/$(d.versionId)).data,d.templateId))));
   }
@@ -456,7 +461,7 @@ service cloud.firestore {
   function caseEventOk(e,k,id,d,a,from){return e.kind==k && e.caseId==id && e.revision==d.revision && e.action==a && e.fromStatus==from && e.toStatus==d.status && e.actorUid==request.auth.uid && e.at==request.time;}
   function caseCreate(c,k,id,d){
    return caseKeys(d) && d.companyId==c && d.schemaVersion==1 && d.kind==k && id.matches('^[a-zA-Z0-9_-]{1,128}$') && d.status==caseInitial(k)
-    && d.revision==1 && d.createdAt==request.time && d.createdBy==request.auth.uid && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && d.revision==1 && born(d) && stamped(d)
     && d.number is string && d.number.size()>0 && d.number.size()<=40 && d.title is string && d.title.size()>0 && d.title.size()<=160
     && d.description is string && d.description.size()<=4000 && d.priority in ['low','medium','high','critical'] && d.severity in ['low','medium','high','critical']
     && d.category is string && d.category.size()<=60 && d.reportedBy is string && d.reportedBy.size()<=120 && d.notes is string && d.notes.size()<=2000 && d.resolution==''
@@ -469,7 +474,7 @@ service cloud.firestore {
     && caseEventOk(getAfter(/databases/$(database)/documents/companies/$(c)/caseEvents/$(k+'_'+id+'_1')).data,k,id,d,'create','');
   }
   function caseUpdate(c,k,id,d,b){
-   return caseKeys(d) && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+   return caseKeys(d) && d.revision==b.revision+1 && stamped(d)
     && d.diff(b).affectedKeys().hasOnly(['status','assigneeIds','targetDepartmentId','respondedAt','resolvedAt','closedAt','resolution','workOrderId','notes','revision','updatedAt','updatedBy'])
     && caseStep(k,id,d,b,getAfter(/databases/$(database)/documents/companies/$(c)/caseEvents/$(k+'_'+id+'_'+string(d.revision))).data);
   }
@@ -499,7 +504,7 @@ service cloud.firestore {
     && d.type in ['task_assigned','task_due_soon','task_overdue','task_reassigned','task_submitted','task_awaiting_approval','task_rejected','task_rework','work_order_created','work_order_assigned','escalation_raised','sla_breach','maintenance_due','complaint_created','task_approved','issue_updated']
     && d.title is string && d.title.size()>0 && d.title.size()<=160 && d.body is string && d.body.size()<=500
     && d.recordKind in ['tasks','workOrders','complaints','escalations','recurringSchedules'] && d.recordId is string && d.recordId.matches('^[a-zA-Z0-9_-]{1,128}$')
-    && d.createdAt==request.time && d.createdBy==request.auth.uid && d.readAt==null;
+    && born(d) && d.readAt==null;
   }
   // ------------------------------------------------------------------ Phase 5 staff identity and scope
   // A staff login is linked to exactly one employee per company by an admin (staffLinks/{uid} + employeeLinks/{employeeId}).
@@ -549,7 +554,7 @@ service cloud.firestore {
    return d.keys().hasOnly(['companyId','schemaVersion','uid','employeeId','siteIds','allSites','status','note','createdAt','createdBy','updatedAt','updatedBy','revision'])
     && d.companyId==c && d.schemaVersion==1 && d.uid==uid && d.employeeId is string && d.employeeId.matches('^[a-zA-Z0-9_-]{1,128}$')
     && d.siteIds is list && d.siteIds.size()<=10 && d.allSites is bool && d.status in ['active','revoked'] && d.note is string && d.note.size()<=500
-    && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.revision is int && stamped(d);
   }
   function linkTarget(c,uid,d){
    return get(/databases/$(database)/documents/companies/$(c)/members/$(uid)).data.status=='active'
@@ -572,19 +577,19 @@ service cloud.firestore {
    return staffOk(c,m,l) && attendanceKeys(d) && d.companyId==c && d.schemaVersion==1 && d.employeeId==l.employeeId && d.uid==request.auth.uid
     && id==l.employeeId+'_'+d.date && today(d.date) && inScope(l,d.siteId) && d.shiftId is string && d.shiftId.size()<=128
     && d.checkInAt==request.time && geo(d.checkInLocation) && d.checkOutAt==null && d.checkOutLocation==null && d.status=='checked_in'
-    && d.lateMinutes is int && d.source in ['mobile','web'] && d.correction==null && d.revision==1 && d.createdAt==request.time && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.lateMinutes is int && d.source in ['mobile','web'] && d.correction==null && d.revision==1 && d.createdAt==request.time && stamped(d);
   }
   function checkOut(c,m,l,d,b){
    return staffOk(c,m,l) && b.uid==request.auth.uid && b.employeeId==l.employeeId && b.status=='checked_in'
     && d.diff(b).affectedKeys().hasOnly(['checkOutAt','checkOutLocation','status','revision','updatedAt','updatedBy'])
-    && d.checkOutAt==request.time && geo(d.checkOutLocation) && d.status=='checked_out' && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.checkOutAt==request.time && geo(d.checkOutLocation) && d.status=='checked_out' && d.revision==b.revision+1 && stamped(d);
   }
   // Supervisors (in scope, never for themselves) and admins correct times with a reason.
   function correction(d,b){
    return attendanceKeys(d) && d.diff(b).affectedKeys().hasOnly(['checkInAt','checkOutAt','status','correction','revision','updatedAt','updatedBy'])
     && d.checkInAt is timestamp && (d.checkOutAt==null || (d.checkOutAt is timestamp && d.checkOutAt>d.checkInAt)) && d.status=='corrected'
     && d.correction is map && d.correction.keys().hasOnly(['reason','by','at']) && d.correction.reason is string && d.correction.reason.size()>0 && d.correction.reason.size()<=500
-    && d.correction.by==request.auth.uid && d.correction.at==request.time && d.revision==b.revision+1 && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.correction.by==request.auth.uid && d.correction.at==request.time && d.revision==b.revision+1 && stamped(d);
   }
   function supervisorFix(c,m,l,d,b){return staffOk(c,m,l) && supervisorRole(m) && inScope(l,b.siteId) && b.employeeId!=l.employeeId && correction(d,b);}
   // Verified QR/GPS evidence for one checklist question of one attempt (create-only).
@@ -623,7 +628,7 @@ service cloud.firestore {
     && d.description is string && d.description.size()>0 && d.description.size()<=2000
     && d.status in ['submitted','in_progress','resolved','closed','reopen_requested','cancelled']
     && d.timeline is list && d.timeline.size()<=40 && d.remarks is list && d.remarks.size()<=30
-    && d.resolutionSummary is string && d.resolutionSummary.size()<=2000 && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.resolutionSummary is string && d.resolutionSummary.size()<=2000 && d.revision is int && stamped(d);
   }
   function requestCreate(c,m,l,d){
    return customerOk(c,m,l) && requestShape(c,d) && d.clientId==l.clientId && d.status=='submitted' && d.complaintId=='' && d.workOrderId==''
@@ -651,7 +656,7 @@ service cloud.firestore {
     && d.companyId==c && d.schemaVersion==1 && d.uid==uid && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')
     && d.contactName is string && d.contactName.size()<=120 && d.allocationIds is list && d.allocationIds.size()<=10
     && d.clientName is string && d.clientName.size()<=160 && d.places is list && d.places.size()<=40
-    && d.status in ['active','revoked'] && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid
+    && d.status in ['active','revoked'] && d.revision is int && stamped(d)
     && get(/databases/$(database)/documents/companies/$(c)/members/$(uid)).data.role=='customer'
     && get(/databases/$(database)/documents/companies/$(c)/clients/$(d.clientId)).data.status!='archived';
   }
@@ -668,29 +673,77 @@ service cloud.firestore {
     && d.issuer is string && d.issuer.size()<=120 && d.reference is string && d.reference.size()<=120 && d.evidenceRef is string && d.evidenceRef.size()<=500
     && (d.issuedDate=='' || date2(d.issuedDate)) && (d.expiryDate=='' || date2(d.expiryDate)) && d.verified is bool
     && (d.verified ? (d.verifiedBy is string && d.verifiedAt is timestamp) : (d.verifiedBy=='' && d.verifiedAt==null))
-    && d.notes is string && d.notes.size()<=2000 && d.status in ['active','archived'] && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
+    && d.notes is string && d.notes.size()<=2000 && d.status in ['active','archived'] && d.revision is int && stamped(d);
   }
+  // ------------------------------------------------------------------ Phase 8 SaaS platform, quotas, invitations
+  // Platform authority comes only from a custom claim set by trusted operator tooling (Admin SDK), never from tenant data.
+  function plat(r){return signedIn() && request.auth.token.get('platformRole','') in r && request.auth.token.get('email_verified',false)==true;}
+  function ev(id){return getAfter(/databases/$(database)/documents/platformEvents/$(id)).data;}
+  // Every privileged platform change carries an audit event written in the same batch by the same person.
+  function platEvent(id,subject){return id is string && ev(id).actorUid==request.auth.uid && ev(id).at==request.time && ev(id).subject==subject;}
+  function usage(c){return /databases/$(database)/documents/companies/$(c)/usage/counters;}
+  // Quota-limited creates must bump the usage counter in the same transaction once the company has a plan.
+  function quota(c,k,id){return !('plan' in co(c)) || (getAfter(usage(c)).data.revision==get(usage(c)).data.revision+1 && getAfter(usage(c)).data.last==k+'/'+id);}
+  function off(x){return x.get('status','') in ['archived','revoked','resigned','terminated'];}
+  function revive(c,k,id,d,b){return !(k in ['sites','employees','assets','recurringSchedules','staffLinks']) || !off(b) || off(d) || quota(c,k,id);}
+  function feature(c,f){return co(c).get('plan',{}).get('features',{}).get(f,true)==true;}
+  function rec(c,k,id){return /databases/$(database)/documents/companies/$(c)/$(k)/$(id);}
+  function usageStep(c,d,b){
+   let k=d.last.split('/')[0]; let id=d.last.split('/')[1];
+   return k in ['sites','employees','assets','recurringSchedules','staffLinks'] && d.diff(b).affectedKeys().hasOnly([k,'last','revision','updatedAt']) && d.revision==b.revision+1 && d.updatedAt==request.time
+    && (d[k]==b[k]+1 && (!exists(rec(c,k,id)) || off(get(rec(c,k,id)).data)) && !off(getAfter(rec(c,k,id)).data)
+        && (co(c).get('plan',{}).get('limits',{}).get(k,-1)<0 || d[k]<=co(c).plan.limits[k])
+     || d[k]==b[k]-1 && d[k]>=0 && exists(rec(c,k,id)) && !off(get(rec(c,k,id)).data) && off(getAfter(rec(c,k,id)).data));
+  }
+  function accepted(c,id){return getAfter(/databases/$(database)/documents/companies/$(c)/invitations/$(id)).data;}
+  function inviteShape(d,c){return d.keys().hasOnly(['companyId','email','role','siteIds','status','expiresAt','createdAt','createdBy','note']) && d.companyId==c
+   && d.email is string && d.email.matches('^[^A-Z@ ]+@[^A-Z@ ]+$') && d.email.size()<=200 && d.status=='pending' && born(d)
+   && d.role in ['owner','admin','site_manager','department_manager','supervisor','technician','staff','viewer','customer'] && d.siteIds is list && d.siteIds.size()<=10
+   && d.expiresAt>request.time && d.expiresAt<request.time+duration.value(15,'d') && d.note is string && d.note.size()<=300;}
+  function supportOk(c){return plat(['support','owner']) && get(/databases/$(database)/documents/companies/$(c)/supportGrants/$(request.auth.uid)).data.status=='approved'
+   && get(/databases/$(database)/documents/companies/$(c)/supportGrants/$(request.auth.uid)).data.expiresAt>request.time;}
+  function importOk(c,d,by){return d.companyId==c && d.createdBy==by && d.keys().hasOnly(['companyId','module','fileName','fileHash','status','counts','rows','mapping','createdBy','createdAt','updatedAt','updatedBy','note'])
+   && d.status in ['validated','importing','completed','partial','cancelled'] && d.rows.size()<=2000 && stamped(d);}
+  function exportOk(c,d){return d.keys().hasOnly(['companyId','report','format','scope','rows','filters','by','at']) && d.companyId==c && d.by==request.auth.uid && d.at==request.time && d.filters.size()<=500;}
+  function grantAsk(uid,d){return d.keys().hasOnly(['uid','reason','status','requestedAt','expiresAt','decidedBy']) && d.uid==uid && d.status=='requested' && d.reason.size()<=500 && d.requestedAt==request.time;}
+  function grantDecide(d,b){return d.diff(b).affectedKeys().hasOnly(['status','expiresAt','decidedBy']) && d.decidedBy==request.auth.uid
+   && (d.status=='revoked' || d.status=='approved' && b.status=='requested' && d.expiresAt>request.time && d.expiresAt<request.time+duration.value(72,'h'));}
+  function usageNew(d){return d.keys().hasOnly(['sites','employees','assets','recurringSchedules','staffLinks','last','revision','updatedAt']) && d.revision==0 && d.last=='' && d.updatedAt==request.time;}
+  function coNew(c,d){return d.keys().hasOnly(['schemaVersion','createdAt','updatedAt','createdBy','updatedBy','companyId','name','status','timeZone','plan','eventId'])
+   && d.companyId==c && d.status=='active' && d.name is string && d.name.size()>0 && d.name.size()<=120 && validZone(d.timeZone) && d.createdAt==request.time && platEvent(d.eventId,c);}
+  function coPlan(c,d,b){return d.diff(b).affectedKeys().hasOnly(['plan','eventId','updatedAt','updatedBy']) && d.plan.access in ['full','read_only'] && platEvent(d.eventId,c);}
+  function joinOk(c,uid,d){return d.keys().hasOnly(['schemaVersion','createdAt','updatedAt','createdBy','updatedBy','companyId','uid','role','status','inviteId'])
+   && d.uid==uid && d.companyId==c && d.status=='active' && d.role==accepted(c,d.inviteId).role && accepted(c,d.inviteId).acceptedBy==uid && d.createdAt==request.time;}
+  function inviteRevoke(d,b){return d.diff(b).affectedKeys().hasOnly(['status']) && b.status=='pending' && d.status=='revoked';}
+  function inviteAccept(c,d,b){return b.status=='pending' && b.email==request.auth.token.email && request.auth.token.email_verified==true && b.expiresAt>request.time
+   && d.diff(b).affectedKeys().hasOnly(['status','acceptedBy','acceptedAt']) && d.status=='accepted' && d.acceptedBy==request.auth.uid && d.acceptedAt==request.time
+   && existsAfter(/databases/$(database)/documents/companies/$(c)/members/$(request.auth.uid));}
+  function prefsOk(c,d){return d.companyId==c && stamped(d) && d.keys().hasOnly(['companyId','steps','pack','displayName','logoDataUrl','primaryColor','locale','currency','dateFormat','reportHeader','reportFooter','updatedAt','updatedBy'])
+   && d.get('logoDataUrl','').size()<=60000 && d.get('reportHeader','').size()<=500 && d.get('reportFooter','').size()<=500;}
+  function evNew(d){return d.keys().hasOnly(['type','subject','actorUid','at','detail']) && d.actorUid==request.auth.uid && d.at==request.time && d.detail.size()<=2000;}
+  function profileNew(uid,d){return d.keys().hasOnly(['uid','displayName','schemaVersion','createdAt','updatedAt','createdBy','updatedBy']) && d.uid==uid && d.displayName is string && d.displayName.size()<=100 && d.createdAt==request.time;}
   // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.
   // Source: packages/shared/src/operations.ts via rules-generator.ts.
-  function shape_departments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','siteId','managerId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.siteId+'~'+d.managerId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
-  function shape_designations(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','grade','description']) && d.status in ['active','archived'] && (d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.grade+d.description).size()<=2200;}
-  function shape_employees(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','email','phone','joiningDate','employmentType','departmentId','designationId','supervisorId','primarySiteId','linkedUid']) && d.status in ['active','probation','suspended','resigned','terminated','archived'] && (d.departmentId+'~'+d.designationId+'~'+d.supervisorId+'~'+d.primarySiteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.joiningDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.employmentType in ['Full-time','Part-time','Contract','Temporary'] && d.linkedUid.matches('^$|^[A-Za-z0-9]{1,128}$') && (d.email+d.phone).size()<=400;}
-  function shape_teams(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','departmentId','siteId','leaderId','description']) && d.status in ['active','archived'] && (d.departmentId+'~'+d.siteId+'~'+d.leaderId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
-  function shape_teamMembers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','teamId','employeeId','memberRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.teamId+'~'+d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.memberRole in ['Member','Deputy lead','Lead'];}
-  function shape_siteAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','siteId','assignmentRole','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.siteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assignmentRole in ['Assigned staff','Site supervisor','Relief cover'];}
-  function shape_shifts(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','startTime','endTime','breakMinutes','workingDays','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{1,128}$') && d.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.breakMinutes.matches('^$|^(0|[1-9][0-9]{0,6})$') && (d.breakMinutes=='' || (int(d.breakMinutes)>=0 && int(d.breakMinutes)<=600)) && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']))) && (d.description).size()<=2000;}
-  function shape_shiftAssignments(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','shiftId','startDate','endDate']) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.shiftId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$');}
-  function shape_holidays(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','holidayDate','siteId','description']) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.holidayDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && (d.description).size()<=2000;}
-  function shape_leaveRecords(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','employeeId','leaveType','startDate','endDate','reason']) && d.status in ['planned','approved','taken','cancelled','archived'] && (d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.leaveType in ['Annual','Sick','Unpaid','Emergency','Parental','Other'] && (d.reason).size()<=2000;}
-  function shape_assetCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','assetClass','description']) && d.status in ['active','archived'] && (d.parentId).matches('^[a-zA-Z0-9_-]{0,128}$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && (d.description).size()<=2000;}
-  function shape_suppliers(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','supplierType','contactPerson','phone','email','address','country','vatNumber']) && d.status in ['active','archived'] && d.supplierType in ['Assets','Materials','Assets and materials','Services'] && (d.contactPerson+d.phone+d.email+d.address+d.country+d.vatNumber).size()<=3000;}
-  function shape_assets(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','assetTag','assetClass','categoryId','trackingMode','quantity','serialNumber','brand','model','siteId','locationId','facilityId','condition','custodianId','departmentId','supplierId','purchaseDate','purchaseCost','warrantyEndDate','description','lastTransferId']) && d.status in ['in_service','in_storage','under_maintenance','out_of_service','disposed','archived'] && (d.categoryId+'~'+d.siteId+'~'+d.locationId+'~'+d.facilityId+'~'+d.custodianId+'~'+d.departmentId+'~'+d.supplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.purchaseDate+'~'+d.warrantyEndDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && d.trackingMode in ['individual','batch'] && d.quantity.matches('^(0|[1-9][0-9]{0,6})$') && (d.quantity=='' || (int(d.quantity)>=1 && int(d.quantity)<=100000)) && d.condition in ['Excellent','Good','Fair','Poor','Critical'] && d.purchaseCost.matches('^$|^(0|[1-9][0-9]{0,9})([.][0-9]{1,2})?$') && (d.assetTag+d.serialNumber+d.brand+d.model+d.description).size()<=2640;}
-  function shape_materialCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','description']) && d.status in ['active','archived'] && (d.description).size()<=2000;}
-  function shape_materials(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','unit','reorderLevel','preferredSupplierId','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.preferredSupplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.unit in ['each','box','pack','carton','pair','set','roll','bottle','kg','g','litre','ml','metre','sqm'] && d.reorderLevel.matches('^$|^(0|[1-9][0-9]{0,8})([.][0-9]{1,3})?$') && (d.description).size()<=2000;}
-  function shape_stores(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','siteId','locationId','storeKeeperId','description']) && d.status in ['active','archived'] && (d.siteId+'~'+d.locationId+'~'+d.storeKeeperId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
-  function shape_taskCategories(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','parentId','departmentId','description']) && d.status in ['active','archived'] && (d.parentId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
-  function shape_taskTemplates(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','categoryId','departmentId','defaultPriority','description']) && d.status in ['active','archived'] && (d.categoryId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.defaultPriority in ['medium','low','high','critical'] && (d.description).size()<=2000;}
-  function shape_slaPolicies(d){return d.keys().hasOnly(['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status','priority','appliesTo','responseMinutes','resolutionMinutes','hoursMode','siteId','departmentId']) && d.status in ['active','archived'] && (d.siteId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && d.priority in ['critical','high','medium','low'] && d.appliesTo in ['all','workOrders','complaints','escalations'] && d.responseMinutes.matches('^(0|[1-9][0-9]{0,6})$') && (d.responseMinutes=='' || (int(d.responseMinutes)>=1 && int(d.responseMinutes)<=525600)) && d.resolutionMinutes.matches('^(0|[1-9][0-9]{0,6})$') && (d.resolutionMinutes=='' || (int(d.resolutionMinutes)>=1 && int(d.resolutionMinutes)<=525600)) && d.hoursMode in ['calendar','business'];}
+  function metaKeys(){return ['companyId','schemaVersion','createdAt','updatedAt','createdBy','updatedBy','revision','refCount','witnessKind','witnessId','code','name','notes','status'];}
+  function shape_departments(d){return d.keys().hasOnly(metaKeys().concat(['parentId','siteId','managerId','description'])) && d.status in ['active','archived'] && (d.parentId+'~'+d.siteId+'~'+d.managerId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_designations(d){return d.keys().hasOnly(metaKeys().concat(['departmentId','grade','description'])) && d.status in ['active','archived'] && (d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.grade+d.description).size()<=2200;}
+  function shape_employees(d){return d.keys().hasOnly(metaKeys().concat(['email','phone','joiningDate','employmentType','departmentId','designationId','supervisorId','primarySiteId','linkedUid'])) && d.status in ['active','probation','suspended','resigned','terminated','archived'] && (d.departmentId+'~'+d.designationId+'~'+d.supervisorId+'~'+d.primarySiteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.joiningDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.employmentType in ['Full-time','Part-time','Contract','Temporary'] && d.linkedUid.matches('^$|^[A-Za-z0-9]{1,128}$') && (d.email+d.phone).size()<=400;}
+  function shape_teams(d){return d.keys().hasOnly(metaKeys().concat(['departmentId','siteId','leaderId','description'])) && d.status in ['active','archived'] && (d.departmentId+'~'+d.siteId+'~'+d.leaderId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_teamMembers(d){return d.keys().hasOnly(metaKeys().concat(['teamId','employeeId','memberRole','startDate','endDate'])) && d.status in ['active','ended','archived'] && (d.teamId+'~'+d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.memberRole in ['Member','Deputy lead','Lead'];}
+  function shape_siteAssignments(d){return d.keys().hasOnly(metaKeys().concat(['employeeId','siteId','assignmentRole','startDate','endDate'])) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.siteId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assignmentRole in ['Assigned staff','Site supervisor','Relief cover'];}
+  function shape_shifts(d){return d.keys().hasOnly(metaKeys().concat(['siteId','startTime','endTime','breakMinutes','workingDays','description'])) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{1,128}$') && d.startTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.endTime.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$') && d.breakMinutes.matches('^$|^(0|[1-9][0-9]{0,6})$') && (d.breakMinutes=='' || (int(d.breakMinutes)>=0 && int(d.breakMinutes)<=600)) && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun']))) && (d.description).size()<=2000;}
+  function shape_shiftAssignments(d){return d.keys().hasOnly(metaKeys().concat(['employeeId','shiftId','startDate','endDate'])) && d.status in ['active','ended','archived'] && (d.employeeId+'~'+d.shiftId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$');}
+  function shape_holidays(d){return d.keys().hasOnly(metaKeys().concat(['holidayDate','siteId','description'])) && d.status in ['active','archived'] && (d.siteId).matches('^[a-zA-Z0-9_-]{0,128}$') && (d.holidayDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && (d.description).size()<=2000;}
+  function shape_leaveRecords(d){return d.keys().hasOnly(metaKeys().concat(['employeeId','leaveType','startDate','endDate','reason'])) && d.status in ['planned','approved','taken','cancelled','archived'] && (d.employeeId).matches('^[a-zA-Z0-9_-]{1,128}$') && (d.startDate+'~'+d.endDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))$') && d.leaveType in ['Annual','Sick','Unpaid','Emergency','Parental','Other'] && (d.reason).size()<=2000;}
+  function shape_assetCategories(d){return d.keys().hasOnly(metaKeys().concat(['parentId','assetClass','description'])) && d.status in ['active','archived'] && (d.parentId).matches('^[a-zA-Z0-9_-]{0,128}$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && (d.description).size()<=2000;}
+  function shape_suppliers(d){return d.keys().hasOnly(metaKeys().concat(['supplierType','contactPerson','phone','email','address','country','vatNumber'])) && d.status in ['active','archived'] && d.supplierType in ['Assets','Materials','Assets and materials','Services'] && (d.contactPerson+d.phone+d.email+d.address+d.country+d.vatNumber).size()<=3000;}
+  function shape_assets(d){return d.keys().hasOnly(metaKeys().concat(['assetTag','assetClass','categoryId','trackingMode','quantity','serialNumber','brand','model','siteId','locationId','facilityId','condition','custodianId','departmentId','supplierId','purchaseDate','purchaseCost','warrantyEndDate','description','lastTransferId'])) && d.status in ['in_service','in_storage','under_maintenance','out_of_service','disposed','archived'] && (d.categoryId+'~'+d.siteId+'~'+d.locationId+'~'+d.facilityId+'~'+d.custodianId+'~'+d.departmentId+'~'+d.supplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.purchaseDate+'~'+d.warrantyEndDate).matches('^([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?~([0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))?$') && d.assetClass in ['Equipment','Furniture','Fixture','Tool','IT equipment','Vehicle','Other'] && d.trackingMode in ['individual','batch'] && d.quantity.matches('^(0|[1-9][0-9]{0,6})$') && (d.quantity=='' || (int(d.quantity)>=1 && int(d.quantity)<=100000)) && d.condition in ['Excellent','Good','Fair','Poor','Critical'] && d.purchaseCost.matches('^$|^(0|[1-9][0-9]{0,9})([.][0-9]{1,2})?$') && (d.assetTag+d.serialNumber+d.brand+d.model+d.description).size()<=2640;}
+  function shape_materialCategories(d){return d.keys().hasOnly(metaKeys().concat(['description'])) && d.status in ['active','archived'] && (d.description).size()<=2000;}
+  function shape_materials(d){return d.keys().hasOnly(metaKeys().concat(['categoryId','unit','reorderLevel','preferredSupplierId','description'])) && d.status in ['active','archived'] && (d.categoryId+'~'+d.preferredSupplierId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.unit in ['each','box','pack','carton','pair','set','roll','bottle','kg','g','litre','ml','metre','sqm'] && d.reorderLevel.matches('^$|^(0|[1-9][0-9]{0,8})([.][0-9]{1,3})?$') && (d.description).size()<=2000;}
+  function shape_stores(d){return d.keys().hasOnly(metaKeys().concat(['siteId','locationId','storeKeeperId','description'])) && d.status in ['active','archived'] && (d.siteId+'~'+d.locationId+'~'+d.storeKeeperId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_taskCategories(d){return d.keys().hasOnly(metaKeys().concat(['parentId','departmentId','description'])) && d.status in ['active','archived'] && (d.parentId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && (d.description).size()<=2000;}
+  function shape_taskTemplates(d){return d.keys().hasOnly(metaKeys().concat(['categoryId','departmentId','defaultPriority','description'])) && d.status in ['active','archived'] && (d.categoryId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{1,128}~[a-zA-Z0-9_-]{0,128}$') && d.defaultPriority in ['medium','low','high','critical'] && (d.description).size()<=2000;}
+  function shape_slaPolicies(d){return d.keys().hasOnly(metaKeys().concat(['priority','appliesTo','responseMinutes','resolutionMinutes','hoursMode','siteId','departmentId'])) && d.status in ['active','archived'] && (d.siteId+'~'+d.departmentId).matches('^[a-zA-Z0-9_-]{0,128}~[a-zA-Z0-9_-]{0,128}$') && d.priority in ['critical','high','medium','low'] && d.appliesTo in ['all','workOrders','complaints','escalations'] && d.responseMinutes.matches('^(0|[1-9][0-9]{0,6})$') && (d.responseMinutes=='' || (int(d.responseMinutes)>=1 && int(d.responseMinutes)<=525600)) && d.resolutionMinutes.matches('^(0|[1-9][0-9]{0,6})$') && (d.resolutionMinutes=='' || (int(d.resolutionMinutes)>=1 && int(d.resolutionMinutes)<=525600)) && d.hoursMode in ['calendar','business'];}
   function known2(k){return k in ['departments','designations','employees','teams','teamMembers','siteAssignments','shifts','shiftAssignments','holidays','leaveRecords','assetCategories','suppliers','assets','materialCategories','materials','stores','taskCategories','taskTemplates','slaPolicies'];}
   function create_departments(c,id,d){return create2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',true) && ref2(c,'departments',id,'siteId','sites',true);}
   function update_departments(c,id,d,b){return update2(c,'departments',id) && shape_departments(d) && extraParent(c,'departments',id,d) && ref2(c,'departments',id,'parentId','departments',false) && ref2(c,'departments',id,'siteId','sites',false) && d.diff(b).affectedKeys().intersection(['parentId','siteId'].toSet()).size()<=1;}
@@ -771,9 +824,35 @@ service cloud.firestore {
   function caseReopens(k,a){return k=='workOrders'?(a in ['reopen']):k=='complaints'?(a in ['reopen']):k=='escalations'?(a in []):false;}
   function caseCloses(k,a){return k=='workOrders'?(a in ['close','cancel']):k=='complaints'?(a in ['close','cancel']):k=='escalations'?(a in ['close']):false;}
   // END GENERATED PHASE 2 VALIDATORS
+  // ------------------------------------------------------------------ Phase 8 platform (Sharaco)
+  match /platformEvents/{id} {
+   allow read: if plat(['owner','billing','support','viewer']);
+   allow create: if plat(['owner','billing','support']) && evNew(request.resource.data);
+  }
+  match /platformPlans/{id} {
+   allow read: if signedIn();
+   allow write: if plat(['owner','billing']) && platEvent(request.resource.data.eventId,'plan/'+id);
+  }
+  match /platformPlanVersions/{id} {
+   allow read: if signedIn();
+   allow create: if plat(['owner','billing']) && platEvent(request.resource.data.eventId,'plan/'+request.resource.data.planId);
+  }
+  match /platformSubs/{companyId} {
+   allow read: if plat(['owner','billing','support','viewer']) || admin(companyId);
+   allow write: if plat(['owner','billing']) && platEvent(request.resource.data.eventId,companyId);
+  }
+  match /platformInvoices/{id} {
+   allow read: if plat(['owner','billing','viewer']) || admin(resource.data.companyId);
+   allow write: if plat(['owner','billing']) && platEvent(request.resource.data.eventId,request.resource.data.companyId)
+    && request.resource.data.get('source','manual')=='manual';
+  }
+  // Provider payment events are written only by a trusted backend after signature verification (not active on Spark).
+  match /platformPayments/{id} {
+   allow read: if plat(['owner','billing']);
+  }
   match /users/{uid} {
    allow get: if signedIn() && request.auth.uid == uid;
-   allow list, create, delete: if false;
+   allow create: if signedIn() && request.auth.uid==uid && profileNew(uid,request.resource.data);
    allow update: if signedIn() && request.auth.uid == uid
     && request.resource.data.keys().hasOnly(['uid','displayName','schemaVersion','createdAt','updatedAt','createdBy','updatedBy'])
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName','updatedAt','updatedBy'])
@@ -785,13 +864,17 @@ service cloud.firestore {
    match /companyAccess/{companyId} {
     // Discovery hints only. Every company request checks its canonical member document.
     allow get, list: if signedIn() && request.auth.uid == uid;
-    allow write: if false;
+    allow create: if signedIn() && request.auth.uid==uid && request.resource.data.keys().hasOnly(['companyId']) && request.resource.data.companyId==companyId
+     && getAfter(/databases/$(database)/documents/companies/$(companyId)/members/$(uid)).data.uid==uid;
    }
   }
   match /companies/{companyId} {
    allow get: if (admin(companyId) || staff(companyId) || customer(companyId)) && resource.data.companyId == companyId && resource.data.status == 'active';
-   allow list, create, delete: if false;
-   allow update: if admin(companyId) && activeCompany(companyId)
+   // Phase 8: platform staff see the tenant directory record (not operational data); support only with a tenant-approved grant.
+   allow read: if plat(['owner','billing','support','viewer']);
+   allow create: if plat(['owner']) && coNew(companyId,request.resource.data);
+   allow update: if plat(['owner','billing']) && coPlan(companyId,request.resource.data,resource.data);
+   allow update: if aa(companyId)
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','timeZone','contactEmail','contactPhone','address','country','updatedAt','updatedBy'])
     && request.resource.data.name is string && request.resource.data.name.size()>0 && request.resource.data.name.size()<=120
     && validZone(request.resource.data.timeZone)
@@ -799,64 +882,69 @@ service cloud.firestore {
     && request.resource.data.updatedAt == request.time && request.resource.data.updatedBy == request.auth.uid;
    match /members/{uid} {
     allow get: if signedIn() && resource.data.uid == uid && resource.data.companyId == companyId
-     && (request.auth.uid == uid || (admin(companyId) && activeCompany(companyId)));
+     && (request.auth.uid == uid || (aa(companyId)));
     // Phase 2: owners/admins may list their company's members (read-only). Role changes stay trusted.
-    allow list: if admin(companyId) && activeCompany(companyId);
+    allow list: if aa(companyId);
     // Phase 5: staff may find reviewers (query filtered by role) to notify them; no other member data is exposed.
     allow list: if staff(companyId) && resource.data.role in ['owner','admin','supervisor','site_manager','department_manager'];
-    allow write: if false;
+    // Phase 8: a signed-in, email-verified person joins by accepting an invitation addressed to them (same transaction).
+    allow create: if signedIn() && request.auth.uid==uid && joinOk(companyId,uid,request.resource.data);
+   }
+   match /invitations/{token} {
+    allow read: if admin(companyId);
+    allow get: if signedIn() && resource.data.email==request.auth.token.email;
+    allow create: if token.matches('^[A-Za-z0-9_-]{24,64}$') && inviteShape(request.resource.data,companyId)
+     && (aa(companyId) && (request.resource.data.role!='admin' || member(companyId).role=='owner') && request.resource.data.role!='owner'
+      || plat(['owner']) && request.resource.data.role=='owner');
+    allow update: if admin(companyId) && inviteRevoke(request.resource.data,resource.data) || signedIn() && inviteAccept(companyId,request.resource.data,resource.data);
    }
    match /staffLinks/{uid} {
     allow get: if signedIn() && request.auth.uid==uid && resource.data.uid==uid;
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && linkShape(companyId,uid,request.resource.data)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && linkShape(companyId,uid,request.resource.data)
      && request.resource.data.status=='active' && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
-     && linkTarget(companyId,uid,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && linkShape(companyId,uid,request.resource.data)
+     && linkTarget(companyId,uid,request.resource.data) && quota(companyId,'staffLinks',uid);
+    allow update: if aa(companyId) && linkShape(companyId,uid,request.resource.data) && revive(companyId,'staffLinks',uid,request.resource.data,resource.data)
      && request.resource.data.revision==resource.data.revision+1 && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy
      && request.resource.data.employeeId==resource.data.employeeId
      && (request.resource.data.status=='revoked' || linkTarget(companyId,uid,request.resource.data));
-    allow delete: if false;
    }
    match /employeeLinks/{employeeId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if aa(companyId);
     // One login per employee: the claim can move only away from a revoked link.
-    allow create: if admin(companyId) && activeCompany(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
+    allow create: if aa(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
      && request.resource.data.companyId==companyId && request.resource.data.employeeId==employeeId
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(request.resource.data.uid)).data.employeeId==employeeId;
-    allow update: if admin(companyId) && activeCompany(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
+    allow update: if aa(companyId) && request.resource.data.keys().hasOnly(['companyId','employeeId','uid'])
      && request.resource.data.companyId==companyId && request.resource.data.employeeId==employeeId
      && get(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(resource.data.uid)).data.status=='revoked'
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/staffLinks/$(request.resource.data.uid)).data.employeeId==employeeId;
-    allow delete: if false;
    }
    match /auditLogs/{eventId} {
-    allow get: if admin(companyId) && activeCompany(companyId) && resource.data.companyId == companyId;
-    allow list, write: if false;
+    allow get: if aa(companyId) && resource.data.companyId == companyId;
    }
 
    match /codeClaims/{claimId} {
-    allow get: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow get: if aa(companyId);
+    allow create: if aa(companyId)
      && request.resource.data.keys().hasOnly(['kind','recordId','code','companyId'])
      && request.resource.data.companyId==companyId && (known(request.resource.data.kind)||known2(request.resource.data.kind)||request.resource.data.kind=='contractAllocations')
      && claimId==request.resource.data.kind+'_'+request.resource.data.code
      && !exists(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId))
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
-    allow update,delete,list: if false;
    }
    match /{kind}/{id} {
-    allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
+    allow read: if (known(kind) || known2(kind)) && aa(companyId);
     allow read: if kind in ['sites','locations','facilities','assets','employees','shiftAssignments','siteAssignments','leaveRecords','teamMembers','departments','designations','teams','shifts','holidays','taskCategories','slaPolicies']
      && staffMasterRead(companyId,kind,id,resource.data);
-    allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
+    allow create: if known(kind) && aa(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
      && request.resource.data.status!='archived' && request.resource.data.revision==1 && request.resource.data.refCount==0
      && request.resource.data.witnessKind=='' && request.resource.data.witnessId==''
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
-     && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true));
-    allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
+     && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true)) && quota(companyId,kind,id);
+    allow update: if known(kind) && aa(companyId) && (
      request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):(known2(request.resource.data.witnessKind)?(kind=='sites'?counter_sites(companyId,id):kind=='locations'?counter_locations(companyId,id):false):counter(companyId,kind,id))) : (
       business(companyId,kind,id)
       && request.resource.data.schemaVersion==resource.data.schemaVersion
@@ -869,305 +957,303 @@ service cloud.firestore {
       && (kind!='contracts' || resource.data.refCount==0 || (request.resource.data.clientId==resource.data.clientId&&request.resource.data.startDate==resource.data.startDate&&request.resource.data.endDate==resource.data.endDate))
       && (kind!='facilities' || facilityHistory(companyId,id))
       && (kind!='contractAllocations'||allocationChange(companyId,id,false))
+      && revive(companyId,kind,id,request.resource.data,resource.data)
      ));
-    allow delete: if false;
    }
    // ---------------------------------------------------------------- Phase 3 workflow
    match /templateVersions/{versionId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && versionCreate(companyId,versionId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && versionUpdate(request.resource.data,resource.data);
-    allow delete: if false;
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && versionCreate(companyId,versionId,request.resource.data);
+    allow update: if aa(companyId) && versionUpdate(request.resource.data,resource.data);
    }
    match /tasks/{taskId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if aa(companyId);
     allow read: if staffView(companyId,resource.data);
-    allow create: if admin(companyId) && activeCompany(companyId) && taskCreate(companyId,taskId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && taskUpdate(companyId,taskId,request.resource.data,resource.data);
+    allow create: if aa(companyId) && taskCreate(companyId,taskId,request.resource.data);
+    allow update: if aa(companyId) && taskUpdate(companyId,taskId,request.resource.data,resource.data);
     allow update: if staffTaskUpdate(companyId,taskId,request.resource.data,resource.data);
-    allow delete: if false;
    }
    match /taskEvents/{eventId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && eventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffView(companyId,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && eventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
-    allow update,delete: if false;
    }
    match /taskSubmissions/{submissionId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && submissionCreate(companyId,submissionId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && submissionCreate(companyId,submissionId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
-    allow update,delete: if false;
    }
    match /taskApprovals/{approvalId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && approvalCreate(companyId,approvalId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/taskSubmissions/$(approvalId)).data);
     allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffReviewer(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && approvalCreate(companyId,approvalId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data,get(/databases/$(database)/documents/companies/$(companyId)/taskSubmissions/$(approvalId)).data);
-    allow update,delete: if false;
    }
    match /taskExceptions/{exceptionId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && exceptionCreate(companyId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     allow create: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data)
      && exceptionCreate(companyId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
     // Staff see issues they reported; supervisors see issues in their sites.
     allow get: if resource==null && staff(companyId);
     allow read: if staff(companyId) && (resource.data.detectedBy==request.auth.uid || (supervisorRole(member(companyId)) && inScope(link(companyId),resource.data.siteId)));
-    allow update: if admin(companyId) && activeCompany(companyId) && exceptionUpdate(request.resource.data,resource.data);
+    allow update: if aa(companyId) && exceptionUpdate(request.resource.data,resource.data);
     allow update: if staffReviewer(companyId,resource.data) && exceptionUpdate(request.resource.data,resource.data);
-    allow delete: if false;
    }
    // ---------------------------------------------------------------- Phase 4
    match /recurringSchedules/{scheduleId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && scheduleCreate(companyId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && scheduleUpdate(companyId,request.resource.data,resource.data);
-    allow delete: if false;
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && scheduleCreate(companyId,request.resource.data) && quota(companyId,'recurringSchedules',scheduleId);
+    allow update: if aa(companyId) && scheduleUpdate(companyId,request.resource.data,resource.data) && revive(companyId,'recurringSchedules',scheduleId,request.resource.data,resource.data);
    }
    match /schedulerRuns/{runId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && runShape(request.resource.data) && request.resource.data.companyId==companyId && request.resource.data.schemaVersion==1
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && runShape(request.resource.data) && request.resource.data.companyId==companyId && request.resource.data.schemaVersion==1
      && request.resource.data.actorUid==request.auth.uid && request.resource.data.startedAt==request.time && request.resource.data.finishedAt==null && request.resource.data.status=='running';
-    allow update: if admin(companyId) && activeCompany(companyId) && runShape(request.resource.data) && resource.data.status=='running' && resource.data.actorUid==request.auth.uid
+    allow update: if aa(companyId) && runShape(request.resource.data) && resource.data.status=='running' && resource.data.actorUid==request.auth.uid
      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','finishedAt','scheduleCount','created','existing','unassigned','notifications','errors']) && request.resource.data.finishedAt==request.time;
-    allow delete: if false;
    }
    match /caseEvents/{eventId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && caseEventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data);
     allow get: if staffCase(companyId,get(/databases/$(database)/documents/companies/$(companyId)/$(resource.data.kind)/$(resource.data.caseId)).data);
     allow create: if staffCase(companyId,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data) && caseEventCreate(companyId,eventId,request.resource.data,getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.caseId)).data);
-    allow update,delete: if false;
    }
    match /notifications/{notificationId} {
     allow read: if signedIn() && resource.data.recipientUid==request.auth.uid && activeMember(companyId,request.auth.uid) && activeCompany(companyId);
     // Senders may only probe that a deterministic ID is still free (prevents duplicates); they never read content.
     allow get: if resource==null && (admin(companyId) || staff(companyId)) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && notificationCreate(companyId,request.resource.data);
+    allow create: if aa(companyId) && notificationCreate(companyId,request.resource.data);
     allow create: if staff(companyId) && notificationCreate(companyId,request.resource.data)
      && request.resource.data.type in ['task_submitted','task_awaiting_approval','task_approved','task_rejected','task_rework','task_assigned','task_reassigned','work_order_created','work_order_assigned','escalation_raised','issue_updated'];
     allow update: if signedIn() && resource.data.recipientUid==request.auth.uid && activeMember(companyId,request.auth.uid)
      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']) && resource.data.readAt==null && request.resource.data.readAt==request.time;
-    allow delete: if false;
    }
    match /notificationPreferences/{uid} {
-    allow read: if (signedIn() && request.auth.uid==uid && activeMember(companyId,uid)) || (admin(companyId) && activeCompany(companyId));
+    allow read: if (signedIn() && request.auth.uid==uid && activeMember(companyId,uid)) || (aa(companyId));
     allow write: if signedIn() && request.auth.uid==uid && activeMember(companyId,uid)
      && request.resource.data.keys().hasOnly(['companyId','uid','inApp','email','push','updatedAt'])
      && request.resource.data.companyId==companyId && request.resource.data.uid==uid && request.resource.data.inApp is map && request.resource.data.inApp.size()<=30
      && request.resource.data.email is bool && request.resource.data.push is bool && request.resource.data.updatedAt==request.time;
    }
    match /workOrders/{caseId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'workOrders',caseId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'workOrders',caseId,request.resource.data,resource.data);
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && caseCreate(companyId,'workOrders',caseId,request.resource.data);
+    allow update: if aa(companyId) && caseUpdate(companyId,'workOrders',caseId,request.resource.data,resource.data);
     allow read: if staffCase(companyId,resource.data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffCaseCreate(companyId,'workOrders',caseId,request.resource.data);
     allow update: if staffCaseUpdate(companyId,'workOrders',caseId,request.resource.data,resource.data);
-    allow delete: if false;
    }
    match /complaints/{caseId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'complaints',caseId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'complaints',caseId,request.resource.data,resource.data);
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && caseCreate(companyId,'complaints',caseId,request.resource.data);
+    allow update: if aa(companyId) && caseUpdate(companyId,'complaints',caseId,request.resource.data,resource.data);
     allow read: if staffCase(companyId,resource.data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffCaseCreate(companyId,'complaints',caseId,request.resource.data);
     allow update: if staffCaseUpdate(companyId,'complaints',caseId,request.resource.data,resource.data);
-    allow delete: if false;
    }
    match /escalations/{caseId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && caseCreate(companyId,'escalations',caseId,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && caseUpdate(companyId,'escalations',caseId,request.resource.data,resource.data);
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && caseCreate(companyId,'escalations',caseId,request.resource.data);
+    allow update: if aa(companyId) && caseUpdate(companyId,'escalations',caseId,request.resource.data,resource.data);
     allow read: if staffCase(companyId,resource.data);
     allow get: if resource==null && staff(companyId);
     allow create: if staffCaseCreate(companyId,'escalations',caseId,request.resource.data);
     allow update: if staffCaseUpdate(companyId,'escalations',caseId,request.resource.data,resource.data);
-    allow delete: if false;
    }
    // ---------------------------------------------------------------- Phase 6
    match /attendance/{recordId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if aa(companyId);
     allow read: if staff(companyId) && (resource.data.employeeId==link(companyId).employeeId || (supervisorRole(member(companyId)) && inScope(link(companyId),resource.data.siteId)));
     allow get: if resource==null && staff(companyId);
     allow create: if checkIn(companyId,member(companyId),link(companyId),recordId,request.resource.data);
     allow update: if checkOut(companyId,member(companyId),link(companyId),request.resource.data,resource.data);
     allow update: if supervisorFix(companyId,member(companyId),link(companyId),request.resource.data,resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && correction(request.resource.data,resource.data);
-    allow delete: if false;
+    allow update: if aa(companyId) && correction(request.resource.data,resource.data);
    }
    match /taskEvidence/{evidenceId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if aa(companyId);
     allow get: if staffView(companyId,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(resource.data.taskId)).data);
     allow get: if resource==null && staff(companyId);
     allow create: if evidenceCreate(companyId,member(companyId),link(companyId),evidenceId,request.resource.data,get(/databases/$(database)/documents/companies/$(companyId)/tasks/$(request.resource.data.taskId)).data);
-    allow update,delete: if false;
    }
    // ---------------------------------------------------------------- Phase 7
    match /customerLinks/{uid} {
     allow get: if signedIn() && request.auth.uid==uid && (resource==null || resource.data.uid==uid);
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && linkCustomerShape(companyId,uid,request.resource.data)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && linkCustomerShape(companyId,uid,request.resource.data) && feature(companyId,'customerPortal')
      && request.resource.data.status=='active' && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid;
-    allow update: if admin(companyId) && activeCompany(companyId) && linkCustomerShape(companyId,uid,request.resource.data)
+    allow update: if aa(companyId) && linkCustomerShape(companyId,uid,request.resource.data)
      && request.resource.data.revision==resource.data.revision+1 && request.resource.data.clientId==resource.data.clientId
      && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy;
-    allow delete: if false;
    }
    match /serviceRequests/{requestId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
+    allow read: if aa(companyId);
     allow read: if customerSees(companyId,resource.data);
     allow get: if resource==null && (customer(companyId) || admin(companyId));
     allow create: if requestCreate(companyId,member(companyId),clink(companyId),request.resource.data) && requestId.matches('^[a-zA-Z0-9_-]{8,64}$');
     allow update: if requestCustomerUpdate(companyId,member(companyId),clink(companyId),request.resource.data,resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && requestTeamUpdate(companyId,request.resource.data,resource.data);
-    allow delete: if false;
+    allow update: if aa(companyId) && requestTeamUpdate(companyId,request.resource.data,resource.data);
    }
    match /maintenanceCosts/{costId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && costShape(companyId,request.resource.data);
-    allow update, delete: if false;
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && costShape(companyId,request.resource.data);
    }
    match /complianceRecords/{recordId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && complianceShape(companyId,request.resource.data)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && complianceShape(companyId,request.resource.data)
      && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid && request.resource.data.status=='active';
-    allow update: if admin(companyId) && activeCompany(companyId) && complianceShape(companyId,request.resource.data) && resource.data.status!='archived'
+    allow update: if aa(companyId) && complianceShape(companyId,request.resource.data) && resource.data.status!='archived'
      && request.resource.data.revision==resource.data.revision+1 && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy;
-    allow delete: if false;
    }
    match /settings/{settingId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow write: if admin(companyId) && activeCompany(companyId) && settingId in ['retention']
+    allow read: if aa(companyId);
+    allow write: if aa(companyId) && settingId in ['onboarding','branding'] && prefsOk(companyId,request.resource.data);
+    allow get: if supportOk(companyId) && settingId=='onboarding';
+    allow write: if aa(companyId) && settingId in ['retention']
      && request.resource.data.keys().hasOnly(['companyId','gpsDays','attendanceDays','photoDays','notificationDays','auditDays','note','updatedAt','updatedBy'])
      && request.resource.data.companyId==companyId && request.resource.data.updatedAt==request.time && request.resource.data.updatedBy==request.auth.uid
      && request.resource.data.gpsDays is int && request.resource.data.attendanceDays is int && request.resource.data.photoDays is int
      && request.resource.data.notificationDays is int && request.resource.data.auditDays is int && request.resource.data.note is string && request.resource.data.note.size()<=1000;
    }
+   // ---------------------------------------------------------------- Phase 8 (tenant side)
+   match /usage/{docId} {
+    allow get: if admin(companyId) || supportOk(companyId) || plat(['owner','billing','viewer']);
+    allow create: if (plat(['owner']) || admin(companyId)) && docId=='counters' && !('plan' in co(companyId)) && usageNew(request.resource.data);
+    allow update: if aa(companyId) && docId=='counters' && usageStep(companyId,request.resource.data,resource.data);
+   }
+   match /importSessions/{sessionId} {
+    allow read: if admin(companyId);
+    allow create, update: if aa(companyId) && importOk(companyId,request.resource.data,resource==null ? request.auth.uid : resource.data.createdBy);
+   }
+   match /exportLogs/{logId} {
+    allow read: if admin(companyId);
+    allow create: if (admin(companyId) || customer(companyId)) && exportOk(companyId,request.resource.data);
+   }
+   match /supportGrants/{uid} {
+    allow read: if admin(companyId) || signedIn() && request.auth.uid==uid;
+    allow create: if plat(['support','owner']) && request.auth.uid==uid && grantAsk(uid,request.resource.data);
+    allow update: if admin(companyId) && grantDecide(request.resource.data,resource.data);
+   }
   // BEGIN GENERATED PHASE 2 MATCHES — do not edit by hand.
    match /departments/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_departments(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_departments(companyId,id) : update_departments(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_departments(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_departments(companyId,id) : update_departments(companyId,id,request.resource.data,resource.data));
    }
    match /designations/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_designations(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_designations(companyId,id) : update_designations(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_designations(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_designations(companyId,id) : update_designations(companyId,id,request.resource.data,resource.data));
    }
    match /employees/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_employees(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_employees(companyId,id) : update_employees(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_employees(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_employees(companyId,id) : update_employees(companyId,id,request.resource.data,resource.data));
    }
    match /teams/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_teams(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teams(companyId,id) : update_teams(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_teams(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teams(companyId,id) : update_teams(companyId,id,request.resource.data,resource.data));
    }
    match /teamMembers/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_teamMembers(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teamMembers(companyId,id) : update_teamMembers(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_teamMembers(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_teamMembers(companyId,id) : update_teamMembers(companyId,id,request.resource.data,resource.data));
    }
    match /siteAssignments/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_siteAssignments(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_siteAssignments(companyId,id) : update_siteAssignments(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_siteAssignments(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_siteAssignments(companyId,id) : update_siteAssignments(companyId,id,request.resource.data,resource.data));
    }
    match /shifts/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_shifts(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shifts(companyId,id) : update_shifts(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_shifts(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shifts(companyId,id) : update_shifts(companyId,id,request.resource.data,resource.data));
    }
    match /shiftAssignments/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_shiftAssignments(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shiftAssignments(companyId,id) : update_shiftAssignments(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_shiftAssignments(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_shiftAssignments(companyId,id) : update_shiftAssignments(companyId,id,request.resource.data,resource.data));
    }
    match /holidays/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_holidays(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_holidays(companyId,id) : update_holidays(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_holidays(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_holidays(companyId,id) : update_holidays(companyId,id,request.resource.data,resource.data));
    }
    match /leaveRecords/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_leaveRecords(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_leaveRecords(companyId,id) : update_leaveRecords(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_leaveRecords(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_leaveRecords(companyId,id) : update_leaveRecords(companyId,id,request.resource.data,resource.data));
    }
    match /assetCategories/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_assetCategories(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assetCategories(companyId,id) : update_assetCategories(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_assetCategories(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assetCategories(companyId,id) : update_assetCategories(companyId,id,request.resource.data,resource.data));
    }
    match /suppliers/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_suppliers(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_suppliers(companyId,id) : update_suppliers(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_suppliers(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_suppliers(companyId,id) : update_suppliers(companyId,id,request.resource.data,resource.data));
    }
    match /assets/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_assets(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assets(companyId,id) : update_assets(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_assets(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_assets(companyId,id) : update_assets(companyId,id,request.resource.data,resource.data));
    }
    match /materialCategories/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_materialCategories(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materialCategories(companyId,id) : update_materialCategories(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_materialCategories(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materialCategories(companyId,id) : update_materialCategories(companyId,id,request.resource.data,resource.data));
    }
    match /materials/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_materials(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materials(companyId,id) : update_materials(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_materials(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_materials(companyId,id) : update_materials(companyId,id,request.resource.data,resource.data));
    }
    match /stores/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_stores(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_stores(companyId,id) : update_stores(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_stores(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_stores(companyId,id) : update_stores(companyId,id,request.resource.data,resource.data));
    }
    match /taskCategories/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_taskCategories(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskCategories(companyId,id) : update_taskCategories(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_taskCategories(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskCategories(companyId,id) : update_taskCategories(companyId,id,request.resource.data,resource.data));
    }
    match /taskTemplates/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_taskTemplates(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskTemplates(companyId,id) : update_taskTemplates(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_taskTemplates(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_taskTemplates(companyId,id) : update_taskTemplates(companyId,id,request.resource.data,resource.data));
    }
    match /slaPolicies/{id} {
-    allow create: if admin(companyId) && activeCompany(companyId) && create_slaPolicies(companyId,id,request.resource.data);
-    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_slaPolicies(companyId,id) : update_slaPolicies(companyId,id,request.resource.data,resource.data));
+    allow create: if aa(companyId) && create_slaPolicies(companyId,id,request.resource.data);
+    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_slaPolicies(companyId,id) : update_slaPolicies(companyId,id,request.resource.data,resource.data));
    }
   // END GENERATED PHASE 2 MATCHES
    match /assets/{assetId}/history/{event} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && request.resource.data.keys().hasOnly(['companyId','revision','condition','status','siteId','locationId','custodianId','quantity','transferId','actorUid','occurredAt'])
      && request.resource.data.companyId==companyId && event==string(request.resource.data.revision)
      && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision
      && (!exists(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)) || request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/assets/$(assetId)).data.revision+1)
      && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
-    allow update,delete: if false;
    }
    match /assetTransfers/{transferId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && transferValid(companyId,transferId);
-    allow update,delete: if false;
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && transferValid(companyId,transferId);
    }
    match /stockMovements/{movementId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && movementValid(companyId,movementId);
-    allow update,delete: if false;
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && movementValid(companyId,movementId);
    }
    match /stockBalances/{balanceId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,{'quantity':0,'revision':0},true);
-    allow update: if admin(companyId) && activeCompany(companyId) && balanceValid(companyId,balanceId,resource.data,false)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId) && balanceValid(companyId,balanceId,{'quantity':0,'revision':0},true);
+    allow update: if aa(companyId) && balanceValid(companyId,balanceId,resource.data,false)
      && request.resource.data.storeId==resource.data.storeId && request.resource.data.materialId==resource.data.materialId;
-    allow delete: if false;
    }
    match /facilities/{facilityId}/history/{eventId} {
-    allow read: if admin(companyId) && activeCompany(companyId);
-    allow create: if admin(companyId) && activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && request.resource.data.keys().hasOnly(['companyId','revision','condition','status','actorUid','occurredAt'])
      && request.resource.data.companyId==companyId && eventId==string(request.resource.data.revision)
      && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.revision
@@ -1175,7 +1261,6 @@ service cloud.firestore {
      && request.resource.data.condition==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.condition
      && request.resource.data.status==getAfter(/databases/$(database)/documents/companies/$(companyId)/$('facilities')/$(facilityId)).data.status
      && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time;
-    allow update,delete: if false;
    }
 
    match /contractAllocations/{id} {
@@ -1187,13 +1272,11 @@ service cloud.firestore {
     allow update: if admin(companyId)&&activeCompany(companyId)&&allocationValid(companyId,id,false)
      && request.resource.data.createdAt==resource.data.createdAt&&request.resource.data.createdBy==resource.data.createdBy&&request.resource.data.code==resource.data.code&&request.resource.data.revision==resource.data.revision+1
      && allocationChange(companyId,id,false);
-    allow delete: if false;
    }
    match /occupancyCalendars/{id} {
     allow get: if admin(companyId)&&activeCompany(companyId);
     allow create: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,true);
     allow update: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,false);
-    allow list,delete: if false;
    }
    match /contractAllocations/{id}/history/{event} {
     allow read: if admin(companyId)&&activeCompany(companyId);
@@ -1204,7 +1287,6 @@ service cloud.firestore {
      && request.resource.data.snapshot==allocationSnapshot(getAfter(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data)
      && request.resource.data.revision==getAfter(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data.revision
      && (!exists(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id))||request.resource.data.revision==get(/databases/$(database)/documents/companies/$(companyId)/contractAllocations/$(id)).data.revision+1);
-    allow update,delete: if false;
    }
    // Future site-scoped modules remain closed until their own permission tests exist.
    match /{document=**} {allow read, write: if false;}

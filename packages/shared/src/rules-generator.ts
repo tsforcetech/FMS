@@ -101,17 +101,11 @@ export function shapeFunction(kind: Kind) {
   const fields = fieldsFor(kind).filter(
     (f) => !['code', 'name', 'notes', 'status'].includes(f.key),
   );
-  const keys = [
-    ...meta,
-    'code',
-    'name',
-    'notes',
-    'status',
-    ...fields.map((f) => f.key),
-    ...extraKeys(kind),
-  ];
+  const keys = [...fields.map((f) => f.key), ...extraKeys(kind)];
+  // The shared metadata keys live in one function (metaKeys) to keep the
+  // compiled rules small; every record still allows exactly the same keys.
   return (
-    `  function shape_${kind}(d){return d.keys().hasOnly(${list(keys)}) && d.status in ${list(statuses(kind))}` +
+    `  function shape_${kind}(d){return d.keys().hasOnly(metaKeys().concat(${list(keys)})) && d.status in ${list(statuses(kind))}` +
     fieldRules(fields)
       .map((r) => ' && ' + r)
       .join('') +
@@ -123,8 +117,8 @@ export function generatedMatches() {
   for (const k of phase2Kinds)
     lines.push(
       `   match /${k}/{id} {`,
-      `    allow create: if admin(companyId) && activeCompany(companyId) && create_${k}(companyId,id,request.resource.data);`,
-      `    allow update: if admin(companyId) && activeCompany(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_${k}(companyId,id) : update_${k}(companyId,id,request.resource.data,resource.data));`,
+      `    allow create: if aa(companyId) && create_${k}(companyId,id,request.resource.data);`,
+      `    allow update: if aa(companyId) && (request.resource.data.refCount!=resource.data.refCount ? counter_${k}(companyId,id) : update_${k}(companyId,id,request.resource.data,resource.data));`,
       '   }',
     );
   lines.push('  // END GENERATED PHASE 2 MATCHES');
@@ -135,6 +129,9 @@ export function generatedRules() {
   lines.push('  // BEGIN GENERATED PHASE 2 VALIDATORS — do not edit by hand.');
   lines.push(
     '  // Source: packages/shared/src/operations.ts via rules-generator.ts.',
+  );
+  lines.push(
+    `  function metaKeys(){return ${list([...meta, 'code', 'name', 'notes', 'status'])};}`,
   );
   for (const k of phase2Kinds) lines.push(shapeFunction(k));
   lines.push(`  function known2(k){return k in ${list([...phase2Kinds])};}`);
