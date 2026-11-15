@@ -25,7 +25,8 @@ service cloud.firestore {
   // Rules 'let' bindings are re-evaluated on every use, so document data is passed as an argument (evaluated once).
   function admin(companyId){return signedIn() && adminDoc(member(companyId),companyId);}
   function adminDoc(m,companyId){return m.uid==request.auth.uid && m.companyId==companyId && m.status=='active' && m.role in ['owner','admin'];}
-  function activeCompany(companyId){return co(companyId).status == 'active' && (request.method in ['get','list'] || co(companyId).get('plan',{}).get('access','full')=='full');}
+  function activeCompany(companyId){return get(/databases/$(database)/documents/companies/$(companyId)).data.status=='active' || co(companyId).status=='read_only' && request.method in ['get','list'];}
+  // Phase 8: a suspended subscription sets status 'read_only' — the company stays readable (and exportable) but nothing can be written.
   function stamped(d){return d.updatedAt==request.time && d.updatedBy==request.auth.uid;}
   function born(d){return d.createdAt==request.time && d.createdBy==request.auth.uid;}
   function aa(c){return admin(c) && activeCompany(c);}
@@ -59,7 +60,7 @@ service cloud.firestore {
    return was!=now
     && d.diff(resource.data).affectedKeys().hasOnly(['refCount','witnessKind','witnessId','updatedAt','updatedBy'])
     && d.refCount is int && d.refCount==resource.data.refCount+(now?1:-1) && d.refCount>=0
-    && stamped(d);
+    && d.updatedAt==request.time && d.updatedBy==request.auth.uid;
   }
   function increment(c,k,id,tk,tid,n) {
    return incremented(get(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,getAfter(/databases/$(database)/documents/companies/$(c)/$(tk)/$(tid)).data,k,id,n);
@@ -96,7 +97,7 @@ service cloud.firestore {
     && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
     && d.revision is int && d.revision>0
     && d.witnessKind is string && d.witnessId is string
-    && stamped(d)
+    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
     && shape(k,d) && relations(c,k,id);
   }
   function facilityHistory(c,id) {
@@ -104,12 +105,12 @@ service cloud.firestore {
    let h=getAfter(/databases/$(database)/documents/companies/$(c)/facilities/$(id)/history/$(string(d.revision))).data;
    return h.revision==d.revision && h.condition==d.condition && h.status==d.status && h.actorUid==request.auth.uid && h.occurredAt==request.time;
   }
-  function shape_clients(d) {return d.keys().hasOnly(metaKeys().concat(['clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber'])) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
-  function shape_contracts(d) {return d.keys().hasOnly(metaKeys().concat(['clientId', 'startDate', 'endDate', 'serviceDescription'])) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
-  function shape_sites(d) {return d.keys().hasOnly(metaKeys().concat(['clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description'])) && d.status in ['active', 'archived'] && ((d.schemaVersion==2 && !d.keys().hasAny(['clientId','contractId'])) || (d.schemaVersion==1 && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$')))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
-  function shape_locations(d) {return d.keys().hasOnly(metaKeys().concat(['siteId', 'parentId', 'locationType', 'floorNumber', 'description'])) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
-  function shape_facilityTypes(d) {return d.keys().hasOnly(metaKeys().concat(['description'])) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
-  function shape_facilities(d) {return d.keys().hasOnly(metaKeys().concat(['siteId', 'locationId', 'typeId', 'condition', 'description'])) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
+  function shape_clients(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientType', 'contactPerson', 'phone', 'email', 'address', 'country', 'vatNumber']) && d.status in ['active', 'archived'] && (d.clientType is string && d.clientType.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.email is string && d.email.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.vatNumber is string && d.vatNumber.size()<=200) && d.clientType in ['Individual','Company'];}
+  function shape_contracts(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'startDate', 'endDate', 'serviceDescription']) && d.status in ['draft', 'active', 'expired', 'archived'] && (d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.startDate is string && d.startDate.size()<=200) && (d.endDate is string && d.endDate.size()<=200) && (d.serviceDescription is string && d.serviceDescription.size()<=2000) && calendar(d.startDate) && calendar(d.endDate) && d.startDate<=d.endDate;}
+  function shape_sites(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'clientId', 'contractId', 'propertyType', 'address', 'country', 'city', 'timeZone', 'workingDays', 'opensAt', 'closesAt', 'contactPerson', 'phone', 'description']) && d.status in ['active', 'archived'] && ((d.schemaVersion==2 && !d.keys().hasAny(['clientId','contractId'])) || (d.schemaVersion==1 && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$') && d.contractId is string && (d.contractId=='' || d.contractId.matches('^[a-zA-Z0-9_-]{1,128}$')))) && (d.propertyType is string && d.propertyType.size()<=200) && (d.address is string && d.address.size()<=2000) && (d.country is string && d.country.size()<=200) && (d.city is string && d.city.size()<=200) && (d.timeZone is string && d.timeZone.size()<=200) && (d.workingDays is string && (d.workingDays=='' || (d.workingDays.split(',').size()<=7 && d.workingDays.split(',').toSet().hasOnly(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])))) && (d.opensAt is string && d.opensAt.size()<=200) && (d.closesAt is string && d.closesAt.size()<=200) && (d.contactPerson is string && d.contactPerson.size()<=200) && (d.phone is string && d.phone.size()<=200) && (d.description is string && d.description.size()<=2000) && d.propertyType in ['Residential tower','Commercial building','Villa','Warehouse','Hotel','Shopping mall','School','Hospital','Factory','Office','Outdoor property','Other'] && validZone(d.timeZone) && (d.opensAt=='' || d.opensAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')) && (d.closesAt=='' || d.closesAt.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'));}
+  function shape_locations(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'parentId', 'locationType', 'floorNumber', 'description']) && d.status in ['active', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.parentId is string && (d.parentId=='' || d.parentId.matches('^[a-zA-Z0-9_-]{1,128}$'))) && (d.locationType is string && d.locationType.size()<=200) && (d.floorNumber is string && d.floorNumber.size()<=200) && (d.description is string && d.description.size()<=2000) && d.locationType in ['Building','Floor','Zone','Room','Corridor','Parking','Outdoor area','Common area','Custom'];}
+  function shape_facilityTypes(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'description']) && d.status in ['active', 'archived'] && (d.description is string && d.description.size()<=2000) && true;}
+  function shape_facilities(d) {return d.keys().hasOnly(['companyId', 'schemaVersion', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'revision', 'refCount', 'witnessKind', 'witnessId', 'code', 'name', 'notes', 'status', 'siteId', 'locationId', 'typeId', 'condition', 'description']) && d.status in ['active', 'under_maintenance', 'out_of_service', 'archived'] && (d.siteId is string && d.siteId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.locationId is string && d.locationId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.typeId is string && d.typeId.matches('^[a-zA-Z0-9_-]{1,128}$')) && (d.condition is string && d.condition.size()<=200) && (d.description is string && d.description.size()<=2000) && d.condition in ['Excellent','Good','Fair','Poor','Critical'];}
   function shape(k,d) {return k=='clients' ? shape_clients(d) : k=='contracts' ? shape_contracts(d) : k=='sites' ? shape_sites(d) : k=='locations' ? shape_locations(d) : k=='facilityTypes' ? shape_facilityTypes(d) : k=='facilities' ? shape_facilities(d) : k=='contractAllocations'?shape_allocations(d):false;}
 
   // Allocations preserve their original contract/client and planned interval; no hard delete.
@@ -200,21 +201,21 @@ service cloud.firestore {
     && (d.name is string && d.name.size()>0 && d.name.size()<=120) && (d.notes is string && d.notes.size()<=2000)
     && d.refCount is int && d.refCount>=0 && (d.status!='archived' || d.refCount==0)
     && d.revision is int && d.revision>0 && d.witnessKind is string && d.witnessId is string
-    && stamped(d)
+    && d.updatedBy==request.auth.uid && d.updatedAt==request.time
     ;
   }
   function create2(c,k,id){
    let d=request.resource.data;
-   return business2(c,k,id) && born(d)
+   return business2(c,k,id) && d.createdAt==request.time && d.createdBy==request.auth.uid
     && d.status!='archived' && d.revision==1 && d.refCount==0 && d.witnessKind=='' && d.witnessId==''
     && getAfter(/databases/$(database)/documents/companies/$(c)/codeClaims/$(k+'_'+d.code)).data.recordId==id
-    && (k!='assets' || d.lastTransferId=='') && quota(c,k,id);
+    && (k!='assets' || d.lastTransferId=='') && (!(k in ['employees','assets']) || quota(c,k,id));
   }
   function update2(c,k,id){
    let d=request.resource.data; let b=resource.data;
    return business2(c,k,id) && d.schemaVersion==b.schemaVersion
     && d.createdAt==b.createdAt && d.createdBy==b.createdBy && d.code==b.code && d.revision==b.revision+1
-    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId && revive(c,k,id,d,b);
+    && d.refCount==b.refCount && d.witnessKind==b.witnessKind && d.witnessId==b.witnessId;
   }
   // Assets move only with a new transfer record created in the same transaction.
   function assetMove(c,id,b,d){
@@ -684,16 +685,15 @@ service cloud.firestore {
   function usage(c){return /databases/$(database)/documents/companies/$(c)/usage/counters;}
   // Quota-limited creates must bump the usage counter in the same transaction once the company has a plan.
   function quota(c,k,id){return !('plan' in co(c)) || (getAfter(usage(c)).data.revision==get(usage(c)).data.revision+1 && getAfter(usage(c)).data.last==k+'/'+id);}
-  function off(x){return x.get('status','') in ['archived','revoked','resigned','terminated'];}
-  function revive(c,k,id,d,b){return !(k in ['sites','employees','assets','recurringSchedules','staffLinks']) || !off(b) || off(d) || quota(c,k,id);}
   function feature(c,f){return co(c).get('plan',{}).get('features',{}).get(f,true)==true;}
   function rec(c,k,id){return /databases/$(database)/documents/companies/$(c)/$(k)/$(id);}
+  // Counters only go up from the apps (creation, race-safe in the same transaction); archiving is reflected by the
+  // trusted usage reconciliation (scripts/usage-reconcile.ts, Admin SDK), so reactivation cannot be used to dodge limits for long.
   function usageStep(c,d,b){
-   let k=d.last.split('/')[0]; let id=d.last.split('/')[1];
+   let k=d.last.split('/')[0];
    return k in ['sites','employees','assets','recurringSchedules','staffLinks'] && d.diff(b).affectedKeys().hasOnly([k,'last','revision','updatedAt']) && d.revision==b.revision+1 && d.updatedAt==request.time
-    && (d[k]==b[k]+1 && (!exists(rec(c,k,id)) || off(get(rec(c,k,id)).data)) && !off(getAfter(rec(c,k,id)).data)
-        && (co(c).get('plan',{}).get('limits',{}).get(k,-1)<0 || d[k]<=co(c).plan.limits[k])
-     || d[k]==b[k]-1 && d[k]>=0 && exists(rec(c,k,id)) && !off(get(rec(c,k,id)).data) && off(getAfter(rec(c,k,id)).data));
+    && d[k]==b[k]+1 && !exists(rec(c,k,d.last.split('/')[1])) && existsAfter(rec(c,k,d.last.split('/')[1]))
+    && (co(c).get('plan',{}).get('limits',{}).get(k,-1)<0 || d[k]<=co(c).plan.limits[k]);
   }
   function accepted(c,id){return getAfter(/databases/$(database)/documents/companies/$(c)/invitations/$(id)).data;}
   function inviteShape(d,c){return d.keys().hasOnly(['companyId','email','role','siteIds','status','expiresAt','createdAt','createdBy','note']) && d.companyId==c
@@ -711,7 +711,7 @@ service cloud.firestore {
   function usageNew(d){return d.keys().hasOnly(['sites','employees','assets','recurringSchedules','staffLinks','last','revision','updatedAt']) && d.revision==0 && d.last=='' && d.updatedAt==request.time;}
   function coNew(c,d){return d.keys().hasOnly(['schemaVersion','createdAt','updatedAt','createdBy','updatedBy','companyId','name','status','timeZone','plan','eventId'])
    && d.companyId==c && d.status=='active' && d.name is string && d.name.size()>0 && d.name.size()<=120 && validZone(d.timeZone) && d.createdAt==request.time && platEvent(d.eventId,c);}
-  function coPlan(c,d,b){return d.diff(b).affectedKeys().hasOnly(['plan','eventId','updatedAt','updatedBy']) && d.plan.access in ['full','read_only'] && platEvent(d.eventId,c);}
+  function coPlan(c,d,b){return d.diff(b).affectedKeys().hasOnly(['plan','status','eventId','updatedAt','updatedBy']) && d.status in ['active','read_only'] && b.status in ['active','read_only'] && platEvent(d.eventId,c);}
   function joinOk(c,uid,d){return d.keys().hasOnly(['schemaVersion','createdAt','updatedAt','createdBy','updatedBy','companyId','uid','role','status','inviteId'])
    && d.uid==uid && d.companyId==c && d.status=='active' && d.role==accepted(c,d.inviteId).role && accepted(c,d.inviteId).acceptedBy==uid && d.createdAt==request.time;}
   function inviteRevoke(d,b){return d.diff(b).affectedKeys().hasOnly(['status']) && b.status=='pending' && d.status=='revoked';}
@@ -869,7 +869,7 @@ service cloud.firestore {
    }
   }
   match /companies/{companyId} {
-   allow get: if (admin(companyId) || staff(companyId) || customer(companyId)) && resource.data.companyId == companyId && resource.data.status == 'active';
+   allow get: if (admin(companyId) || staff(companyId) || customer(companyId)) && resource.data.companyId == companyId && resource.data.status in ['active','read_only'];
    // Phase 8: platform staff see the tenant directory record (not operational data); support only with a tenant-approved grant.
    allow read: if plat(['owner','billing','support','viewer']);
    allow create: if plat(['owner']) && coNew(companyId,request.resource.data);
@@ -904,7 +904,7 @@ service cloud.firestore {
     allow create: if aa(companyId) && linkShape(companyId,uid,request.resource.data)
      && request.resource.data.status=='active' && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
      && linkTarget(companyId,uid,request.resource.data) && quota(companyId,'staffLinks',uid);
-    allow update: if aa(companyId) && linkShape(companyId,uid,request.resource.data) && revive(companyId,'staffLinks',uid,request.resource.data,resource.data)
+    allow update: if aa(companyId) && linkShape(companyId,uid,request.resource.data)
      && request.resource.data.revision==resource.data.revision+1 && request.resource.data.createdAt==resource.data.createdAt && request.resource.data.createdBy==resource.data.createdBy
      && request.resource.data.employeeId==resource.data.employeeId
      && (request.resource.data.status=='revoked' || linkTarget(companyId,uid,request.resource.data));
@@ -934,17 +934,17 @@ service cloud.firestore {
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/$(request.resource.data.kind)/$(request.resource.data.recordId)).data.code==request.resource.data.code;
    }
    match /{kind}/{id} {
-    allow read: if (known(kind) || known2(kind)) && aa(companyId);
+    allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
     allow read: if kind in ['sites','locations','facilities','assets','employees','shiftAssignments','siteAssignments','leaveRecords','teamMembers','departments','designations','teams','shifts','holidays','taskCategories','slaPolicies']
      && staffMasterRead(companyId,kind,id,resource.data);
-    allow create: if known(kind) && aa(companyId)
+    allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
      && request.resource.data.status!='archived' && request.resource.data.revision==1 && request.resource.data.refCount==0
      && request.resource.data.witnessKind=='' && request.resource.data.witnessId==''
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$(kind+'_'+request.resource.data.code)).data.recordId==id
-     && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true)) && quota(companyId,kind,id);
-    allow update: if known(kind) && aa(companyId) && (
+     && (kind!='facilities' || facilityHistory(companyId,id)) && (kind!='contractAllocations'||allocationChange(companyId,id,true)) && (kind!='sites' || quota(companyId,kind,id));
+    allow update: if known(kind) && admin(companyId) && activeCompany(companyId) && (
      request.resource.data.refCount!=resource.data.refCount ? (request.resource.data.witnessKind=='contractAllocations'?allocationCounter(companyId,kind,id):(known2(request.resource.data.witnessKind)?(kind=='sites'?counter_sites(companyId,id):kind=='locations'?counter_locations(companyId,id):false):counter(companyId,kind,id))) : (
       business(companyId,kind,id)
       && request.resource.data.schemaVersion==resource.data.schemaVersion
@@ -957,7 +957,6 @@ service cloud.firestore {
       && (kind!='contracts' || resource.data.refCount==0 || (request.resource.data.clientId==resource.data.clientId&&request.resource.data.startDate==resource.data.startDate&&request.resource.data.endDate==resource.data.endDate))
       && (kind!='facilities' || facilityHistory(companyId,id))
       && (kind!='contractAllocations'||allocationChange(companyId,id,false))
-      && revive(companyId,kind,id,request.resource.data,resource.data)
      ));
    }
    // ---------------------------------------------------------------- Phase 3 workflow
@@ -1016,7 +1015,7 @@ service cloud.firestore {
    match /recurringSchedules/{scheduleId} {
     allow read: if aa(companyId);
     allow create: if aa(companyId) && scheduleCreate(companyId,request.resource.data) && quota(companyId,'recurringSchedules',scheduleId);
-    allow update: if aa(companyId) && scheduleUpdate(companyId,request.resource.data,resource.data) && revive(companyId,'recurringSchedules',scheduleId,request.resource.data,resource.data);
+    allow update: if aa(companyId) && scheduleUpdate(companyId,request.resource.data,resource.data);
    }
    match /schedulerRuns/{runId} {
     allow read: if aa(companyId);
@@ -1264,23 +1263,23 @@ service cloud.firestore {
    }
 
    match /contractAllocations/{id} {
-    allow read: if admin(companyId)&&activeCompany(companyId);
-    allow create: if admin(companyId)&&activeCompany(companyId)&&allocationValid(companyId,id,true)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)&&allocationValid(companyId,id,true)
      && request.resource.data.createdAt==request.time&&request.resource.data.createdBy==request.auth.uid&&request.resource.data.revision==1
      && getAfter(/databases/$(database)/documents/companies/$(companyId)/codeClaims/$('contractAllocations_'+request.resource.data.code)).data.recordId==id
      && allocationChange(companyId,id,true);
-    allow update: if admin(companyId)&&activeCompany(companyId)&&allocationValid(companyId,id,false)
+    allow update: if aa(companyId)&&allocationValid(companyId,id,false)
      && request.resource.data.createdAt==resource.data.createdAt&&request.resource.data.createdBy==resource.data.createdBy&&request.resource.data.code==resource.data.code&&request.resource.data.revision==resource.data.revision+1
      && allocationChange(companyId,id,false);
    }
    match /occupancyCalendars/{id} {
-    allow get: if admin(companyId)&&activeCompany(companyId);
-    allow create: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,true);
-    allow update: if admin(companyId)&&activeCompany(companyId)&&validCalendar(companyId,id,false);
+    allow get: if aa(companyId);
+    allow create: if aa(companyId)&&validCalendar(companyId,id,true);
+    allow update: if aa(companyId)&&validCalendar(companyId,id,false);
    }
    match /contractAllocations/{id}/history/{event} {
-    allow read: if admin(companyId)&&activeCompany(companyId);
-    allow create: if admin(companyId)&&activeCompany(companyId)
+    allow read: if aa(companyId);
+    allow create: if aa(companyId)
      && request.resource.data.keys().hasOnly(['companyId','revision','actorUid','occurredAt','snapshot'])
      && request.resource.data.companyId==companyId && request.resource.data.actorUid==request.auth.uid && request.resource.data.occurredAt==request.time
      && event==string(request.resource.data.revision)
