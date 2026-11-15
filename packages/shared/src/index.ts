@@ -37,7 +37,21 @@ export const companySchema = z
     country: z.string().max(200).optional(),
     companyId: idSchema,
     name: z.string().min(1).max(120),
-    status: z.enum(['active', 'suspended', 'archived']),
+    // read_only: subscription suspended/expired — data stays readable and exportable (Phase 8).
+    status: z.enum(['active', 'read_only', 'suspended', 'archived']),
+    // Phase 8: entitlement snapshot written by the platform (trusted, audited).
+    plan: z
+      .object({
+        planId: z.string(),
+        versionId: z.string(),
+        planName: z.string(),
+        status: z.string(),
+        access: z.enum(['full', 'read_only']),
+        limits: z.record(z.string(), z.number()),
+        features: z.record(z.string(), z.boolean()),
+      })
+      .optional(),
+    eventId: z.string().optional(),
     timeZone: z.string().refine((v) => {
       try {
         new Intl.DateTimeFormat('en', { timeZone: v });
@@ -83,7 +97,7 @@ export function canOpenAdmin(
     member.uid === uid &&
     member.companyId === company.companyId &&
     member.status === 'active' &&
-    company.status === 'active' &&
+    (company.status === 'active' || company.status === 'read_only') &&
     ['owner', 'admin'].includes(member.role)
   );
 }
@@ -133,3 +147,8 @@ export * from './schedule';
 export * from './cases';
 export * from './field';
 export * from './reports';
+export * from './exporting';
+export * from './exportFiles';
+export * from './importing';
+export * from './saas';
+export * from './onboarding';
