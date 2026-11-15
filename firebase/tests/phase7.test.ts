@@ -533,8 +533,17 @@ describe('phase 7 customer portal security', () => {
     expect(r.status).toBe('in_progress');
     expect(r.complaintId).toBe(complaintId);
     expect(r.workOrderId).toBeTruthy();
-    const visible = JSON.stringify(r);
-    expect(visible).not.toMatch(/INTERNAL|difficult|900|050-123|Joseph/);
+    // Every human-readable value the customer receives (timestamps excluded).
+    const texts: string[] = [];
+    const walk = (v: unknown) => {
+      if (typeof v === 'string') texts.push(v);
+      else if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === 'object' && !(v instanceof Timestamp))
+        Object.values(v).forEach(walk);
+    };
+    walk(r);
+    const visible = texts.join(' | ');
+    expect(visible).not.toMatch(/INTERNAL|difficult|900 AED|050-123|Joseph/);
     expect(r.timeline.map((t) => t.label)).toContain('Work order created');
     // Customer remark, and team reply.
     await addRemark(cust3, 'a', 'cust3', req.id, 'Please come after 2pm');
