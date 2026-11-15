@@ -190,3 +190,6 @@ Phase 10 (interactive tutorials & tours) has not been started.
   0.9, build `7e7bdab`. Restricted articles return 404. Contextual help verified live (admin recurring tasks → article,
   Arabic staff task screen → Arabic article page), search verified live, and the published admin bundle links to `/FMS/help/`.
 - `https://fms.flowb.io/` and its DNS are unchanged.
+- Full CI on `main` (`38cfec4`, run `43741173412`) ✔ — format, help:check, lint/typecheck/unit/build, rules, migration, all
+  browser suites, PDFs and the Help Center test — after fixing evening time-of-day flakes in the staff and mobile test
+  fixtures (their demo tasks fell on "tomorrow" after 21:00 Dubai time).
