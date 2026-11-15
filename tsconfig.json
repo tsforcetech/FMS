@@ -25,6 +25,8 @@
     "apps/staff-web/vite.config.ts",
     "apps/customer-web/src",
     "apps/customer-web/vite.config.ts",
+    "apps/platform-web/src",
+    "apps/platform-web/vite.config.ts",
     "apps/mobile/src",
     "apps/mobile/vite.config.ts",
     "apps/mobile/capacitor.config.ts",

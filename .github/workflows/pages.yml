@@ -16,6 +16,7 @@ jobs:
       VITE_BASE_PATH: /FMS/
       VITE_STAFF_BASE_PATH: /FMS/staff/
       VITE_CUSTOMER_BASE_PATH: /FMS/customer/
+      VITE_PLATFORM_BASE_PATH: /FMS/platform/
       VITE_ROUTER_MODE: hash
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +31,8 @@ jobs:
       - run: cp -r apps/staff-web/dist apps/admin-web/dist/staff
       # Phase 7: the customer portal is published at /FMS/customer/.
       - run: cp -r apps/customer-web/dist apps/admin-web/dist/customer
+      # Phase 8: the Sharaco platform console is published at /FMS/platform/.
+      - run: cp -r apps/platform-web/dist apps/admin-web/dist/platform
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/admin-web/dist
