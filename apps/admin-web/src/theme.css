@@ -2213,7 +2213,10 @@ textarea.input {
     display: none;
   }
   .company-select {
-    max-width: 150px;
+    max-width: 104px;
+  }
+  .top-actions {
+    gap: 6px;
   }
   .topbar {
     padding: 8px 8px 8px 10px;
