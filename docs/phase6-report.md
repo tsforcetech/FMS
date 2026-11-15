@@ -85,7 +85,7 @@ Firebase stays on **Spark**. No billing change, no Cloud Storage, no Cloud Funct
 
 ## Installing the Android test build
 
-1. Download the `facilityos-android-debug-apk` artifact from the latest **Android app** workflow run (or use the APK attached to this delivery).
+1. Download the `facilityos-android-debug-apk` artifact from the latest **Android app** workflow run — first green run: https://github.com/tsforcetech/FMS/actions/runs/43660578424 (artifact kept until 13 Feb 2027) — or use the APK attached to this delivery.
 2. On the Android phone allow “Install unknown apps” for the browser/files app, open the APK and install.
 3. Sign in with a staff login that an admin has linked under Administration → Staff access. The build talks to the live `facilityos-43386` project.
 
