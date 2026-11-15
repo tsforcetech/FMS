@@ -181,7 +181,8 @@ export async function runSync(
     });
     try {
       const r = await exec.apply(op);
-      r === 'applied' ? report.applied++ : report.duplicates++;
+      if (r === 'applied') report.applied++;
+      else report.duplicates++;
       await queue.update(op.id, { status: 'done', lastError: '' });
     } catch (e) {
       if (isNetworkError(e)) {
