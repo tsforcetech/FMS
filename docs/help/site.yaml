@@ -3,7 +3,7 @@ product: FacilityOS
 baseUrl: https://tsforcetech.github.io/FMS/help/
 company: Sharaco Technologies
 version: '0.9'
-versionLabel: FacilityOS 0.9 (Phase 9 — Help Center, manuals and in-app help)
+versionLabel: FacilityOS 0.9 — Help Center, manuals and in-app help
 published: '2026-11-15'
 languages:
   - { id: en, label: English, dir: ltr }

@@ -81,9 +81,6 @@ their staff link covers the asset's site.
 
 ![Scan result with open tasks](screens/phase6-08-scan-result.png)
 
-> **Note:** The QR drawer in the admin app still says that mobile scanning arrives with the staff
-> app. Scanning is available in the mobile app today; that drawer text is out of date.
-
 ## Common errors
 
 | Message                                               | Why                                                                          | What to do                                                |

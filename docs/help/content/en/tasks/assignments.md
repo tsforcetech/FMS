@@ -113,5 +113,5 @@ The unassigned queue is empty and work is spread across the people on shift.
   [Assignment strategies](article:scheduling.assignment).
 - **Reassigning in bulk by date:** use the **Staff** view of the [Task calendar](article:calendar.task-calendar)
   and drag the task onto another person's row.
-- The banner _How assignment works in Phase 3_ on the Task assignments page is older text. Automatic,
-  shift- and leave-aware assignment is now done by recurring schedules.
+- Automatic, shift- and leave-aware assignment is done by recurring schedules; tasks created on this
+  page are assigned by hand.

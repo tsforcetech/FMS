@@ -116,5 +116,5 @@ A draft version exists with your questions. Tasks cannot use it until you
   normal operating range and _critical_ for values that need immediate action.
 - **Leaving with unsaved changes** asks _Discard unsaved changes?_ — choose **Discard changes** only if
   you meant to.
-- **The Assignment defaults banner** still mentions Phase 3; recurring schedules now assign
-  automatically (see [Assignment strategies](article:scheduling.assignment)).
+- **Assignment defaults** only pre-fill tasks created by hand; recurring schedules assign
+  automatically with their own strategy (see [Assignment strategies](article:scheduling.assignment)).

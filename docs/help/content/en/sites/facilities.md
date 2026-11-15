@@ -80,11 +80,11 @@ _Lift_, _Gym_).
 
 ## Common errors
 
-| Message                                               | Why                                                                    | What to do                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| _Facilities cannot move between sites in this phase._ | You changed the site of an existing facility.                          | Create a new facility in the other site and archive the old one. |
-| _Choose an active linked record._                     | The site, location or facility type is archived.                       | Choose active records.                                           |
-| _Archive or reassign active linked records first._    | You tried to archive a facility type that active facilities still use. | Archive or change those facilities first.                        |
+| Message                                            | Why                                                                    | What to do                                                       |
+| -------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| _A facility cannot be moved to another site._      | You changed the site of an existing facility.                          | Create a new facility in the other site and archive the old one. |
+| _Choose an active linked record._                  | The site, location or facility type is archived.                       | Choose active records.                                           |
+| _Archive or reassign active linked records first._ | You tried to archive a facility type that active facilities still use. | Archive or change those facilities first.                        |
 
 ## Troubleshooting
 

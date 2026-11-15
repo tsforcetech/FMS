@@ -256,9 +256,7 @@ export async function saveRecord(
         'Locations cannot move between sites. Create a new location instead.',
       );
     if (old && kind === 'facilities' && old.values.siteId !== v.siteId)
-      throw new UserError(
-        'Facilities cannot move between sites in this phase.',
-      );
+      throw new UserError('A facility cannot be moved to another site.');
     if (
       old &&
       kind === 'assets' &&

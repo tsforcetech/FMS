@@ -603,9 +603,7 @@ function Sidebar({
                   >
                     <p.icon />
                     <span className="label">{p.label}</span>
-                    {p.phase && (
-                      <span className="soon-chip">Phase {p.phase}</span>
-                    )}
+                    {p.phase && <span className="soon-chip">Soon</span>}
                   </NavLink>
                 ))}
             </div>
@@ -857,13 +855,10 @@ function Screen({
     return (
       <>
         {head}
-        <StateCard
-          title={`${page.label} arrives in Phase ${page.phase}`}
-          icon={Hourglass}
-        >
+        <StateCard title={`${page.label} is coming soon`} icon={Hourglass}>
           <p>
-            This module is planned and not active yet. It will appear here after
-            its implementation, testing and review.
+            This module is planned and not active yet. It will appear here once
+            it is available.
           </p>
           <div className="actions">
             <NavLink className="btn btn-outline" to="/">

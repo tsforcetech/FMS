@@ -131,13 +131,13 @@ export interface SchedulerGateway {
 export const deferredAttachments: AttachmentGateway = {
   available: false,
   async upload() {
-    throw new Error('Attachments are deferred until the approved Blaze phase.');
+    throw new Error('File attachments are not available yet.');
   },
 };
 export const deferredScheduler: SchedulerGateway = {
   available: false,
   async requestRun() {
-    throw new Error('Server scheduling is not enabled in Phase 0.');
+    throw new Error('Server scheduling is not available.');
   },
 };
 export * from './future';
