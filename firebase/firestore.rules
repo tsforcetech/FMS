@@ -37,7 +37,6 @@ service cloud.firestore {
   function optionalContact(d) {return d.get('contactEmail','') is string && d.get('contactEmail','').size()<=200 && d.get('contactPhone','') is string && d.get('contactPhone','').size()<=200 && d.get('address','') is string && d.get('address','').size()<=2000 && d.get('country','') is string && d.get('country','').size()<=200;}
   function known(k) {return k in ['clients','contracts','sites','locations','facilityTypes','facilities'];}
   function active(d) {return d.get('status','archived') != 'archived';}
-  function referenced(k,d){return active(d) && (k!='contractAllocations'||!(d.status in ['terminated','expired']));}
   function witnessBefore(c,w,wid){return exists(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)) ? get(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)).data : {};}
   function witnessAfter(c,w,wid){return getAfter(/databases/$(database)/documents/companies/$(c)/$(w)/$(wid)).data;}
   function counter(c,k,id) {
@@ -152,8 +151,6 @@ service cloud.firestore {
   }
   function calendarContains(c,id,d){let a=getAfter(/databases/$(database)/documents/companies/$(c)/occupancyCalendars/$(d.locationId+'_'+d.startDate.split('-')[0])).data;return a.witnessId==id&&slot(id,d) in a.slots;}
   function noConflict(a,b){return a.allocationId==b.allocationId||a.endDate<b.startDate||b.endDate<a.startDate||(a.allocationType=='shared_occupancy'&&b.allocationType=='shared_occupancy');}
-  function slotChange(before,after,index,witness,expected){return index>=after.size()||(index>=before.size()?after[index]==expected:(before[index]==after[index]||(before[index].allocationId==witness&&after[index]==expected&&after[index].startDate==before[index].startDate&&after[index].endDate<=before[index].endDate&&after[index].allocationType==before[index].allocationType)));}
-  function slotConflict(slots,index,expected){return index>=slots.size()||noConflict(slots[index],expected);}
   function validCalendar(c,id,creating){
    let d=request.resource.data;let b=creating?{'slots':[],'revision':0}:resource.data;
    let before=exists(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId))?get(/databases/$(database)/documents/companies/$(c)/contractAllocations/$(d.witnessId)).data:{};
@@ -741,36 +738,25 @@ service cloud.firestore {
   function counterIn_employees(c,id,w,wid){return w=='teamMembers'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shiftAssignments'?counter2Move(id,w,'employeeId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
   function counter_teams(c,id){return counterIn_teams(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_teams(c,id,w,wid){return w=='teamMembers'?counter2Move(id,w,'teamId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function counter_teamMembers(c,id){return counterIn_teamMembers(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_teamMembers(c,id,w,wid){return false;}
-  function counter_siteAssignments(c,id){return counterIn_siteAssignments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_siteAssignments(c,id,w,wid){return false;}
+  function counter_teamMembers(c,id){return false;}
+  function counter_siteAssignments(c,id){return false;}
   function counter_shifts(c,id){return counterIn_shifts(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_shifts(c,id,w,wid){return w=='shiftAssignments'?counter2Move(id,w,'shiftId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function counter_shiftAssignments(c,id){return counterIn_shiftAssignments(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_shiftAssignments(c,id,w,wid){return false;}
-  function counter_holidays(c,id){return counterIn_holidays(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_holidays(c,id,w,wid){return false;}
-  function counter_leaveRecords(c,id){return counterIn_leaveRecords(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_leaveRecords(c,id,w,wid){return false;}
+  function counter_shiftAssignments(c,id){return false;}
+  function counter_holidays(c,id){return false;}
+  function counter_leaveRecords(c,id){return false;}
   function counter_assetCategories(c,id){return counterIn_assetCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_assetCategories(c,id,w,wid){return w=='assetCategories'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='assets'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function counter_suppliers(c,id){return counterIn_suppliers(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_suppliers(c,id,w,wid){return false;}
-  function counter_assets(c,id){return counterIn_assets(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_assets(c,id,w,wid){return false;}
+  function counter_suppliers(c,id){return false;}
+  function counter_assets(c,id){return false;}
   function counter_materialCategories(c,id){return counterIn_materialCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_materialCategories(c,id,w,wid){return w=='materials'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function counter_materials(c,id){return counterIn_materials(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_materials(c,id,w,wid){return false;}
-  function counter_stores(c,id){return counterIn_stores(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_stores(c,id,w,wid){return false;}
+  function counter_materials(c,id){return false;}
+  function counter_stores(c,id){return false;}
   function counter_taskCategories(c,id){return counterIn_taskCategories(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_taskCategories(c,id,w,wid){return w=='taskCategories'?counter2Move(id,w,'parentId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='taskTemplates'?counter2Move(id,w,'categoryId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
-  function counter_taskTemplates(c,id){return counterIn_taskTemplates(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_taskTemplates(c,id,w,wid){return false;}
-  function counter_slaPolicies(c,id){return counterIn_slaPolicies(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
-  function counterIn_slaPolicies(c,id,w,wid){return false;}
+  function counter_taskTemplates(c,id){return false;}
+  function counter_slaPolicies(c,id){return false;}
   function counter_sites(c,id){return counterIn_sites(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}
   function counterIn_sites(c,id,w,wid){return w=='departments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='siteAssignments'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='shifts'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):w=='stores'?counter2Move(id,w,'siteId',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):false;}
   function counter_locations(c,id){return counterIn_locations(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}

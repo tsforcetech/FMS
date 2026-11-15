@@ -195,6 +195,11 @@ export function generatedRules() {
           `w=='${w}'?counter2Move(id,w,'${f}',witnessBefore(c,w,wid),witnessAfter(c,w,wid)):`,
       )
       .join('');
+    // Kinds nothing counts against get a constant (keeps the compiled rules small).
+    if (!body) {
+      lines.push(`  function counter_${t}(c,id){return false;}`);
+      continue;
+    }
     lines.push(
       `  function counter_${t}(c,id){return counterFor(c,id,request.resource.data.witnessKind,request.resource.data.witnessId);}`.replace(
         'counterFor',

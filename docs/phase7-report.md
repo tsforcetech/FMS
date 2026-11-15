@@ -61,9 +61,17 @@ Browser test (emulator, 390 px phone + 1440 px desktop): admin links a customer 
 - Indexes: 190 of 200 (3 new for `serviceRequests`).
 - The customer portal bundle is separate and small (no admin screens are imported).
 
+## Release (15 November 2026)
+
+Authorised by the owner ("merge to main and take build and publish").
+
+- Firestore indexes deployed: 190/190 READY (3 new `serviceRequests`).
+- Firestore rules released (ruleset `06856f69-c3a7-41cd-a036-c95e7218408a`); the live source is identical to `firebase/firestore.rules`.
+- Release finding: the combined Phase 6 + 7 rules first exceeded Firebase's **256,000-byte compiled-rules limit** (256,821 bytes; the emulator does not check this, and the Rules API reported it mostly as HTTP 503). Fixed without behaviour change by removing three unused functions and generating constant counters for kinds nothing counts against; all 99 emulator tests still pass. Headroom is now small — future rule additions must keep the compiled size in mind.
+- `feature/phase7-reports-customer-portal` (includes Phase 6) fast-forward merged to `main`; GitHub Pages publishes admin `/FMS/`, staff `/FMS/staff/` and customer `/FMS/customer/`.
+
 ## Not done / limitations (honest status)
 
-- **Not released**: rules/indexes not deployed, branch not merged, portal not published. Needs release authorisation (together with Phase 6).
 - **No automatic backup** and no automatic retention purge on Spark (documented; Blaze upgrade needs approval).
 - **Customer notifications** are in-portal "Updates" derived from request changes; no email/push (needs paid services/FCM approval).
 - Reports read up to 3 000 rows interactively; full exports are Phase 8.
