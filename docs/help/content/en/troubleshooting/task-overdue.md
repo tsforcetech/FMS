@@ -16,7 +16,7 @@ related: [staff.my-day, tasks.lifecycle, tasks.dashboard, cases.sla]
 sources:
   - packages/shared/src/tasks.ts
   - apps/staff-web/src/screens/MyTasks.tsx
-keywords: ["overdue", "late", "missed", "due time", "Overdue tab"]
+keywords: ['overdue', 'late', 'missed', 'due time', 'Overdue tab']
 ---
 
 ## Symptom
@@ -28,7 +28,7 @@ The task is in the **Overdue** tile or tab, or is marked overdue on the task das
 ## Likely cause
 
 The due time has passed and the task is still open (not completed, rejected or cancelled). A task
-*Waiting for approval* also counts until it is reviewed.
+_Waiting for approval_ also counts until it is reviewed.
 
 ## How to check
 

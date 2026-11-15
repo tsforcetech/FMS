@@ -21,7 +21,16 @@ sources:
   - apps/staff-web/src/i18n.tsx
   - apps/admin-web/src/management/Tasks.tsx
   - apps/admin-web/src/management/staffStore.ts
-keywords: [approve, inspection, review, return for correction, rework, reject, pending approval]
+keywords:
+  [
+    approve,
+    inspection,
+    review,
+    return for correction,
+    rework,
+    reject,
+    pending approval,
+  ]
 ---
 
 **In the Staff or mobile app (supervisors):**
@@ -31,9 +40,9 @@ keywords: [approve, inspection, review, return for correction, rework, reject, p
 2. Open a task and read the answers, **Failed checks** and remarks.
 3. Choose one:
    - **Approve** — the task is finished.
-   - **Return for correction** — enter a **Reason**; the worker sees *Work returned for correction*.
+   - **Return for correction** — enter a **Reason**; the worker sees _Work returned for correction_.
    - **Reject** — enter a **Reason**; the task is closed as rejected.
-4. When the list says *Nothing waiting for your review*, you are done.
+4. When the list says _Nothing waiting for your review_, you are done.
 
 **In the admin app (owners/admins):** open **Task management → Pending approvals**, open the task
 and choose **Approve**, **Request rework** or **Reject**.
@@ -42,7 +51,7 @@ and choose **Approve**, **Request rework** or **Reject**.
 
 ![Pending approvals in the admin app](screens/admin-approvals.png)
 
-> **Note:** The *Accountable* person named on a template (RACI) is a business label. Who can approve
+> **Note:** The _Accountable_ person named on a template (RACI) is a business label. Who can approve
 > is decided by role, not by RACI — see [RACI matrix](article:ref.raci-matrix).
 
 Full guides: [Supervisor approvals](article:staff.supervisor), [Approvals](article:tasks.approvals).

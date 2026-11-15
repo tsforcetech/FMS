@@ -13,24 +13,39 @@ description: Report a broken AC (or any fault) from the Staff app and request a 
 routes: [/report]
 screenshots: [phase5-08-report-issue.png, phase5-09-issue-confirmation.png]
 diagrams: [wf-33, wf-32]
-related: [staff.report-issue, cases.reported-issues, maintenance.work-orders, train.work-order]
+related:
+  [
+    staff.report-issue,
+    cases.reported-issues,
+    maintenance.work-orders,
+    train.work-order,
+  ]
 sources:
   - apps/staff-web/src/screens/Issues.tsx
   - apps/staff-web/src/i18n.tsx
   - packages/shared/src/cases.ts
-keywords: [AC not cooling, air conditioning, leak, fault, report problem, Also request a repair (work order), Send report]
+keywords:
+  [
+    AC not cooling,
+    air conditioning,
+    leak,
+    fault,
+    report problem,
+    Also request a repair (work order),
+    Send report,
+  ]
 ---
 
 1. Tap **Report** (or **Report problem** inside a task).
 2. The **Report a problem** form opens.
-3. Under **Problem type** tap **HVAC** (other choices include *Electrical*, *Plumbing*, *Cleaning*,
-   *Security* and *Other*).
+3. Under **Problem type** tap **HVAC** (other choices include _Electrical_, _Plumbing_, _Cleaning_,
+   _Security_ and _Other_).
 4. Choose the **Site**, **Location** and, if you know it, the **Asset** (the AC unit).
-5. Set **How serious?** — *Needs attention* or *Urgent / unsafe* (water near electrics is urgent).
+5. Set **How serious?** — _Needs attention_ or _Urgent / unsafe_ (water near electrics is urgent).
 6. Describe it in **What is the problem?** — for example "Room 204 AC blowing warm air, dripping".
 7. Tick **Also request a repair (work order)** so maintenance gets a job straight away.
 8. Tap **Send report**.
-9. Note the **Reference number** on *Problem reported*. Follow it under **My reported problems**.
+9. Note the **Reference number** on _Problem reported_. Follow it under **My reported problems**.
 
 ![Report a problem form](screens/phase5-08-report-issue.png)
 

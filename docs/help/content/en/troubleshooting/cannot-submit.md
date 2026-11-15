@@ -12,12 +12,27 @@ owner: Support
 description: The Submit or Mark as completed button does not work or shows an error.
 routes: []
 screenshots: [phase5-07-review.png, phase6-05-offline-submit.png]
-related: [staff.checklist, mobile.offline, ts.evidence-missing, ts.access-denied, ts.read-only]
+related:
+  [
+    staff.checklist,
+    mobile.offline,
+    ts.evidence-missing,
+    ts.access-denied,
+    ts.read-only,
+  ]
 sources:
   - apps/staff-web/src/screens/TaskView.tsx
   - packages/shared/src/tasks.ts
   - apps/mobile/src/screens/TaskRun.tsx
-keywords: ["cannot submit", "Submit for approval", "Complete the highlighted answers first.", "paused", "offline", "submit fails"]
+keywords:
+  [
+    'cannot submit',
+    'Submit for approval',
+    'Complete the highlighted answers first.',
+    'paused',
+    'offline',
+    'submit fails',
+  ]
 ---
 
 ## Symptom
@@ -26,12 +41,12 @@ keywords: ["cannot submit", "Submit for approval", "Complete the highlighted ans
 
 ## Likely cause
 
-| Message or sign | Cause |
-| --- | --- |
-| *Complete the highlighted answers first.* | A required answer is missing or invalid. |
-| No submit button | The task is paused (select **Resume**), not started, or already submitted. |
-| *You are offline. Your answers stay on this screen; save when the connection returns.* | Staff web without connection. |
-| *You do not have permission for this. Ask your supervisor.* | Task reassigned, site link removed, or the company is read-only. |
+| Message or sign                                                                        | Cause                                                                      |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| _Complete the highlighted answers first._                                              | A required answer is missing or invalid.                                   |
+| No submit button                                                                       | The task is paused (select **Resume**), not started, or already submitted. |
+| _You are offline. Your answers stay on this screen; save when the connection returns._ | Staff web without connection.                                              |
+| _You do not have permission for this. Ask your supervisor._                            | Task reassigned, site link removed, or the company is read-only.           |
 
 ## How to check
 

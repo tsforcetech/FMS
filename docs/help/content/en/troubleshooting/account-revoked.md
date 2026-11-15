@@ -1,6 +1,6 @@
 ---
 id: ts.account-revoked
-title: "Your staff access has been revoked"
+title: 'Your staff access has been revoked'
 module: Troubleshooting
 category: technical-support
 audience: public
@@ -12,13 +12,28 @@ owner: Support
 description: A staff member or customer is shown a revoked or withdrawn access screen.
 routes: []
 screenshots: [phase5-03-not-linked.png, phase5-01-admin-link-login.png]
-related: [ts.not-linked, ts.access-denied, setup.staff-access, setup.customer-access, mobile.sign-in]
+related:
+  [
+    ts.not-linked,
+    ts.access-denied,
+    setup.staff-access,
+    setup.customer-access,
+    mobile.sign-in,
+  ]
 sources:
   - apps/staff-web/src/i18n.tsx
   - apps/mobile/src/App.tsx
   - apps/customer-web/src/App.tsx
   - docs/phase6-report.md
-keywords: ["revoked", "Your staff access has been revoked", "Your employee record is not active", "Your portal access has been withdrawn", "left company", "deactivated"]
+keywords:
+  [
+    'revoked',
+    'Your staff access has been revoked',
+    'Your employee record is not active',
+    'Your portal access has been withdrawn',
+    'left company',
+    'deactivated',
+  ]
 ---
 
 ## Symptom

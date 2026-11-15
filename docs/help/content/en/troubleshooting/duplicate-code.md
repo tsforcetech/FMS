@@ -16,12 +16,18 @@ related: [sites.create, import.overview, ts.import-failed]
 sources:
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/importing.ts
-keywords: ["duplicate code", "This code is already reserved. Choose another code.", "unique code", "code exists"]
+keywords:
+  [
+    'duplicate code',
+    'This code is already reserved. Choose another code.',
+    'unique code',
+    'code exists',
+  ]
 ---
 
 ## Symptom
 
-Saving a record shows *This code is already reserved. Choose another code.*
+Saving a record shows _This code is already reserved. Choose another code._
 
 ![A record form with its code field](screens/phase4-02-site-form.png)
 

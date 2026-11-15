@@ -17,18 +17,19 @@ related: [staff.checklist, train.first-task, staff.rework, mobile.photos]
 sources:
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: [checklist, questions, answers, review answers, save progress, evidence]
+keywords:
+  [checklist, questions, answers, review answers, save progress, evidence]
 ---
 
 1. Open the task and tap **Start task**, then **Open checklist**.
 2. Read the question and any help text. **Required** questions must be answered.
 3. Choose or type your answer and tap **Next**. Use **Back** to return.
 4. Some questions appear only after a certain answer — that is normal.
-5. Tap **Save progress** if you must stop; your answers are kept (*Progress saved.*).
+5. Tap **Save progress** if you must stop; your answers are kept (_Progress saved._).
 6. Photo, QR or GPS evidence is captured in the mobile app; in the Staff web it is recorded as
    pending.
 7. Tap **Review answers**. **Failed checks** are listed; add **Remarks (optional)** if useful.
-8. Fix anything marked *Complete the highlighted answers first.*
+8. Fix anything marked _Complete the highlighted answers first._
 9. Tap **Submit for approval** or **Mark as completed**.
 
 ![A checklist step](screens/phase5-06-checklist-step.png)

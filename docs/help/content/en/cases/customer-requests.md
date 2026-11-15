@@ -15,15 +15,40 @@ prerequisites:
   - Customer portal logins linked to their client (see Customer access)
 permissions:
   - Company owner or admin
-screenshots: [phase7-04-admin-service-requests.png, phase7-03-customer-new-request.png, phase7-05-customer-resolved.png]
+screenshots:
+  [
+    phase7-04-admin-service-requests.png,
+    phase7-03-customer-new-request.png,
+    phase7-05-customer-resolved.png,
+  ]
 diagrams: [wf-33, wf-41, wf-42]
-related: [cases.complaints, cases.sla, customer.requests, customer.confirm, setup.customer-access, train.customer-request]
+related:
+  [
+    cases.complaints,
+    cases.sla,
+    customer.requests,
+    customer.confirm,
+    setup.customer-access,
+    train.customer-request,
+  ]
 sources:
   - apps/admin-web/src/management/Operations.tsx
   - apps/admin-web/src/management/customerStore.ts
   - apps/admin-web/src/management/casesStore.ts
   - packages/shared/src/reports.ts
-keywords: [customer request, service request, customer portal, take in, reply to customer, reopen requested, resolution summary, Complaint created from request, Write a reply, This request has reached its message limit]
+keywords:
+  [
+    customer request,
+    service request,
+    customer portal,
+    take in,
+    reply to customer,
+    reopen requested,
+    resolution summary,
+    Complaint created from request,
+    Write a reply,
+    This request has reached its message limit,
+  ]
 ---
 
 Customers raise **service requests** in the customer portal for the locations their client is allocated.
@@ -39,20 +64,20 @@ never internal notes, assignees or costs.
 
 ## Steps
 
-1. Open **Issues & escalations → Customer requests**. Filter by status: *Submitted*, *In progress*,
-   *Resolved*, *Closed*, *Reopen requested* or *Cancelled*.
-2. For a new request select **Take in**. A complaint is created from it (*Complaint created from
-   request*). Taking in the same request again never creates a second complaint.
+1. Open **Issues & escalations → Customer requests**. Filter by status: _Submitted_, _In progress_,
+   _Resolved_, _Closed_, _Reopen requested_ or _Cancelled_.
+2. For a new request select **Take in**. A complaint is created from it (_Complaint created from
+   request_). Taking in the same request again never creates a second complaint.
 3. Work the complaint in **Complaints** — assign, start, create a work order, resolve (see
    [Complaints](article:cases.complaints)). The customer's status follows automatically:
 
-   | Complaint | Customer sees |
-   | --- | --- |
-   | Open | Submitted |
-   | Assigned, In progress | In progress |
-   | Resolved | Resolved |
-   | Closed | Closed |
-   | Cancelled | Cancelled |
+   | Complaint             | Customer sees |
+   | --------------------- | ------------- |
+   | Open                  | Submitted     |
+   | Assigned, In progress | In progress   |
+   | Resolved              | Resolved      |
+   | Closed                | Closed        |
+   | Cancelled             | Cancelled     |
 
 4. To talk to the customer, open the request, type in **Reply to the customer (they will see this)** and
    select **Send reply**. Internal discussion belongs on the complaint.
@@ -75,16 +100,16 @@ customer, and the resolution once resolved. The customer can confirm the fix or 
 
 ## When the customer asks to reopen
 
-The request shows *Reopen requested* and the banner *The customer asked to reopen*. Read their message,
+The request shows _Reopen requested_ and the banner _The customer asked to reopen_. Read their message,
 then reopen the linked complaint from **Complaints** with a reason.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No service requests* | Nothing has been submitted (or nothing matches the filter). | Clear the filter. |
-| *Write a reply.* | The reply is empty. | Type a message. |
-| *This request has reached its message limit.* | The conversation is full. | Continue by phone or email; record the outcome on the complaint. |
+| Message                                       | Why                                                         | What to do                                                       |
+| --------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| _No service requests_                         | Nothing has been submitted (or nothing matches the filter). | Clear the filter.                                                |
+| _Write a reply._                              | The reply is empty.                                         | Type a message.                                                  |
+| _This request has reached its message limit._ | The conversation is full.                                   | Continue by phone or email; record the outcome on the complaint. |
 
 ## Troubleshooting
 

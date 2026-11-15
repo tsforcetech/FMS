@@ -19,7 +19,18 @@ sources:
   - apps/mobile/src/offline/vault.ts
   - apps/mobile/src/screens/Main.tsx
   - docs/phase6-report.md
-keywords: ["offline", "sync", "Sync pending", "Synced", "Sync now", "Last synced", "Sync status", "no signal", "basement"]
+keywords:
+  [
+    'offline',
+    'sync',
+    'Sync pending',
+    'Synced',
+    'Sync now',
+    'Last synced',
+    'Sync status',
+    'no signal',
+    'basement',
+  ]
 ---
 
 Basements, plant rooms and car parks often have no signal. The mobile app keeps working: it saves
@@ -27,19 +38,19 @@ your task actions on the phone and sends them when you are back online.
 
 ## What works offline
 
-| Works offline | Needs a connection |
-| --- | --- |
-| Open tasks downloaded earlier | First sign-in and first download |
-| Start, pause, resume, start correction | Attendance check-in/out |
-| Save progress, submit | Approvals (supervisors) |
-| Photo, QR and GPS evidence | Work orders |
-| Report a problem from a task | Reports without a task, scanning unknown codes |
+| Works offline                          | Needs a connection                             |
+| -------------------------------------- | ---------------------------------------------- |
+| Open tasks downloaded earlier          | First sign-in and first download               |
+| Start, pause, resume, start correction | Attendance check-in/out                        |
+| Save progress, submit                  | Approvals (supervisors)                        |
+| Photo, QR and GPS evidence             | Work orders                                    |
+| Report a problem from a task           | Reports without a task, scanning unknown codes |
 
 ## Steps
 
-1. Work as usual. When offline the app shows *Offline — your work is saved on this device and will
-   sync when you reconnect.*
-2. Each saved action shows *Saved on this device. It will be sent when you are online.*
+1. Work as usual. When offline the app shows _Offline — your work is saved on this device and will
+   sync when you reconnect._
+2. Each saved action shows _Saved on this device. It will be sent when you are online._
 3. The top bar shows **Sync pending** with a count. Tap it to open **Sync status**.
 4. When the connection returns, the app syncs by itself. You can also select **Sync now**.
 5. Check that every line shows **Synced** and note **Last synced**.
@@ -61,11 +72,11 @@ Actions are sent in the order you did them. Sending twice never creates duplicat
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| **Needs review** | The server changed the task while you were offline. | See [Sync conflicts](article:mobile.conflicts). |
-| Line stays pending | Still no connection. | Move to a place with signal and select **Sync now**. |
-| A line shows an error | The server refused it, for example the task was reassigned or access changed. | See [Sync pending](article:ts.sync-pending). |
+| Message               | Why                                                                           | What to do                                           |
+| --------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Needs review**      | The server changed the task while you were offline.                           | See [Sync conflicts](article:mobile.conflicts).      |
+| Line stays pending    | Still no connection.                                                          | Move to a place with signal and select **Sync now**. |
+| A line shows an error | The server refused it, for example the task was reassigned or access changed. | See [Sync pending](article:ts.sync-pending).         |
 
 ## Troubleshooting
 

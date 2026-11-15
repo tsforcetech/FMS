@@ -17,17 +17,27 @@ related: [customer.requests, customer.updates, cases.customer-requests]
 sources:
   - apps/customer-web/src/App.tsx
   - apps/admin-web/src/management/customerStore.ts
-keywords: ["confirm", "Yes, confirm", "No, ask to reopen", "What is still wrong?", "Messages", "Progress", "resolved", "message limit"]
+keywords:
+  [
+    'confirm',
+    'Yes, confirm',
+    'No, ask to reopen',
+    'What is still wrong?',
+    'Messages',
+    'Progress',
+    'resolved',
+    'message limit',
+  ]
 ---
 
-When the facility team finishes the work, the request becomes *Resolved* and appears in **To
+When the facility team finishes the work, the request becomes _Resolved_ and appears in **To
 confirm** on Overview. Please check the work and tell the team whether it is fixed.
 
 ## Steps
 
 1. Open the request from **Requests** or the **To confirm** tile.
 2. Read the **Progress** timeline and the team's **Messages**.
-3. If the problem is fixed, select **Yes, confirm**. You see *Thank you for confirming*.
+3. If the problem is fixed, select **Yes, confirm**. You see _Thank you for confirming_.
 4. If it is not fixed, select **No, ask to reopen**, write **What is still wrong?** and select
    **Ask to reopen**.
 5. At any time you can add a message (up to 500 characters) and select **Send**.
@@ -38,15 +48,15 @@ confirm** on Overview. Please check the work and tell the team whether it is fix
 
 ## Expected result
 
-- Confirmed: the request shows *You confirmed the resolution on …* and moves to **Service history**.
-- Reopen: the status becomes *Reopen requested* and the team is told.
+- Confirmed: the request shows _You confirmed the resolution on …_ and moves to **Service history**.
+- Reopen: the status becomes _Reopen requested_ and the team is told.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Write a message.* | The message is empty. | Write the reason or message. |
-| *This request has reached its message limit.* | A request holds at most 30 messages. | Contact your facility team directly, or raise a new request if it is a new problem. |
+| Message                                       | Why                                  | What to do                                                                          |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------- |
+| _Write a message._                            | The message is empty.                | Write the reason or message.                                                        |
+| _This request has reached its message limit._ | A request holds at most 30 messages. | Contact your facility team directly, or raise a new request if it is a new problem. |
 
 ## Troubleshooting
 

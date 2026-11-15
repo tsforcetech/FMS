@@ -13,18 +13,48 @@ description: Compare preventive and corrective work, resolution time and recorde
 routes: [/report-maintenance, /report-assets]
 permissions:
   - Company owner or admin
-screenshots: [phase4-16-work-order.png, phase7-07-admin-management-dashboard.png]
+screenshots:
+  [
+    phase4-16-work-order.png,
+    phase7-07-admin-management-dashboard.png,
+    admin-report-maintenance.png,
+    admin-report-assets.png,
+  ]
 diagrams: [wf-43]
-related: [maintenance.work-orders, maintenance.pm, maintenance.asset-history, reports.dashboard, exports.overview]
+related:
+  [
+    maintenance.work-orders,
+    maintenance.pm,
+    maintenance.asset-history,
+    reports.dashboard,
+    exports.overview,
+  ]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
-keywords: [maintenance report, asset performance, maintenance costs, record cost, labour, vendor, material, currency, append-only, adjusting entry, Use a three-letter currency code]
+keywords:
+  [
+    maintenance report,
+    asset performance,
+    maintenance costs,
+    record cost,
+    labour,
+    vendor,
+    material,
+    currency,
+    append-only,
+    adjusting entry,
+    Use a three-letter currency code,
+  ]
 ---
 
 **Maintenance & costs** and **Asset performance** show preventive tasks and corrective work orders for
 a period, with response and resolution times and the **costs** you record.
+
+![The Reports & analytics → Maintenance & costs screen](screens/admin-report-maintenance.png)
+
+![The Reports & analytics → Asset performance screen](screens/admin-report-assets.png)
 
 ## Steps
 
@@ -40,8 +70,8 @@ a period, with response and resolution times and the **costs** you record.
 ### Record a cost
 
 1. Select **Record cost**.
-2. Choose the **Site**, optionally the **Asset (optional)**, the **Type** (*labor*, *vendor*,
-   *material* or *other*), the **Date**, **Amount**, **Currency** (three letters, for example AED) and a
+2. Choose the **Site**, optionally the **Asset (optional)**, the **Type** (_labor_, _vendor_,
+   _material_ or _other_), the **Date**, **Amount**, **Currency** (three letters, for example AED) and a
    **Description**.
 3. Save. Costs are **append-only**: to correct one, record an adjusting entry.
 
@@ -55,19 +85,19 @@ Totals include only costs recorded here. Asset purchase value is never included.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose the site.* | No site selected. | Choose one. |
-| *Choose a cost type.* | Type missing. | Choose a type. |
-| *Enter a cost of zero or more.* | Negative or empty amount. | Enter the amount; correct with an adjusting entry. |
-| *Use a three-letter currency code, e.g. AED.* | Currency invalid. | Enter a code such as AED. |
-| *Describe the cost.* | Description empty. | Describe it. |
-| *Choose the date the cost was incurred.* | Date missing. | Pick the date. |
-| Mixed currency warning | Costs were recorded in more than one currency; totals add the numbers without conversion. | Read totals per currency, or record costs in one currency. |
+| Message                                       | Why                                                                                       | What to do                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| _Choose the site._                            | No site selected.                                                                         | Choose one.                                                |
+| _Choose a cost type._                         | Type missing.                                                                             | Choose a type.                                             |
+| _Enter a cost of zero or more._               | Negative or empty amount.                                                                 | Enter the amount; correct with an adjusting entry.         |
+| _Use a three-letter currency code, e.g. AED._ | Currency invalid.                                                                         | Enter a code such as AED.                                  |
+| _Describe the cost._                          | Description empty.                                                                        | Describe it.                                               |
+| _Choose the date the cost was incurred._      | Date missing.                                                                             | Pick the date.                                             |
+| Mixed currency warning                        | Costs were recorded in more than one currency; totals add the numbers without conversion. | Read totals per currency, or record costs in one currency. |
 
 ## Troubleshooting
 
-- **Materials issued to work orders** move stock quantities only; record their value as a *material*
+- **Materials issued to work orders** move stock quantities only; record their value as a _material_
   cost if you need it in this report.
 - **One asset in detail:** see [Asset maintenance history](article:maintenance.asset-history).
 

@@ -17,13 +17,30 @@ permissions:
   - Company owner or admin
 screenshots: [admin-leave.png]
 diagrams: [wf-15]
-related: [people.employees, people.shifts, scheduling.recurring, scheduling.assignment, ts.no-eligible-staff]
+related:
+  [
+    people.employees,
+    people.shifts,
+    scheduling.recurring,
+    scheduling.assignment,
+    ts.no-eligible-staff,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
   - packages/shared/src/schedule.ts
-keywords: [leave, absence, annual leave, sick leave, holiday, public holiday, approved leave, vacation]
+keywords:
+  [
+    leave,
+    absence,
+    annual leave,
+    sick leave,
+    holiday,
+    public holiday,
+    approved leave,
+    vacation,
+  ]
 ---
 
 **People & teams → Leave & holidays** has two tabs: **Leave records** for an employee's absence and
@@ -32,7 +49,7 @@ self-service is not available yet.
 
 ## Before you start
 
-- Approved leave matters: an employee whose leave is *Approved* (or *Taken*) on a day is **not eligible** for
+- Approved leave matters: an employee whose leave is _Approved_ (or _Taken_) on a day is **not eligible** for
   automatic task assignment that day.
 - Holidays matter to schedules: each recurring schedule chooses whether to skip, move or still
   generate work on holidays and non-working days.
@@ -46,8 +63,8 @@ self-service is not available yet.
 2. Choose the **Employee** and the **Leave type**: Annual, Sick, Unpaid, Emergency, Parental or
    Other. The code and name are generated automatically.
 3. Enter the **First day** and **Last day** and optionally a **Reason**.
-4. Choose the **Status**: *Planned*, *Approved*, *Taken* or *Cancelled*.
-5. Select **Save leave record** (*Leave record created.*).
+4. Choose the **Status**: _Planned_, _Approved_, _Taken_ or _Cancelled_.
+5. Select **Save leave record** (_Leave record created._).
 
 ### Record a holiday
 
@@ -68,16 +85,16 @@ self-service is not available yet.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *End date must follow start date* | The last day is before the first day. | Correct the dates. |
-| *Employee cannot change after creation. Create a new record instead.* | You changed the employee of a saved leave record. | Cancel it and create a new one. |
-| *Choose an active linked record.* | The employee is archived. | Choose an active employee. |
+| Message                                                               | Why                                               | What to do                      |
+| --------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------- |
+| _End date must follow start date_                                     | The last day is before the first day.             | Correct the dates.              |
+| _Employee cannot change after creation. Create a new record instead._ | You changed the employee of a saved leave record. | Cancel it and create a new one. |
+| _Choose an active linked record._                                     | The employee is archived.                         | Choose an active employee.      |
 
 ## Troubleshooting
 
-- **Someone on leave still got a task:** only *Approved* or *Taken* leave blocks assignment; *Planned* leave does not. Eligibility is checked when
+- **Someone on leave still got a task:** only _Approved_ or _Taken_ leave blocks assignment; _Planned_ leave does not. Eligibility is checked when
   a task is generated, so check tasks that already existed before the leave was approved and
   reassign them in **Task management → Task assignments** if needed.
-- **A holiday did not skip work:** the schedule's holiday rule may be *Generate anyway*, or the
+- **A holiday did not skip work:** the schedule's holiday rule may be _Generate anyway_, or the
   holiday is for another site. See [Recurring tasks](article:scheduling.recurring).

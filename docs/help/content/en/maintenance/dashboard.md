@@ -13,15 +13,33 @@ description: See active preventive plans, upcoming and overdue preventive mainte
 routes: [/maintenance]
 permissions:
   - Company owner or admin
-screenshots: [phase4-16-work-order.png]
+screenshots: [phase4-16-work-order.png, admin-maintenance.png]
 diagrams: [wf-31]
-related: [maintenance.pm, maintenance.work-orders, maintenance.asset-history, cases.sla, reports.maintenance, scheduling.generation]
+related:
+  [
+    maintenance.pm,
+    maintenance.work-orders,
+    maintenance.asset-history,
+    cases.sla,
+    reports.maintenance,
+    scheduling.generation,
+  ]
 sources:
   - apps/admin-web/src/management/Cases.tsx
-keywords: [maintenance overview, PM, preventive maintenance, overdue PM, open work orders, past SLA]
+keywords:
+  [
+    maintenance overview,
+    PM,
+    preventive maintenance,
+    overdue PM,
+    open work orders,
+    past SLA,
+  ]
 ---
 
 The **Maintenance dashboard** gives the maintenance lead a single view of planned and corrective work.
+
+![The Maintenance → Maintenance dashboard screen](screens/admin-maintenance.png)
 
 ## Steps
 
@@ -46,10 +64,10 @@ You can see which inspections are coming, which are late and how many repairs ar
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No generated maintenance occurrences ahead. Create a PM plan and run the scheduler.* | No PM plan exists, or the scheduler has not generated its tasks. | Create a [PM plan](article:maintenance.pm) and run the scheduler. |
-| *Nothing overdue.* | All preventive tasks are on time. | No action needed. |
+| Message                                                                               | Why                                                              | What to do                                                        |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| _No generated maintenance occurrences ahead. Create a PM plan and run the scheduler._ | No PM plan exists, or the scheduler has not generated its tasks. | Create a [PM plan](article:maintenance.pm) and run the scheduler. |
+| _Nothing overdue._                                                                    | All preventive tasks are on time.                                | No action needed.                                                 |
 
 ## Troubleshooting
 

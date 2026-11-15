@@ -18,16 +18,25 @@ sources:
   - apps/mobile/src/screens/Scan.tsx
   - apps/mobile/src/screens/TaskRun.tsx
   - apps/mobile/src/screens/Attendance.tsx
-keywords: ["camera permission", "location permission", "Camera permission is off.", "Location permission is off", "Scanning is not available on this device.", "The camera is not available.", "settings"]
+keywords:
+  [
+    'camera permission',
+    'location permission',
+    'Camera permission is off.',
+    'Location permission is off',
+    'Scanning is not available on this device.',
+    'The camera is not available.',
+    'settings',
+  ]
 ---
 
 ## Symptom
 
-- *Camera permission is off.* (scan or photo)
-- *Camera permission is off or no camera is available. Type the code instead.*
-- *Scanning is not available on this device.* / *The camera is not available.*
-- *Location permission is off. You can continue; the record will show no location.*
-- *Location could not be determined. Try again in the open.*
+- _Camera permission is off._ (scan or photo)
+- _Camera permission is off or no camera is available. Type the code instead._
+- _Scanning is not available on this device._ / _The camera is not available._
+- _Location permission is off. You can continue; the record will show no location._
+- _Location could not be determined. Try again in the open._
 
 ![Scanner screen (Chromium runtime test)](screens/phase6-03-scanner.png)
 

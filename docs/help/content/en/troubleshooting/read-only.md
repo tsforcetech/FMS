@@ -17,13 +17,19 @@ sources:
   - apps/admin-web/src/App.tsx
   - apps/admin-web/src/management/planGate.ts
   - firebase/firestore.rules
-keywords: ["read-only", "Read-only subscription. Your data stays available to view and export, but changes are paused.", "suspended", "subscription expired"]
+keywords:
+  [
+    'read-only',
+    'Read-only subscription. Your data stays available to view and export, but changes are paused.',
+    'suspended',
+    'subscription expired',
+  ]
 ---
 
 ## Symptom
 
-The admin app shows the banner **Read-only subscription.** *Your data stays available to view and
-export, but changes are paused. See Administration → Plan & usage.* Staff and customers get
+The admin app shows the banner **Read-only subscription.** _Your data stays available to view and
+export, but changes are paused. See Administration → Plan & usage._ Staff and customers get
 permission errors when they try to save, submit or create anything.
 
 ![Plan & usage in read-only mode](screens/phase8-09-tenant-plan-read-only.png)

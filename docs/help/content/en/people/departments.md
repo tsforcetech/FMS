@@ -21,13 +21,24 @@ sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
-keywords: [department, sub-department, designation, job title, grade, housekeeping, MEP, security, organisation]
+keywords:
+  [
+    department,
+    sub-department,
+    designation,
+    job title,
+    grade,
+    housekeeping,
+    MEP,
+    security,
+    organisation,
+  ]
 ---
 
-**Departments** are your organisational units, such as *Housekeeping*, *MEP* or *Security*.
-**Designations** are job titles, such as *Cleaner* or *HVAC Technician*. Every employee needs both.
+**Departments** are your organisational units, such as _Housekeeping_, _MEP_ or _Security_.
+**Designations** are job titles, such as _Cleaner_ or _HVAC Technician_. Every employee needs both.
 
-> **Note:** *Designations describe a job. They never grant access to FacilityOS.* Access comes only
+> **Note:** _Designations describe a job. They never grant access to FacilityOS._ Access comes only
 > from the person's role and staff link — see [Roles and permissions](article:gs.roles).
 
 ## Before you start
@@ -44,15 +55,15 @@ keywords: [department, sub-department, designation, job title, grade, housekeepi
 
 1. Open **People & teams → Departments** and select **Add department**.
 2. Enter the **Code** (for example `HK`) and **Name**.
-3. Optionally choose a **Parent department** (*Only top-level departments can be parents.*).
+3. Optionally choose a **Parent department** (_Only top-level departments can be parents._).
 4. Optionally choose the **Site** — leave it empty for a company-wide department.
 5. Optionally choose the **Department manager** (an employee) and add a **Description**.
-6. Select **Save department** (*Department created.*).
+6. Select **Save department** (_Department created._).
 
 ### Create a designation
 
 1. Open **People & teams → Designations** and select **Add designation**.
-2. Enter the **Code** and **Name** (for example `HK-CLN` / *Cleaner*).
+2. Enter the **Code** and **Name** (for example `HK-CLN` / _Cleaner_).
 3. Optionally choose the **Department**, the **Grade / level** and a **Description**.
 4. Select **Save designation**.
 
@@ -70,11 +81,11 @@ keywords: [department, sub-department, designation, job title, grade, housekeepi
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose a top-level parent. Only one level of hierarchy is supported.* | The chosen parent is itself a sub-department. | Choose a top-level department as the parent. |
-| *This code is already reserved. Choose another code.* | The code is already used (also by archived records). | Choose another code. |
-| *Archive or reassign active linked records first.* | Active employees, designations, teams or sub-departments still use the department. | Move or archive them first. |
+| Message                                                                | Why                                                                                | What to do                                   |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------- |
+| _Choose a top-level parent. Only one level of hierarchy is supported._ | The chosen parent is itself a sub-department.                                      | Choose a top-level department as the parent. |
+| _This code is already reserved. Choose another code._                  | The code is already used (also by archived records).                               | Choose another code.                         |
+| _Archive or reassign active linked records first._                     | Active employees, designations, teams or sub-departments still use the department. | Move or archive them first.                  |
 
 ## Troubleshooting
 

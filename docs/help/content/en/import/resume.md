@@ -19,22 +19,33 @@ related: [import.overview, ts.import-failed, ts.duplicate-code]
 sources:
   - apps/admin-web/src/management/importStore.ts
   - apps/admin-web/src/management/ImportCenter.tsx
-keywords: [resume, partial, stopped, interrupted, rollback, undo, repeat, already imported, idempotent]
+keywords:
+  [
+    resume,
+    partial,
+    stopped,
+    interrupted,
+    rollback,
+    undo,
+    repeat,
+    already imported,
+    idempotent,
+  ]
 ---
 
 ## The same file twice
 
 Every import is identified by the module and a fingerprint (SHA-256) of the file. When you upload a
-file that was already imported you see *This exact file was already imported on …*. Validating it
-again shows the rows as *Match found* — nothing new is created. Even if two people import the same
+file that was already imported you see _This exact file was already imported on …_. Validating it
+again shows the rows as _Match found_ — nothing new is created. Even if two people import the same
 codes at the same moment, a code can only be claimed once, so duplicates are impossible.
 
 ## An import that stopped
 
 If you pressed **Stop**, closed the browser or lost the connection, the import is saved as
-*Partial* in **Import history**, with each finished row recorded.
+_Partial_ in **Import history**, with each finished row recorded.
 
-1. Upload **the same file** again. The message *An earlier import of this file did not finish* appears.
+1. Upload **the same file** again. The message _An earlier import of this file did not finish_ appears.
 2. **Validate (dry run)**.
 3. **Import** — rows that were already created are skipped; the rest are imported.
 

@@ -12,17 +12,32 @@ owner: Support
 description: A staff member sees "No tasks for today" although work was expected.
 routes: []
 screenshots: [phase5-04-my-day.png, phase4-17-scheduler-monitor.png]
-related: [staff.my-day, ts.scheduler-not-active, ts.no-eligible-staff, ts.wrong-site, scheduling.generation, tasks.assignments]
+related:
+  [
+    staff.my-day,
+    ts.scheduler-not-active,
+    ts.no-eligible-staff,
+    ts.wrong-site,
+    scheduling.generation,
+    tasks.assignments,
+  ]
 sources:
   - apps/staff-web/src/screens/MyDay.tsx
   - apps/staff-web/src/screens/MyTasks.tsx
   - apps/admin-web/src/management/Notifications.tsx
-keywords: ["no tasks", "No tasks for today", "empty", "missing tasks", "nothing assigned"]
+keywords:
+  [
+    'no tasks',
+    'No tasks for today',
+    'empty',
+    'missing tasks',
+    'nothing assigned',
+  ]
 ---
 
 ## Symptom
 
-**Home** shows **No tasks for today** — *When your supervisor assigns work, it appears here.* — or
+**Home** shows **No tasks for today** — _When your supervisor assigns work, it appears here._ — or
 **My tasks** is empty.
 
 ![My Day](screens/phase5-04-my-day.png)
@@ -41,7 +56,7 @@ keywords: ["no tasks", "No tasks for today", "empty", "missing tasks", "nothing 
 2. Mobile: open **Sync status** and select **Sync now** while online.
 3. Supervisor or admin: open **Task management → Task register** and search for the task — check
    its assignee and site.
-4. Admin: open **Administration → Scheduler monitor** and look for *No server run recorded yet*.
+4. Admin: open **Administration → Scheduler monitor** and look for _No server run recorded yet_.
 
 ![Scheduler monitor](screens/phase4-17-scheduler-monitor.png)
 

@@ -17,7 +17,16 @@ related: [staff.work-orders, maintenance.work-orders, train.report-ac]
 sources:
   - apps/staff-web/src/screens/WorkOrders.tsx
   - packages/shared/src/cases.ts
-keywords: [work order, repair, technician, start work, mark resolved, request assistance, put on hold]
+keywords:
+  [
+    work order,
+    repair,
+    technician,
+    start work,
+    mark resolved,
+    request assistance,
+    put on hold,
+  ]
 ---
 
 1. Tap **More → My work orders** and open the job.

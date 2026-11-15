@@ -1,0 +1,19 @@
+1. Help Center loads with 8 categories and the product version label (150 public articles)
+2. Search finds real articles by title, by exact error message, and returns nothing for nonsense
+3. Categories navigate to their articles (Daily Tasks → "Read the task dashboard")
+5. Breadcrumbs lead back to the module (Task Management) and home
+4. Article links work: 52484 internal links/assets in 972 pages all resolve; related-article navigation works
+6. Context help links open the right article for admin, staff, mobile and customer screens and help ids; platform screens point to the restricted manual instead of publishing it
+7. Role pages list exactly the articles for each role; customer pages contain only customer-facing content; 8 public role guides (+ restricted platform guide)
+8. Restricted documents are excluded: 14 authenticated/internal articles and 2 restricted manuals have no page, link, title, search entry or PDF in the public build
+9. PDFs generated: 7 public manuals + 45 diagram PDFs
+10. PDFs open (served as application/pdf, valid headers, readable text): FacilityOS-Complete-System-Manual.pdf 529p/23 TOC sections; FacilityOS-Administrator-Manual.pdf 405p/19 TOC sections; FacilityOS-Staff-Web-Manual.pdf 82p/5 TOC sections; FacilityOS-Mobile-App-Manual.pdf 77p/4 TOC sections; FacilityOS-Customer-Portal-Guide.pdf 32p/4 TOC sections; FacilityOS-Workflow-Reference.pdf 78p/3 TOC sections; FacilityOS-Quick-Start-Guides.pdf 41p/3 TOC sections
+11. Tables of contents point to the page that holds each section heading
+12. Screenshots render in articles (all images decoded)
+13. Diagram source renders: 45 SVGs load; editable Mermaid source and PDF export download
+14. Workflow links work in both directions (diagram ↔ articles)
+15. Mobile layout (375 px) has no horizontal overflow on home, article, search, workflow, roles and Arabic pages
+16. Arabic displays right-to-left (dir=rtl, mirrored layout, Arabic interface)
+17. Missing translations fall back to English with a notice (e.g. assets.qr); draft translations are labelled; switching language keeps the page
+18. Documentation build is reproducible (rebuild → identical output hash)
+19. A broken article link makes npm run help:check (the CI step) fail

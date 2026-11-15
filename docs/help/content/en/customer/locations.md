@@ -16,10 +16,19 @@ related: [customer.requests, clients.allocations, ts.allocation-expired]
 sources:
   - apps/customer-web/src/App.tsx
   - apps/admin-web/src/management/customerStore.ts
-keywords: ["My locations", "premises", "Active", "Starts later", "Ended", "allocation", "service period"]
+keywords:
+  [
+    'My locations',
+    'premises',
+    'Active',
+    'Starts later',
+    'Ended',
+    'allocation',
+    'service period',
+  ]
 ---
 
-**My locations** lists *the premises your agreement covers*. Each one has a service period set by
+**My locations** lists _the premises your agreement covers_. Each one has a service period set by
 your facility provider.
 
 ## Steps
@@ -29,7 +38,7 @@ your facility provider.
    - **Active** — you can raise requests for it.
    - **Starts later** — the service period has not started.
    - **Ended** — the service period is over.
-3. Each card shows the start and end date (or *open*) and how many open requests it has.
+3. Each card shows the start and end date (or _open_) and how many open requests it has.
 
 ![My locations](screens/customer-locations.png)
 
@@ -39,8 +48,8 @@ Only **Active** locations are offered when you create a new request.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This location’s service period has ended. Contact your facility team.* | The place is no longer active. | Contact your facility team. See [Location period ended](article:ts.allocation-expired). |
-| *None of your locations is currently active. Contact your facility team.* | No place is active today. | Contact your facility team. |
-| A place is missing | It is not shared with your login. | *Contact your facility team if something is missing.* |
+| Message                                                                   | Why                               | What to do                                                                              |
+| ------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------- |
+| _This location’s service period has ended. Contact your facility team._   | The place is no longer active.    | Contact your facility team. See [Location period ended](article:ts.allocation-expired). |
+| _None of your locations is currently active. Contact your facility team._ | No place is active today.         | Contact your facility team.                                                             |
+| A place is missing                                                        | It is not shared with your login. | _Contact your facility team if something is missing._                                   |

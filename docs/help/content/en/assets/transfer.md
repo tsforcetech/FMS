@@ -16,18 +16,30 @@ prerequisites:
   - An active destination location
 permissions:
   - Company owner or admin
-screenshots: [admin-asset-transfers.png, phase4-04-asset-qr.png]
+screenshots:
+  [admin-asset-transfers.png, phase4-04-asset-qr.png, admin-assets.png]
 diagrams: [wf-17]
 related: [assets.register, assets.qr, setup.audit, maintenance.asset-history]
 sources:
   - apps/admin-web/src/management/Assets.tsx
   - apps/admin-web/src/management/store.ts
   - firebase/firestore.rules
-keywords: [transfer, move asset, relocate, transfer log, condition on arrival, received by, movement history]
+keywords:
+  [
+    transfer,
+    move asset,
+    relocate,
+    transfer log,
+    condition on arrival,
+    received by,
+    movement history,
+  ]
 ---
 
 Assets move only through **Transfer**, never by editing the location. Each transfer is permanent
 and cannot be edited, so the asset's movement history is always complete.
+
+![The Assets → Asset register screen](screens/admin-assets.png)
 
 ## Before you start
 
@@ -40,9 +52,9 @@ and cannot be edited, so the asset's movement history is always complete.
 2. The drawer **Transfer asset** shows **1 From** — the current site and location.
 3. Under **2 To**, choose the **Destination site** and **Destination location**.
 4. Under **3 Details**, enter the **Transfer date**, the **Condition on arrival**, the **Reason**
-   (for example *Relocated to new office*) and, optionally, **Received by** with the
+   (for example _Relocated to new office_) and, optionally, **Received by** with the
    **Receiving employee** and **Notes**.
-5. Select **Confirm transfer**. The message *<asset name> transferred.* appears.
+5. Select **Confirm transfer**. The message _<asset name> transferred._ appears.
 6. Review all moves in **Assets → Asset transfers** (the transfer log) or on the asset's
    **Transfers** tab.
 
@@ -54,27 +66,27 @@ and cannot be edited, so the asset's movement history is always complete.
 
 - The asset shows its new site, location and condition.
 - The transfer log lists the asset, **From**, **To**, **Date**, **Condition** and **Reason**.
-- The transfer appears in **Administration → Audit history** under *Asset transfers*.
+- The transfer appears in **Administration → Audit history** under _Asset transfers_.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose the destination site and location.* | A destination field is empty. | Choose both. |
-| *Enter the transfer date.* | The date is empty. | Enter the date. |
-| *Enter a reason for the transfer.* | The reason is empty. | Describe why the asset moved. |
-| *Choose a different destination location.* | The destination is the current location. | Choose another location. |
-| *Choose an active location in the destination site.* | The location is archived or belongs to another site. | Choose an active location of that site. |
-| *A location no longer exists.* | The location was removed while the form was open. | Reload and choose again. |
-| *Archived assets cannot be transferred.* | The asset is archived. | Reactivate it first if it really moved. |
-| *Choose an active employee to acknowledge receipt.* | The receiving employee is not active. | Choose an active employee or clear **Received by**. |
-| *This asset changed. Close the form and reload before transferring.* | Someone changed the asset while the form was open. | Close, reload and transfer again. |
+| Message                                                              | Why                                                  | What to do                                          |
+| -------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------- |
+| _Choose the destination site and location._                          | A destination field is empty.                        | Choose both.                                        |
+| _Enter the transfer date._                                           | The date is empty.                                   | Enter the date.                                     |
+| _Enter a reason for the transfer._                                   | The reason is empty.                                 | Describe why the asset moved.                       |
+| _Choose a different destination location._                           | The destination is the current location.             | Choose another location.                            |
+| _Choose an active location in the destination site._                 | The location is archived or belongs to another site. | Choose an active location of that site.             |
+| _A location no longer exists._                                       | The location was removed while the form was open.    | Reload and choose again.                            |
+| _Archived assets cannot be transferred._                             | The asset is archived.                               | Reactivate it first if it really moved.             |
+| _Choose an active employee to acknowledge receipt._                  | The receiving employee is not active.                | Choose an active employee or clear **Received by**. |
+| _This asset changed. Close the form and reload before transferring._ | Someone changed the asset while the form was open.   | Close, reload and transfer again.                   |
 
 ## Troubleshooting
 
 - **The location field is greyed out in the edit form:** that is deliberate — use **Transfer**.
 - **A transfer was recorded by mistake:** transfers cannot be edited or deleted. Record a new
-  transfer back to the correct location with a reason such as *Correction of transfer on …*.
+  transfer back to the correct location with a reason such as _Correction of transfer on …_.
 - **No transfers recorded yet:** the log is empty until the first transfer.
 
 ![The asset page with the Transfer button](screens/phase4-04-asset-qr.png)

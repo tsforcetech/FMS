@@ -13,18 +13,30 @@ description: Create task categories and one level of subcategories, each with an
 routes: [/task-categories]
 permissions:
   - Company owner or admin
-screenshots: [phase4-06-template-builder.png]
+screenshots: [phase4-06-template-builder.png, admin-task-categories.png]
 diagrams: [wf-21]
-related: [templates.builder, people.departments, reports.tasks, import.templates]
+related:
+  [templates.builder, people.departments, reports.tasks, import.templates]
 sources:
   - packages/shared/src/operations.ts
   - apps/admin-web/src/management/Records.tsx
-keywords: [category, subcategory, housekeeping, HVAC inspection, fire and safety, parent category, archive category]
+keywords:
+  [
+    category,
+    subcategory,
+    housekeeping,
+    HVAC inspection,
+    fire and safety,
+    parent category,
+    archive category,
+  ]
 ---
 
-**Task categories** group your templates — for example *Housekeeping*, *HVAC inspection* or *Fire &
-safety*. One level of subcategories is supported (for example *Housekeeping → Washrooms*). A category
+**Task categories** group your templates — for example _Housekeeping_, _HVAC inspection_ or _Fire &
+safety_. One level of subcategories is supported (for example _Housekeeping → Washrooms_). A category
 can name the **Responsible department** that normally owns that kind of work.
+
+![The Task management → Task categories screen](screens/admin-task-categories.png)
 
 ## Before you start
 
@@ -52,10 +64,10 @@ template and category.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| The parent list does not offer a subcategory | Only one level of subcategories is allowed. | Choose a top-level category as the parent. |
-| Cannot archive the category | Templates or subcategories still reference it. | Archive or move those first — records still linked must be archived or reassigned. |
+| Message                                      | Why                                            | What to do                                                                         |
+| -------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| The parent list does not offer a subcategory | Only one level of subcategories is allowed.    | Choose a top-level category as the parent.                                         |
+| Cannot archive the category                  | Templates or subcategories still reference it. | Archive or move those first — records still linked must be archived or reassigned. |
 
 ## Troubleshooting
 

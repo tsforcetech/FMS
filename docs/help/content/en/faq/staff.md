@@ -12,12 +12,29 @@ owner: Support
 description: Short answers for technicians, housekeeping, security staff and supervisors.
 routes: []
 screenshots: []
-related: [staff.my-day, staff.checklist, mobile.install, mobile.offline, mobile.photos, ts.no-tasks]
+related:
+  [
+    staff.my-day,
+    staff.checklist,
+    mobile.install,
+    mobile.offline,
+    mobile.photos,
+    ts.no-tasks,
+  ]
 sources:
   - apps/staff-web/src/i18n.tsx
   - apps/mobile/src/offline/sync.ts
   - docs/phase6-report.md
-keywords: ["FAQ", "staff questions", "offline", "photos", "attendance", "iPhone", "password"]
+keywords:
+  [
+    'FAQ',
+    'staff questions',
+    'offline',
+    'photos',
+    'attendance',
+    'iPhone',
+    'password',
+  ]
 ---
 
 ## I forgot my password.

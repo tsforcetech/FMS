@@ -13,19 +13,40 @@ description: See open, overdue and completed work, on-time rate, rework, critica
 routes: [/management]
 permissions:
   - Company owner or admin
-screenshots: [phase7-07-admin-management-dashboard.png]
+screenshots: [phase7-07-admin-management-dashboard.png, admin-management.png]
 diagrams: [wf-43]
-related: [reports.tasks, reports.sla, reports.maintenance, tasks.dashboard, exports.overview, exports.limits]
+related:
+  [
+    reports.tasks,
+    reports.sla,
+    reports.maintenance,
+    tasks.dashboard,
+    exports.overview,
+    exports.limits,
+  ]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
-keywords: [management dashboard, KPI, operations at a glance, on-time completion, rework, critical cases, sites needing attention, period, partial period]
+keywords:
+  [
+    management dashboard,
+    KPI,
+    operations at a glance,
+    on-time completion,
+    rework,
+    critical cases,
+    sites needing attention,
+    period,
+    partial period,
+  ]
 ---
 
 The **Management dashboard** summarises operations for a period: how much work is open, late and
 done, how well it was done, and where problems are. Every figure uses the same definitions as the
 detailed reports.
+
+![The Reports & analytics → Management dashboard screen](screens/admin-management.png)
 
 ## Steps
 
@@ -55,13 +76,13 @@ detailed reports.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Partial period* | The period has more records than an interactive report reads at once (3,000). | Narrow the dates or choose a site. Exports read every record. |
+| Message          | Why                                                                           | What to do                                                    |
+| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| _Partial period_ | The period has more records than an interactive report reads at once (3,000). | Narrow the dates or choose a site. Exports read every record. |
 
 ## Troubleshooting
 
-- **Figures differ from the task dashboard:** the task dashboard shows *now*; this dashboard shows the
+- **Figures differ from the task dashboard:** the task dashboard shows _now_; this dashboard shows the
   chosen period.
 - **Need the rows behind a number:** open [Task performance](article:reports.tasks) or
   [SLA performance](article:reports.sla) for the same period.

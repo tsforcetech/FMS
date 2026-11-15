@@ -20,7 +20,18 @@ sources:
   - apps/mobile/src/App.tsx
   - apps/mobile/src/platform.ts
   - docs/phase6-report.md
-keywords: ["install", "APK", "Android", "iOS", "iPhone", "Install unknown apps", "TestFlight", "Play Store", "App Store"]
+keywords:
+  [
+    'install',
+    'APK',
+    'Android',
+    'iOS',
+    'iPhone',
+    'Install unknown apps',
+    'TestFlight',
+    'Play Store',
+    'App Store',
+  ]
 ---
 
 The FacilityOS mobile app gives field staff the same work as the staff web, plus QR scanning,
@@ -60,10 +71,10 @@ After signing in you see **Home** with today's work.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| Android blocks the install | **Install unknown apps** is off. | Allow it for the app that opens the APK, or ask IT. |
-| *Your login is not linked to an employee yet* | The login is not linked. | See [Login not linked](article:ts.not-linked). |
+| Message                                       | Why                              | What to do                                          |
+| --------------------------------------------- | -------------------------------- | --------------------------------------------------- |
+| Android blocks the install                    | **Install unknown apps** is off. | Allow it for the app that opens the APK, or ask IT. |
+| _Your login is not linked to an employee yet_ | The login is not linked.         | See [Login not linked](article:ts.not-linked).      |
 
 ## Troubleshooting
 

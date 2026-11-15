@@ -14,15 +14,38 @@ routes: [/invitations, /join]
 helpIds: [setup.staff]
 permissions:
   - Company owner or admin. Only the owner can invite admins; nobody invites an owner.
-screenshots: [phase8-05-invitation-created.png, phase8-06-join-accepted.png]
+screenshots:
+  [
+    phase8-05-invitation-created.png,
+    phase8-06-join-accepted.png,
+    admin-invitations.png,
+  ]
 diagrams: [wf-03]
-related: [gs.roles, setup.staff-access, setup.customer-access, setup.user-access, gs.sign-in]
+related:
+  [
+    gs.roles,
+    setup.staff-access,
+    setup.customer-access,
+    setup.user-access,
+    gs.sign-in,
+  ]
 sources:
   - apps/admin-web/src/management/SaasPages.tsx
   - apps/admin-web/src/management/tenantSaas.ts
   - apps/admin-web/src/Join.tsx
   - firebase/firestore.rules
-keywords: [invite, invitation, join, invitation link, verify email, accept invitation, expired invitation, revoke invitation, Copy link]
+keywords:
+  [
+    invite,
+    invitation,
+    join,
+    invitation link,
+    verify email,
+    accept invitation,
+    expired invitation,
+    revoke invitation,
+    Copy link,
+  ]
 ---
 
 **Administration → Invitations** lets an owner or admin invite a person by email address and
@@ -33,6 +56,8 @@ link alone grants nothing.
 > **Note:** Email delivery is not automated yet. FacilityOS creates the link; you copy it and send
 > it yourself (for example by your own email or messaging).
 
+![The Administration → Invitations screen](screens/admin-invitations.png)
+
 ## Before you start
 
 - Decide the role: Admin (owner only), Site manager, Department manager, Supervisor, Technician,
@@ -42,15 +67,15 @@ link alone grants nothing.
 ## Steps
 
 1. Open **Administration → Invitations** and select **Invite someone**.
-2. Enter the **Email** and choose the **Role**. The *Admin* role is offered only to the owner
-   (*Only the owner can invite admins. Owners are provisioned by Sharaco.*).
+2. Enter the **Email** and choose the **Role**. The _Admin_ role is offered only to the owner
+   (_Only the owner can invite admins. Owners are provisioned by Sharaco._).
 3. Set **Expires after (days)** — from 1 to 14 days.
 4. Optionally add a **Note (optional)**.
-5. Select **Create invitation**. A green banner *Invitation for <email>* shows the link. Select
-   **Copy** (*Link copied*) and send it to the person.
+5. Select **Create invitation**. A green banner _Invitation for <email>_ shows the link. Select
+   **Copy** (_Link copied_) and send it to the person.
 6. Later you can **Copy link** again or **Revoke** a pending invitation from the list
-   (*Invitation revoked*). The list shows **Email**, **Role**, **Status** and **Expires**;
-   overdue invitations show *Expired*.
+   (_Invitation revoked_). The list shows **Email**, **Role**, **Status** and **Expires**;
+   overdue invitations show _Expired_.
 
 ![An invitation created with its link](screens/phase8-05-invitation-created.png)
 
@@ -67,10 +92,10 @@ link alone grants nothing.
 
 ## Expected result
 
-- The invitation status becomes *Accepted* and the person appears on
+- The invitation status becomes _Accepted_ and the person appears on
   [User access](article:setup.user-access) with the invited role.
 - Owners and admins can open the admin app straight away. For staff and customers the join page
-  says *An administrator may still need to link you to your employee or client record* — do that
+  says _An administrator may still need to link you to your employee or client record_ — do that
   in [Staff access](article:setup.staff-access) or
   [Customer access](article:setup.customer-access).
 
@@ -78,18 +103,18 @@ link alone grants nothing.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Enter a valid email address.* | The email is not valid. | Correct the address. |
-| *Choose a role.* | No valid role was selected. | Choose a role. |
-| *Invitations expire after 1 to 14 days.* | The expiry is outside 1–14. | Enter a number from 1 to 14. |
-| *Verify your email address first, then accept the invitation.* | The account email is not verified. | Open the verification email, then accept. **Send again** in the *Verify your email first* banner sends it again (*Verification email sent again.*). |
-| *This invitation is for <email>. Sign in with that email.* | The person signed in with another address. | Sign out and sign in with the invited email. |
-| *This invitation does not exist or was addressed to a different email.* | The link is wrong or for someone else. | Ask the admin to check the link. |
-| *This invitation has expired. Ask for a new one.* | The expiry date passed. | The admin creates a new invitation. |
-| *This invitation was already accepted.* / *This invitation was revoked.* | The link can no longer be used. | Ask the admin for a new invitation if needed. |
-| *Use at least 8 characters for the password.* | The new password is too short. | Choose a longer password. |
-| *An account with this email exists. Sign in instead.* | The person already has a FacilityOS login. | Use **Sign in** with that account. |
+| Message                                                                  | Why                                        | What to do                                                                                                                                          |
+| ------------------------------------------------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _Enter a valid email address._                                           | The email is not valid.                    | Correct the address.                                                                                                                                |
+| _Choose a role._                                                         | No valid role was selected.                | Choose a role.                                                                                                                                      |
+| _Invitations expire after 1 to 14 days._                                 | The expiry is outside 1–14.                | Enter a number from 1 to 14.                                                                                                                        |
+| _Verify your email address first, then accept the invitation._           | The account email is not verified.         | Open the verification email, then accept. **Send again** in the _Verify your email first_ banner sends it again (_Verification email sent again._). |
+| _This invitation is for <email>. Sign in with that email._               | The person signed in with another address. | Sign out and sign in with the invited email.                                                                                                        |
+| _This invitation does not exist or was addressed to a different email._  | The link is wrong or for someone else.     | Ask the admin to check the link.                                                                                                                    |
+| _This invitation has expired. Ask for a new one._                        | The expiry date passed.                    | The admin creates a new invitation.                                                                                                                 |
+| _This invitation was already accepted._ / _This invitation was revoked._ | The link can no longer be used.            | Ask the admin for a new invitation if needed.                                                                                                       |
+| _Use at least 8 characters for the password._                            | The new password is too short.             | Choose a longer password.                                                                                                                           |
+| _An account with this email exists. Sign in instead._                    | The person already has a FacilityOS login. | Use **Sign in** with that account.                                                                                                                  |
 
 ## Troubleshooting
 

@@ -15,12 +15,31 @@ prerequisites:
   - You are signed in to the staff app or mobile app
 screenshots: [phase5-04-my-day.png, staff-my-day.png, phase6-01-my-day.png]
 diagrams: [wf-36]
-related: [staff.tasks, staff.checklist, staff.calendar, ts.no-tasks, ts.task-overdue, mobile.tasks]
+related:
+  [
+    staff.tasks,
+    staff.checklist,
+    staff.calendar,
+    ts.no-tasks,
+    ts.task-overdue,
+    mobile.tasks,
+  ]
 sources:
   - apps/staff-web/src/screens/MyDay.tsx
   - apps/staff-web/src/i18n.tsx
   - apps/mobile/src/screens/Main.tsx
-keywords: ["home", "today", "Today's work", "Start next task", "Continue task", "No tasks for today", "overdue", "shift", "leave"]
+keywords:
+  [
+    'home',
+    'today',
+    "Today's work",
+    'Start next task',
+    'Continue task',
+    'No tasks for today',
+    'overdue',
+    'shift',
+    'leave',
+  ]
 ---
 
 **Home** shows your work for today in one place: how many tasks you have, which one to do next,
@@ -34,8 +53,8 @@ and your shift. It is the first screen after you sign in, on the staff web and i
 ## Steps
 
 1. Open **Home**.
-2. Read the **Shift today** line. It shows your shift, *No shift assigned today*, *You are on
-   approved leave today* or *Holiday*.
+2. Read the **Shift today** line. It shows your shift, _No shift assigned today_, _You are on
+   approved leave today_ or _Holiday_.
 3. Look at the tiles under **Today's work**: **Assigned**, **Pending**, **In progress**,
    **Completed**, **Overdue** and **Rework**. Select a tile to open the matching list.
 4. Select **Start next task** to open the next task to do. If you already started a task, the
@@ -48,8 +67,8 @@ and your shift. It is the first screen after you sign in, on the staff web and i
 
 ## Expected result
 
-- When there is nothing to do you see **No tasks for today** — *When your supervisor assigns work,
-  it appears here.*
+- When there is nothing to do you see **No tasks for today** — _When your supervisor assigns work,
+  it appears here._
 - When everything is done you see **All of today’s work is done. Well done!**
 
 ![My Day on the staff web](screens/staff-my-day.png)
@@ -61,11 +80,11 @@ and your shift. It is the first screen after you sign in, on the staff web and i
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No tasks for today* | Nothing is assigned to you today, or tasks were not generated yet. | Check **My tasks → Upcoming**; ask your supervisor. See [No tasks showing](article:ts.no-tasks). |
-| A task is in **Overdue** | Its due time has passed and it is not finished. | Open it and finish it; see [Task overdue](article:ts.task-overdue). |
-| *You are offline…* | No internet connection. | Reconnect. In the mobile app your work is kept on the device. |
+| Message                  | Why                                                                | What to do                                                                                       |
+| ------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| _No tasks for today_     | Nothing is assigned to you today, or tasks were not generated yet. | Check **My tasks → Upcoming**; ask your supervisor. See [No tasks showing](article:ts.no-tasks). |
+| A task is in **Overdue** | Its due time has passed and it is not finished.                    | Open it and finish it; see [Task overdue](article:ts.task-overdue).                              |
+| _You are offline…_       | No internet connection.                                            | Reconnect. In the mobile app your work is kept on the device.                                    |
 
 ## Troubleshooting
 

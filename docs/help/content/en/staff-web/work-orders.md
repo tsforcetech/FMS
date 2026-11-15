@@ -13,20 +13,33 @@ description: Start, pause, update and resolve the repair jobs (work orders) assi
 routes: [/work-orders, /work-orders/:id]
 screenshots: [phase5-12-work-order.png, staff-work-orders.png]
 diagrams: [wf-32]
-related: [staff.report-issue, maintenance.work-orders, staff.supervisor, ts.wrong-site]
+related:
+  [staff.report-issue, maintenance.work-orders, staff.supervisor, ts.wrong-site]
 sources:
   - apps/staff-web/src/screens/WorkOrders.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["work order", "WO", "repair", "My work orders", "Start work", "Put on hold", "Mark resolved", "Add update", "Request assistance", "materials"]
+keywords:
+  [
+    'work order',
+    'WO',
+    'repair',
+    'My work orders',
+    'Start work',
+    'Put on hold',
+    'Mark resolved',
+    'Add update',
+    'Request assistance',
+    'materials',
+  ]
 ---
 
-A **work order** is a repair or maintenance job, for example *Replace AC filter in Room 204*. When
+A **work order** is a repair or maintenance job, for example _Replace AC filter in Room 204_. When
 one is assigned to you it appears under **My work orders**.
 
 ## Steps
 
-1. Open **My work orders** (from **Home** or the menu). If the list is empty you see *No work
-   orders for you*.
+1. Open **My work orders** (from **Home** or the menu). If the list is empty you see _No work
+   orders for you_.
 2. Open a work order to see its site, location, asset, priority and history.
 3. Select **Start work** when you begin.
 4. Use **Add update** to write what you did or found. Use **Request assistance** if you need
@@ -41,7 +54,7 @@ one is assigned to you it appears under **My work orders**.
 
 ## Expected result
 
-The work order shows *Resolved*. A supervisor then checks the fix (**Verify fix**) and closes it.
+The work order shows _Resolved_. A supervisor then checks the fix (**Verify fix**) and closes it.
 Every step is kept in the history.
 
 ![My work orders list](screens/staff-work-orders.png)
@@ -51,10 +64,10 @@ Every step is kept in the history.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No work orders for you* | Nothing is assigned to you. | Ask your supervisor. |
-| *You do not have permission for this. Ask your supervisor.* | The work order is at a site you are not linked to, or it was reassigned. | Ask your supervisor. |
+| Message                                                     | Why                                                                      | What to do           |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------- |
+| _No work orders for you_                                    | Nothing is assigned to you.                                              | Ask your supervisor. |
+| _You do not have permission for this. Ask your supervisor._ | The work order is at a site you are not linked to, or it was reassigned. | Ask your supervisor. |
 
 ## Troubleshooting
 

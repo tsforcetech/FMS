@@ -17,19 +17,50 @@ prerequisites:
   - Technicians set up as active employees
 permissions:
   - Company owner or admin
-screenshots: [phase4-10-schedule-builder.png, phase4-11-schedule-detail.png, phase4-13-calendar-month.png]
+screenshots:
+  [
+    phase4-10-schedule-builder.png,
+    phase4-11-schedule-detail.png,
+    phase4-13-calendar-month.png,
+    admin-pm-plans.png,
+    admin-maintenance-calendar.png,
+  ]
 diagrams: [wf-31]
-related: [scheduling.recurring, scheduling.assignment, scheduling.generation, maintenance.dashboard, maintenance.work-orders, maintenance.asset-history, assets.register, templates.publish]
+related:
+  [
+    scheduling.recurring,
+    scheduling.assignment,
+    scheduling.generation,
+    maintenance.dashboard,
+    maintenance.work-orders,
+    maintenance.asset-history,
+    assets.register,
+    templates.publish,
+  ]
 sources:
   - apps/admin-web/src/management/Schedules.tsx
   - apps/admin-web/src/management/scheduling.ts
   - apps/admin-web/src/management/Calendar.tsx
-keywords: [PM plan, preventive maintenance, servicing, inspection cycle, quarterly service, half-yearly, maintenance calendar, maintenance due]
+keywords:
+  [
+    PM plan,
+    preventive maintenance,
+    servicing,
+    inspection cycle,
+    quarterly service,
+    half-yearly,
+    maintenance calendar,
+    maintenance due,
+  ]
 ---
 
 A **preventive maintenance (PM) plan** is a recurring schedule for maintenance: it uses the same
 builder and scheduler as [recurring tasks](article:scheduling.recurring), but is listed under
-**Maintenance**, recommends an **asset**, and its tasks are marked *Preventive* in asset history.
+**Maintenance**, recommends an **asset**, and its tasks are marked _Preventive_ in asset history.
+
+![The Maintenance → Preventive plans screen](screens/admin-pm-plans.png)
+
+![The Maintenance → Maintenance calendar screen](screens/admin-maintenance-calendar.png)
 
 ## Before you start
 
@@ -39,13 +70,13 @@ builder and scheduler as [recurring tasks](article:scheduling.recurring), but is
 
 ## Steps
 
-1. Open **Maintenance → Preventive plans** and select **New PM plan**. The form is titled *New preventive
-   maintenance plan*.
+1. Open **Maintenance → Preventive plans** and select **New PM plan**. The form is titled _New preventive
+   maintenance plan_.
 2. Enter the name and choose the published **Task template**.
 3. Choose the **Site** and the **Asset (recommended)**, or a location or facility.
-4. Under **Repeats** choose the cycle — for example *Monthly (date)*, *Quarterly* or *Half-yearly* —
+4. Under **Repeats** choose the cycle — for example _Monthly (date)_, _Quarterly_ or _Half-yearly_ —
    and set the start date, time and duration.
-5. Choose the holiday rule and the **Assignment** — usually *Fixed employee(s)* or a *Least workload*
+5. Choose the holiday rule and the **Assignment** — usually _Fixed employee(s)_ or a _Least workload_
    pool of technicians (see [Assignment strategies](article:scheduling.assignment)).
 6. Check the preview of next occurrences and select **Create schedule**.
 
@@ -56,7 +87,7 @@ builder and scheduler as [recurring tasks](article:scheduling.recurring), but is
 ## Expected result
 
 - After the scheduler runs, each occurrence becomes a task for the technician.
-- Admins receive a *Maintenance due* in-app notification for PM tasks due today or tomorrow.
+- Admins receive a _Maintenance due_ in-app notification for PM tasks due today or tomorrow.
 - **Maintenance → Maintenance calendar** shows only preventive maintenance.
 - Completed PM tasks appear in [Asset maintenance history](article:maintenance.asset-history).
 
@@ -66,11 +97,11 @@ builder and scheduler as [recurring tasks](article:scheduling.recurring), but is
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No preventive maintenance plans* | None created yet. | Select **Create one**. |
-| *Choose a published template.* | The checklist has no published version. | Publish it first. |
-| *Choose at least one day of the month.* | A monthly rule without a day. | Pick the day. |
+| Message                                 | Why                                     | What to do             |
+| --------------------------------------- | --------------------------------------- | ---------------------- |
+| _No preventive maintenance plans_       | None created yet.                       | Select **Create one**. |
+| _Choose a published template._          | The checklist has no published version. | Publish it first.      |
+| _Choose at least one day of the month._ | A monthly rule without a day.           | Pick the day.          |
 
 ## Troubleshooting
 

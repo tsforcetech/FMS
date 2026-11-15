@@ -13,15 +13,32 @@ description: How department supervisors and team leaders review and approve work
 routes: ['/', /approvals]
 prerequisites:
   - A login with role Department supervisor or Supervisor / team leader, linked to your employee record
-screenshots: [phase5-07-review.png, phase5-11-rework.png, phase6-02-attendance.png]
+screenshots:
+  [phase5-07-review.png, phase5-11-rework.png, phase6-02-attendance.png]
 diagrams: [wf-27, wf-28, wf-29, wf-30, wf-34, wf-36]
-related: [staff.supervisor, train.approve-inspection, staff.rework, staff.report-issue, ref.raci-matrix, role.site-manager]
+related:
+  [
+    staff.supervisor,
+    train.approve-inspection,
+    staff.rework,
+    staff.report-issue,
+    ref.raci-matrix,
+    role.site-manager,
+  ]
 sources:
   - apps/admin-web/src/management/staffStore.ts
   - apps/staff-web/src/screens/Approvals.tsx
   - apps/staff-web/src/i18n.tsx
   - packages/shared/src/tasks.ts
-keywords: [supervisor, team leader, department supervisor, department manager, approve, rework]
+keywords:
+  [
+    supervisor,
+    team leader,
+    department supervisor,
+    department manager,
+    approve,
+    rework,
+  ]
 ---
 
 Two roles cover supervision:
@@ -51,10 +68,10 @@ Department-scoped rights shown on **Roles & permissions** are planned, not enfor
 1. Start of shift: on mobile **Check in** ([Attendance](article:mobile.attendance)); review **Home**.
 2. Through the day: **More → Approvals** — open each task, read answers and **Failed checks**, then
    **Approve**, **Return for correction** or **Reject** ([Quick start](article:train.approve-inspection)).
-3. When you return work, write a reason the worker can act on; they see *Work returned for
-   correction* and use **Start correction** ([Rework](article:staff.rework)).
+3. When you return work, write a reason the worker can act on; they see _Work returned for
+   correction_ and use **Start correction** ([Rework](article:staff.rework)).
 4. Report faults found on inspection ([Report a problem](article:staff.report-issue)).
-5. End of shift: aim for *Nothing waiting for your review*; **Check out**.
+5. End of shift: aim for _Nothing waiting for your review_; **Check out**.
 
 ![Reviewing answers](screens/phase5-07-review.png)
 
@@ -64,12 +81,12 @@ Department-scoped rights shown on **Roles & permissions** are planned, not enfor
 
 ## Escalation
 
-| Situation | Action |
-| --- | --- |
+| Situation                                       | Action                                                         |
+| ----------------------------------------------- | -------------------------------------------------------------- |
 | Worker cannot complete (no access, no material) | Help; if blocked, report a problem and inform the site manager |
-| Unsafe condition | *Urgent / unsafe* report, make safe, phone the site manager |
-| Task never appears or is unassigned | Ask the admin ([No tasks](article:ts.no-tasks)) |
-| Disagreement on standards | Site manager / facility manager |
+| Unsafe condition                                | _Urgent / unsafe_ report, make safe, phone the site manager    |
+| Task never appears or is unassigned             | Ask the admin ([No tasks](article:ts.no-tasks))                |
+| Disagreement on standards                       | Site manager / facility manager                                |
 
 ## FAQs
 

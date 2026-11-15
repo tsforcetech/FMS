@@ -15,11 +15,19 @@ permissions:
   - Company owner or admin
 screenshots: [admin-stock.png]
 diagrams: [wf-18]
-related: [inventory.movements, inventory.materials, inventory.reversal, reports.inventory, exports.overview]
+related:
+  [
+    inventory.movements,
+    inventory.materials,
+    inventory.reversal,
+    reports.inventory,
+    exports.overview,
+  ]
 sources:
   - apps/admin-web/src/management/Assets.tsx
   - packages/shared/src/inventory.ts
-keywords: [stock balance, on hand, reorder, low stock, empty, in stock, inventory level]
+keywords:
+  [stock balance, on hand, reorder, low stock, empty, in stock, inventory level]
 ---
 
 **Materials & inventory → Stock balance** shows how much of each material is in each store.
@@ -28,7 +36,7 @@ compare each store's balance with the material's reorder level.
 
 ## Before you start
 
-Post opening stock or a receipt first; until then the page shows *No stock recorded yet*.
+Post opening stock or a receipt first; until then the page shows _No stock recorded yet_.
 
 ## Steps
 
@@ -52,14 +60,14 @@ You can see at a glance which materials need reordering in which store.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No stock recorded yet* | No opening stock or receipt has been posted. | *Balances appear after you post opening stock or a receipt in Stock transactions.* |
-| A balance looks wrong | A transaction was posted with the wrong quantity or store. | Check the ledger and [reverse](article:inventory.reversal) the wrong transaction. |
+| Message                 | Why                                                        | What to do                                                                         |
+| ----------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| _No stock recorded yet_ | No opening stock or receipt has been posted.               | _Balances appear after you post opening stock or a receipt in Stock transactions._ |
+| A balance looks wrong   | A transaction was posted with the wrong quantity or store. | Check the ledger and [reverse](article:inventory.reversal) the wrong transaction.  |
 
 ## Troubleshooting
 
-- **No *Reorder* flag although stock is low:** the material has no **Reorder level**. Set it on
+- **No _Reorder_ flag although stock is low:** the material has no **Reorder level**. Set it on
   the material.
 - **Balance per site:** use **By store**; each store belongs to one site.
 - **Trends and consumption:** see [Inventory report](article:reports.inventory).

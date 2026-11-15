@@ -17,7 +17,8 @@ prerequisites:
   - Maintainer access to the repository and operator access to the Firebase project
 permissions:
   - Repository maintainer and Sharaco operator
-related: [ops.backup, ops.usage-reconcile, ops.subscription-sweep, ref.whats-new]
+related:
+  [ops.backup, ops.usage-reconcile, ops.subscription-sweep, ref.whats-new]
 sources:
   - package.json
   - .github/workflows/pages.yml
@@ -25,7 +26,19 @@ sources:
   - .github/workflows/android.yml
   - docs/phase8-report.md
   - docs/backup-recovery.md
-keywords: [release, deploy, rules, indexes, GitHub Pages, Android, merge to main, 256 KB, compiled rules size, regression]
+keywords:
+  [
+    release,
+    deploy,
+    rules,
+    indexes,
+    GitHub Pages,
+    Android,
+    merge to main,
+    256 KB,
+    compiled rules size,
+    regression,
+  ]
 ---
 
 FacilityOS is released from the `main` branch. Firestore rules and indexes are deployed by an
@@ -55,6 +68,7 @@ to `main`; the Android debug app is built by the **Android app** workflow.
 
    and the browser suites (`npm run test:browser`, `test:staff-browser`, `test:mobile-runtime`,
    `test:phase7-browser`, `test:phase8-browser`) plus `npm run test:migration`. All must pass.
+
 3. If rules changed, **measure the compiled rules size**. The limit is 256 KB and the emulator does not
    check it; the Phase 8 ruleset sits at about 251.7 KB. Also keep in mind the 1,000-expression
    evaluation limit on deep transactions.

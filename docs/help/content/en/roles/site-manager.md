@@ -13,15 +13,27 @@ description: What a site / facility manager login can do in the Staff web and mo
 routes: ['/', /approvals, /work-orders]
 prerequisites:
   - A login with role Site / facility manager, linked to your employee record with your sites
-screenshots: [phase5-04-my-day.png, phase5-12-work-order.png, phase6-03-scanner.png]
+screenshots:
+  [phase5-04-my-day.png, phase5-12-work-order.png, phase6-03-scanner.png]
 diagrams: [wf-29, wf-30, wf-32, wf-34, wf-36, wf-37]
-related: [staff.supervisor, staff.my-day, staff.work-orders, staff.report-issue, mobile.qr, role.facility-manager, ts.not-linked, ref.raci-matrix]
+related:
+  [
+    staff.supervisor,
+    staff.my-day,
+    staff.work-orders,
+    staff.report-issue,
+    mobile.qr,
+    role.facility-manager,
+    ts.not-linked,
+    ref.raci-matrix,
+  ]
 sources:
   - apps/admin-web/src/management/staffStore.ts
   - apps/staff-web/src/App.tsx
   - apps/staff-web/src/screens/Approvals.tsx
   - packages/shared/src/inventory.ts
-keywords: [site manager, facility manager, building manager, approvals, site scope]
+keywords:
+  [site manager, facility manager, building manager, approvals, site scope]
 ---
 
 The **Site / facility manager** role (`site_manager`) is for the person responsible for one or more
@@ -30,12 +42,12 @@ admin app.
 
 ## What you can access
 
-| Feature | Where |
-| --- | --- |
-| Your own tasks, checklists, work orders, calendar, history | Staff web / mobile |
-| **Approvals** — approve, return for correction or reject submitted tasks | **More → Approvals** |
-| Report problems and request repairs | **Report** |
-| QR scanning, photos, GPS, attendance, offline work | Mobile app (if your plan includes it) |
+| Feature                                                                  | Where                                 |
+| ------------------------------------------------------------------------ | ------------------------------------- |
+| Your own tasks, checklists, work orders, calendar, history               | Staff web / mobile                    |
+| **Approvals** — approve, return for correction or reject submitted tasks | **More → Approvals**                  |
+| Report problems and request repairs                                      | **Report**                            |
+| QR scanning, photos, GPS, attendance, offline work                       | Mobile app (if your plan includes it) |
 
 Approvals list submitted tasks for the **sites linked to your login** (or all sites if the
 administrator chose **All sites**). Planned site-manager rights in the admin app (managing site

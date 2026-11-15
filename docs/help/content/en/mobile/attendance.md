@@ -18,7 +18,17 @@ sources:
   - apps/mobile/src/screens/Attendance.tsx
   - apps/staff-web/src/i18n.tsx
   - docs/phase6-report.md
-keywords: ["attendance", "Check in", "Check out", "Checked in at", "late", "clock in", "punch", "Needs a connection"]
+keywords:
+  [
+    'attendance',
+    'Check in',
+    'Check out',
+    'Checked in at',
+    'late',
+    'clock in',
+    'punch',
+    'Needs a connection',
+  ]
 ---
 
 Use **Attendance** to check in when you start work and check out when you finish. The official
@@ -26,8 +36,8 @@ time is the **server time**, not the phone clock.
 
 ## Before you start
 
-- You need an internet connection: *Needs a connection: the server clock is the official attendance
-  time.*
+- You need an internet connection: _Needs a connection: the server clock is the official attendance
+  time._
 - Attendance is in the mobile app only; the staff web does not record attendance.
 
 ## Steps
@@ -43,20 +53,20 @@ time is the **server time**, not the phone clock.
 ## Expected result
 
 - The screen shows **Checked in at** and later **Checked out at** with the time.
-- If you check in more than 5 minutes after your shift start, it shows *{n} min late*.
+- If you check in more than 5 minutes after your shift start, it shows _{n} min late_.
 - Your recent days are listed under **History**.
 
-> **Note:** If location is off, you can still check in: *Location permission is off. You can
-> continue; the record will show no location.* GPS is approximate and recorded only when you check
+> **Note:** If location is off, you can still check in: _Location permission is off. You can
+> continue; the record will show no location._ GPS is approximate and recorded only when you check
 > in or out.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Needs a connection: the server clock is the official attendance time.* | You are offline; the buttons are disabled. | Connect and try again. |
-| *Location could not be determined; continuing without it.* | No GPS signal. | The check-in still counts; it has no location. |
-| Wrong time recorded | Mistakes happen. | Ask your supervisor or admin — they can correct it with a reason. |
+| Message                                                                 | Why                                        | What to do                                                        |
+| ----------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------- |
+| _Needs a connection: the server clock is the official attendance time._ | You are offline; the buttons are disabled. | Connect and try again.                                            |
+| _Location could not be determined; continuing without it._              | No GPS signal.                             | The check-in still counts; it has no location.                    |
+| Wrong time recorded                                                     | Mistakes happen.                           | Ask your supervisor or admin — they can correct it with a reason. |
 
 ## Troubleshooting
 

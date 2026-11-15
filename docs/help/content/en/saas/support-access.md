@@ -23,7 +23,17 @@ sources:
   - apps/admin-web/src/management/tenantSaas.ts
   - apps/platform-web/src/store.ts
   - firebase/firestore.rules
-keywords: [support, Sharaco staff, privacy, access request, approve 24h, revoke, data access, Approve support access for 1 to 72 hours]
+keywords:
+  [
+    support,
+    Sharaco staff,
+    privacy,
+    access request,
+    approve 24h,
+    revoke,
+    data access,
+    Approve support access for 1 to 72 hours,
+  ]
 ---
 
 Sharaco staff **cannot see your operational data** — tasks, employees, customers, stock, photos or
@@ -41,10 +51,10 @@ which **Company setup** steps are marked done). It never opens tasks, employees 
 1. Open **Administration → Plan & usage** and scroll to **Sharaco support access**.
 2. Read each request: **Requested** (date and time), **Reason** (written by the support person),
    **Status** and **Expires**.
-3. To allow it, select **Approve 24h**. The status becomes *Approved* and **Expires** shows the time,
-   24 hours from now. A confirmation *Approved for 24 hours* appears.
+3. To allow it, select **Approve 24h**. The status becomes _Approved_ and **Expires** shows the time,
+   24 hours from now. A confirmation _Approved for 24 hours_ appears.
 4. To withdraw access at any time — before or after approving — select **Revoke**. The status becomes
-   *Revoked* and the support person immediately loses access (*Access revoked*).
+   _Revoked_ and the support person immediately loses access (_Access revoked_).
 5. If you did not expect the request, do not approve it; revoke it and contact Sharaco through your
    usual channel to confirm who asked.
 
@@ -66,13 +76,13 @@ which **Company setup** steps are marked done). It never opens tasks, employees 
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No support requests* | Nobody from Sharaco has asked. | Nothing to do. |
+| Message                           | Why                                                         | What to do                                                                              |
+| --------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| _No support requests_             | Nobody from Sharaco has asked.                              | Nothing to do.                                                                          |
 | Permission message when approving | You are not an owner or admin, or the company is read-only. | Ask an owner/admin; if read-only, see [Read-only subscription](article:saas.read-only). |
 
 ## Troubleshooting
 
-- **Support says they still cannot see anything:** check the request shows *Approved* and the
+- **Support says they still cannot see anything:** check the request shows _Approved_ and the
   **Expires** time has not passed. They see only the setup summary by design.
 - **I want a record of support access:** the request list keeps the status, reason and who decided.

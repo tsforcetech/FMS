@@ -17,15 +17,15 @@ docs/help/
 
 Commands:
 
-| Command | What it does |
-| --- | --- |
-| `npm run help:diagrams` | Renders every `diagrams/*.mmd` to `diagrams/svg/*.svg` (Mermaid in headless Chromium) |
-| `npm run help:build` | Validates content and writes the website data (`apps/help-web/src/generated`) for the **public** audience |
-| `npm run help:check` | Validation only — fails on broken links, missing/duplicate ids, missing screenshots/diagrams, unknown routes, uncovered screens |
-| `npm run help:pdf` | Generates the PDF manuals from the same articles (public manuals into the website, restricted manuals into the git-ignored `docs/help/.restricted/`) |
-| `npm run help:screens` | Re-captures screenshots from the apps running on the local emulators with demo data (runs the Phase 1/5/7 browser suites first to create realistic demo records) |
-| `npm run test:help` | Browser test of the built Help Center (search, navigation, contextual help, restricted-content exclusion, PDFs and their contents pages, RTL, fallback, reproducibility, CI link check) |
-| `npm run dev:help` | Builds and serves the Help Center locally on port 5178 |
+| Command                 | What it does                                                                                                                                                                            |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run help:diagrams` | Renders every `diagrams/*.mmd` to `diagrams/svg/*.svg` (Mermaid in headless Chromium)                                                                                                   |
+| `npm run help:build`    | Validates content and writes the website data (`apps/help-web/src/generated`) for the **public** audience                                                                               |
+| `npm run help:check`    | Validation only — fails on broken links, missing/duplicate ids, missing screenshots/diagrams, unknown routes, uncovered screens                                                         |
+| `npm run help:pdf`      | Generates the PDF manuals from the same articles (public manuals into the website, restricted manuals into the git-ignored `docs/help/.restricted/`)                                    |
+| `npm run help:screens`  | Re-captures screenshots from the apps running on the local emulators with demo data (runs the Phase 1/5/7 browser suites first to create realistic demo records)                        |
+| `npm run test:help`     | Browser test of the built Help Center (search, navigation, contextual help, restricted-content exclusion, PDFs and their contents pages, RTL, fallback, reproducibility, CI link check) |
+| `npm run dev:help`      | Builds and serves the Help Center locally on port 5178                                                                                                                                  |
 
 ## Article file
 
@@ -33,40 +33,47 @@ Every article is one Markdown file with YAML front matter. All fields are requir
 
 ```markdown
 ---
-id: scheduling.recurring              # stable, unique, never reused (lower-case, dots, dashes)
+id: scheduling.recurring # stable, unique, never reused (lower-case, dots, dashes)
 title: Create a recurring cleaning task
-module: Recurring Scheduling          # one of the modules in site.yaml
-category: daily-tasks                 # home-page category in site.yaml
-audience: public                      # public | authenticated | internal  (see Classification)
-apps: [admin]                         # admin | staff | mobile | customer | platform
-roles: [owner, admin]                 # who uses it (role ids below)
-version: '0.8'                        # first FacilityOS version this text applies to
-reviewed: '2026-11-15'                # last accuracy review against the running app
-owner: Task Management                # module owner responsible for keeping it current
+module: Recurring Scheduling # one of the modules in site.yaml
+category: daily-tasks # home-page category in site.yaml
+audience: public # public | authenticated | internal  (see Classification)
+apps: [admin] # admin | staff | mobile | customer | platform
+roles: [owner, admin] # who uses it (role ids below)
+version: '0.8' # first FacilityOS version this text applies to
+reviewed: '2026-11-15' # last accuracy review against the running app
+owner: Task Management # module owner responsible for keeping it current
 description: One sentence shown in search results and cards.
-routes: [/recurring-tasks]            # app routes the article documents (checked against the apps)
-helpIds: [setup.schedules]            # contextual help identifiers that open this article (optional)
-prerequisites:                        # optional
+routes: [/recurring-tasks] # app routes the article documents (checked against the apps)
+helpIds: [setup.schedules] # contextual help identifiers that open this article (optional)
+prerequisites: # optional
   - A published task template
-permissions:                          # optional
+permissions: # optional
   - Company owner or admin
-screenshots: [phase4-10-schedule-builder.png]   # files in assets/screens (checked)
-diagrams: [wf-25]                     # optional, ids of diagrams/*.mmd (checked)
-related: [templates.publish, ts.no-eligible-staff]   # optional, article ids (checked)
-sources:                              # files that implement what the article describes (checked)
+screenshots: [phase4-10-schedule-builder.png] # files in assets/screens (checked)
+diagrams: [wf-25] # optional, ids of diagrams/*.mmd (checked)
+related: [templates.publish, ts.no-eligible-staff] # optional, article ids (checked)
+sources: # files that implement what the article describes (checked)
   - apps/admin-web/src/management/Schedules.tsx
-keywords: [repeat, daily, schedule]   # optional, extra search terms incl. error messages
+keywords: [repeat, daily, schedule] # optional, extra search terms incl. error messages
 ---
 
 Short introduction (what and why).
 
 ## Before you start
+
 ## Steps
+
 1. …
+
 ## Expected result
+
 ## Common errors
+
 | Message | Why | What to do |
+
 ## Troubleshooting
+
 ## Related
 ```
 
@@ -81,11 +88,11 @@ Body conventions:
 
 ## Classification
 
-| Audience | Published to | Use for |
-| --- | --- | --- |
-| `public` | Help Center website and public PDF manuals | Everything a company, its staff and its customers need |
-| `authenticated` | **Not** on the public website. Restricted PDF only | Sharaco platform console usage |
-| `internal` | **Not** on the public website. Restricted PDF only | Operator runbooks (scripts, releases, restores) |
+| Audience        | Published to                                       | Use for                                                |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `public`        | Help Center website and public PDF manuals         | Everything a company, its staff and its customers need |
+| `authenticated` | **Not** on the public website. Restricted PDF only | Sharaco platform console usage                         |
+| `internal`      | **Not** on the public website. Restricted PDF only | Operator runbooks (scripts, releases, restores)        |
 
 A public static website cannot protect pages by hiding links, so `authenticated` and `internal`
 articles are **left out of the public build entirely** (data, search index, sitemap and PDFs); the
@@ -97,7 +104,7 @@ describe procedures only.
 
 `owner`, `admin`, `site_manager`, `department_manager`, `supervisor`, `technician`, `staff`, `viewer`,
 `customer` (company roles, as stored on the membership) and `platform` (Sharaco platform staff with a
-platform role claim). Business titles such as *Facility Manager*, *Housekeeping* or *Security* are
+platform role claim). Business titles such as _Facility Manager_, _Housekeeping_ or _Security_ are
 explained in the role guides and mapped onto these roles — they are not separate permissions.
 
 ## Translations
@@ -129,6 +136,6 @@ silently break the links.
 ## Versioning
 
 `site.yaml` `version`/`versionLabel` name the FacilityOS version the documentation describes; the
-check fails if it differs from the newest *What's new* entry. Every page footer and every PDF cover
+check fails if it differs from the newest _What's new_ entry. Every page footer and every PDF cover
 shows the version, the publication date and the build commit, and `build-info.json` records the
 counts. Each article carries `version` (first version it applies to) and `reviewed`.

@@ -17,7 +17,15 @@ sources:
   - apps/mobile/src/platform.ts
   - apps/mobile/src/screens/TaskRun.tsx
   - packages/shared/src/field.ts
-keywords: ["GPS", "location", "Capture location", "accuracy", "tracking", "Location permission is off"]
+keywords:
+  [
+    'GPS',
+    'location',
+    'Capture location',
+    'accuracy',
+    'tracking',
+    'Location permission is off',
+  ]
 ---
 
 Some questions ask for your location, and attendance can record where you checked in.
@@ -30,7 +38,7 @@ Some questions ask for your location, and attendance can record where you checke
 1. In a task, select **Capture location** on the **Evidence** card.
 2. Allow location the first time.
 3. Wait for the reading. It shows the coordinates and **Accuracy ±{m} m** with a level:
-   *good* (25 m or better), *fair* (up to 100 m) or *poor*.
+   _good_ (25 m or better), _fair_ (up to 100 m) or _poor_.
 
 ![GPS evidence in a task (Chromium runtime test with emulated GPS)](screens/phase6-04-evidence.png)
 
@@ -42,11 +50,11 @@ The reading is saved with the task (offline too) and sent when you sync.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Location permission is off. You can continue; the record will show no location.* | Location blocked. | See [Camera or location denied](article:ts.permissions-denied). |
-| *Location could not be determined. Try again in the open.* | No GPS signal (indoors, basement). | Move near a window or outside and try again. |
+| Message                                                                           | Why                                | What to do                                                      |
+| --------------------------------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| _Location permission is off. You can continue; the record will show no location._ | Location blocked.                  | See [Camera or location denied](article:ts.permissions-denied). |
+| _Location could not be determined. Try again in the open._                        | No GPS signal (indoors, basement). | Move near a window or outside and try again.                    |
 
 ## Troubleshooting
 
-- *poor* accuracy: wait a few seconds outdoors and capture again.
+- _poor_ accuracy: wait a few seconds outdoors and capture again.

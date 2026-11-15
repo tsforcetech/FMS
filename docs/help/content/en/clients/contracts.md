@@ -17,12 +17,22 @@ permissions:
   - Company owner or admin
 screenshots: [admin-contracts.png]
 diagrams: [wf-10]
-related: [clients.clients, clients.allocations, ts.allocation-expired, sites.archive]
+related:
+  [clients.clients, clients.allocations, ts.allocation-expired, sites.archive]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
-keywords: [contract, agreement, contract reference, start date, end date, services covered, expired contract]
+keywords:
+  [
+    contract,
+    agreement,
+    contract reference,
+    start date,
+    end date,
+    services covered,
+    expired contract,
+  ]
 ---
 
 A **contract** is a commercial agreement with a client. On its own it does not point at any
@@ -41,8 +51,8 @@ end dates and a summary of the services.
 3. Choose the **Client**.
 4. Enter the **Start date** and **End date** (both required; dates are inclusive).
 5. Optionally describe the **Services covered**.
-6. Choose the **Status**: *Draft* while it is being agreed, *Active* once signed.
-7. Select **Save contract** (*Contract created.*).
+6. Choose the **Status**: _Draft_ while it is being agreed, _Active_ once signed.
+7. Select **Save contract** (_Contract created._).
 
 ![The contracts list](screens/admin-contracts.png)
 
@@ -51,16 +61,16 @@ end dates and a summary of the services.
 ## Expected result
 
 - The contract appears with its client and dates. Its **Allocations** tab lists where it applies.
-- When it ends, set it to *Expired*; archive it when no longer needed.
+- When it ends, set it to _Expired_; archive it when no longer needed.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *End date must follow start date* | The end date is before the start date. | Correct the dates. |
-| *Close linked allocations before changing the contract client or dates.* | The contract already has active allocations. | Terminate or expire those allocations, then change the contract, or create a new contract. |
-| *Choose an active linked record.* | The client is archived. | Choose an active client. |
-| *Archive or reassign active linked records first.* | You tried to archive a contract with active allocations. | Close the allocations first. |
+| Message                                                                  | Why                                                      | What to do                                                                                 |
+| ------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| _End date must follow start date_                                        | The end date is before the start date.                   | Correct the dates.                                                                         |
+| _Close linked allocations before changing the contract client or dates._ | The contract already has active allocations.             | Terminate or expire those allocations, then change the contract, or create a new contract. |
+| _Choose an active linked record._                                        | The client is archived.                                  | Choose an active client.                                                                   |
+| _Archive or reassign active linked records first._                       | You tried to archive a contract with active allocations. | Close the allocations first.                                                               |
 
 ## Troubleshooting
 

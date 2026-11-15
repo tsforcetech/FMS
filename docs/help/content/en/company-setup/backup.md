@@ -17,7 +17,17 @@ screenshots: [admin-backup.png]
 related: [setup.retention, setup.audit, exports.overview, faq.general]
 sources:
   - apps/admin-web/src/management/Operations.tsx
-keywords: [backup, recovery, restore, point-in-time recovery, PITR, export, disaster recovery, Spark plan]
+keywords:
+  [
+    backup,
+    recovery,
+    restore,
+    point-in-time recovery,
+    PITR,
+    export,
+    disaster recovery,
+    Spark plan,
+  ]
 ---
 
 **Administration → Backup & recovery** shows honestly how your data is protected. Read it before
@@ -37,13 +47,13 @@ Nothing to prepare — this page is read-only.
 1. Open **Administration → Backup & recovery**.
 2. Read the table (**Protection**, **Status**, **Notes**):
 
-   | Protection | Status |
-   | --- | --- |
-   | Managed Firestore backups / PITR | *Not configured* — requires the paid Blaze plan; upgrading needs separate approval |
-   | Scheduled Firestore export | *Not configured* — requires Blaze |
-   | Manual JSON export | *Available, operator-run* — a snapshot of one company taken by the operator |
-   | Security rules and indexes | *Versioned in Git* |
-   | Application code | *Versioned in Git* — every release can be rebuilt |
+   | Protection                       | Status                                                                             |
+   | -------------------------------- | ---------------------------------------------------------------------------------- |
+   | Managed Firestore backups / PITR | _Not configured_ — requires the paid Blaze plan; upgrading needs separate approval |
+   | Scheduled Firestore export       | _Not configured_ — requires Blaze                                                  |
+   | Manual JSON export               | _Available, operator-run_ — a snapshot of one company taken by the operator        |
+   | Security rules and indexes       | _Versioned in Git_                                                                 |
+   | Application code                 | _Versioned in Git_ — every release can be rebuilt                                  |
 
 3. Protect your own business records as well: export important lists and reports regularly with
    **Export** (Excel or PDF) and keep the files in your company's document store. See
@@ -60,14 +70,14 @@ for exporting key records.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Not configured* | Managed backups need a paid Firebase plan that is not enabled. | Discuss with Sharaco. Paid infrastructure is enabled only with separate approval. |
+| Message          | Why                                                            | What to do                                                                        |
+| ---------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| _Not configured_ | Managed backups need a paid Firebase plan that is not enabled. | Discuss with Sharaco. Paid infrastructure is enabled only with separate approval. |
 
 ## Troubleshooting
 
 - **I deleted or archived something by mistake:** most records are archived, not deleted, and can
-  be edited back to *Active*. Stock and asset movements are never deleted; correct them with a
+  be edited back to _Active_. Stock and asset movements are never deleted; correct them with a
   reversal or a new transfer.
 - **I need a restore:** contact Sharaco support. Restores are an operator procedure from a manual
   snapshot.

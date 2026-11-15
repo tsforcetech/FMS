@@ -13,14 +13,24 @@ description: See check-ins and check-outs by site local time, lateness, missed c
 routes: [/report-attendance]
 permissions:
   - Company owner or admin
-screenshots: [phase6-02-attendance.png]
+screenshots: [phase6-02-attendance.png, admin-report-attendance.png]
 diagrams: [wf-38]
 related: [mobile.attendance, people.shifts, people.employees, exports.overview]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
-keywords: [attendance report, check-in, check-out, late, missed check-out, corrected, GPS not shown, location evidence]
+keywords:
+  [
+    attendance report,
+    check-in,
+    check-out,
+    late,
+    missed check-out,
+    corrected,
+    GPS not shown,
+    location evidence,
+  ]
 ---
 
 Staff check in and out with the **mobile app** (see [Mobile attendance](article:mobile.attendance)).
@@ -29,6 +39,8 @@ site's local time.
 
 > **Note:** Location coordinates are never shown in reports. The export shows only whether location
 > evidence exists.
+
+![The Reports & analytics → Attendance screen](screens/admin-report-attendance.png)
 
 ## Steps
 
@@ -44,17 +56,17 @@ site's local time.
 
 ## Flags
 
-| Flag | Meaning |
-| --- | --- |
-| Late | Checked in after the shift start. |
-| Missed check-out | Checked in but never checked out. |
-| Corrected | A supervisor corrected the record with a reason. |
+| Flag             | Meaning                                          |
+| ---------------- | ------------------------------------------------ |
+| Late             | Checked in after the shift start.                |
+| Missed check-out | Checked in but never checked out.                |
+| Corrected        | A supervisor corrected the record with a reason. |
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Partial period* | More than 3,000 records. | Narrow the period or site, or export. |
+| Message          | Why                      | What to do                            |
+| ---------------- | ------------------------ | ------------------------------------- |
+| _Partial period_ | More than 3,000 records. | Narrow the period or site, or export. |
 
 ## Troubleshooting
 

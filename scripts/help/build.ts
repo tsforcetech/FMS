@@ -10,15 +10,35 @@
  * The build refuses to run while `validate()` reports problems.
  */
 import { execSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
-import { type Article, type Diagram, helpDir, loadArticles, loadManuals, renderMarkdown, root, slug, sortArticles, validate } from './lib.ts';
+import {
+  type Article,
+  type Diagram,
+  helpDir,
+  loadArticles,
+  loadManuals,
+  renderMarkdown,
+  root,
+  slug,
+  sortArticles,
+  validate,
+} from './lib.ts';
 import { ui, type Lang } from './i18n.ts';
 
 const { problems, site, articles: all, diagrams } = validate();
 if (problems.length) {
   for (const p of problems) console.error(`✗ ${p.file}: ${p.message}`);
-  console.error(`\n${problems.length} problem(s). Fix them before building (npm run help:check).`);
+  console.error(
+    `\n${problems.length} problem(s). Fix them before building (npm run help:check).`,
+  );
   process.exit(1);
 }
 const out = path.join(root, 'apps/help-web/dist');
@@ -32,24 +52,44 @@ const pub = sortArticles(
 const pubIds = new Set(pub.map((a) => a.meta.id));
 const commit = (() => {
   try {
-    return process.env.GITHUB_SHA?.slice(0, 7) || execSync('git rev-parse --short HEAD', { cwd: root }).toString().trim();
+    return (
+      process.env.GITHUB_SHA?.slice(0, 7) ||
+      execSync('git rev-parse --short HEAD', { cwd: root }).toString().trim()
+    );
   } catch {
     return 'local';
   }
 })();
 const built = new Date().toISOString().slice(0, 10);
 const translations = Object.fromEntries(
-  site.languages.filter((l) => l.id !== 'en').map((l) => [l.id, new Map(loadArticles(l.id).map((t) => [t.meta.id, t]))]),
+  site.languages
+    .filter((l) => l.id !== 'en')
+    .map((l) => [l.id, new Map(loadArticles(l.id).map((t) => [t.meta.id, t]))]),
 ) as Record<string, Map<string, Article>>;
 const manuals = loadManuals().filter((m) => m.audience === 'public');
-const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const esc = (s: string) =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 const moduleSlug = (m: string) => slug(m.replace(/&/g, 'and'));
 const write = (rel: string, html: string) => {
   const f = path.join(out, rel);
   mkdirSync(path.dirname(f), { recursive: true });
   writeFileSync(f, html);
 };
-const roleIds = ['owner', 'admin', 'site_manager', 'department_manager', 'supervisor', 'technician', 'staff', 'viewer', 'customer'] as const;
+const roleIds = [
+  'owner',
+  'admin',
+  'site_manager',
+  'department_manager',
+  'supervisor',
+  'technician',
+  'staff',
+  'viewer',
+  'customer',
+] as const;
 
 /* ------------------------------------------------------------------ assets */
 mkdirSync(path.join(out, 'assets/screens'), { recursive: true });
@@ -57,23 +97,48 @@ mkdirSync(path.join(out, 'assets/diagrams'), { recursive: true });
 const usedShots = new Set<string>();
 for (const a of pub) {
   for (const s of a.meta.screenshots) usedShots.add(s);
-  for (const m of a.body.matchAll(/\]\(screens\/([^)\s]+)\)/g)) usedShots.add(m[1]);
+  for (const m of a.body.matchAll(/\]\(screens\/([^)\s]+)\)/g))
+    usedShots.add(m[1]);
 }
-for (const s of usedShots) copyFileSync(path.join(helpDir, 'assets/screens', s), path.join(out, 'assets/screens', s));
+for (const s of usedShots)
+  copyFileSync(
+    path.join(helpDir, 'assets/screens', s),
+    path.join(out, 'assets/screens', s),
+  );
 for (const d of diagrams) {
-  copyFileSync(path.join(helpDir, 'diagrams/svg', d.id + '.svg'), path.join(out, 'assets/diagrams', d.id + '.svg'));
-  copyFileSync(path.join(helpDir, 'diagrams', d.id + '.mmd'), path.join(out, 'assets/diagrams', d.id + '.mmd'));
+  copyFileSync(
+    path.join(helpDir, 'diagrams/svg', d.id + '.svg'),
+    path.join(out, 'assets/diagrams', d.id + '.svg'),
+  );
+  copyFileSync(
+    path.join(helpDir, 'diagrams', d.id + '.mmd'),
+    path.join(out, 'assets/diagrams', d.id + '.mmd'),
+  );
 }
-for (const f of ['help.css', 'help.js', 'favicon.svg']) copyFileSync(path.join(root, 'apps/help-web/static', f), path.join(out, 'assets', f));
+for (const f of ['help.css', 'help.js', 'favicon.svg'])
+  copyFileSync(
+    path.join(root, 'apps/help-web/static', f),
+    path.join(out, 'assets', f),
+  );
 
 /* ------------------------------------------------------------------ layout */
-type PageOpts = { lang: Lang; rel: string; title: string; body: string; description?: string; sideModule?: string; articleLang?: string; noindex?: boolean };
+type PageOpts = {
+  lang: Lang;
+  rel: string;
+  title: string;
+  body: string;
+  description?: string;
+  sideModule?: string;
+  articleLang?: string;
+  noindex?: boolean;
+};
 const langPrefix = (l: Lang) => (l === 'en' ? '' : l + '/');
 /** Relative path from page `rel` to the site root. */
 const up = (rel: string) => '../'.repeat(rel.split('/').length - 1);
 const href = (from: string, to: string) => up(from) + to;
 const articlePath = (l: Lang, id: string) => `${langPrefix(l)}a/${id}.html`;
-const visibleDiagramArticles = (d: Diagram) => d.articles.filter((id) => pubIds.has(id));
+const visibleDiagramArticles = (d: Diagram) =>
+  d.articles.filter((id) => pubIds.has(id));
 
 function layout(o: PageOpts) {
   const t = ui(o.lang);
@@ -82,10 +147,16 @@ function layout(o: PageOpts) {
   const lp = langPrefix(o.lang);
   const modules = site.modules
     .filter((m) => pub.some((a) => a.meta.module === m))
-    .map((m) => `<li><a href="${h(`${lp}m/${moduleSlug(m)}.html`)}"${m === o.sideModule ? ' aria-current="page"' : ''}>${esc(t.module(m))}</a></li>`)
+    .map(
+      (m) =>
+        `<li><a href="${h(`${lp}m/${moduleSlug(m)}.html`)}"${m === o.sideModule ? ' aria-current="page"' : ''}>${esc(t.module(m))}</a></li>`,
+    )
     .join('');
   const langs = site.languages
-    .map((l) => `<option value="${l.id}"${l.id === o.lang ? ' selected' : ''}>${esc(l.label)}</option>`)
+    .map(
+      (l) =>
+        `<option value="${l.id}"${l.id === o.lang ? ' selected' : ''}>${esc(l.label)}</option>`,
+    )
     .join('');
   return `<!doctype html>
 <html lang="${o.lang}" dir="${dir}">
@@ -140,11 +211,41 @@ ${o.body}
 }
 
 /* ------------------------------------------------------------------ pieces */
+// Category icons (inline SVG, Lucide-style outlines, MIT licence).
+const svg = (d: string) =>
+  `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const icons: Record<string, string> = {
+  rocket: svg(
+    '<path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z"/>',
+  ),
+  settings: svg(
+    '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  ),
+  clipboard: svg(
+    '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  ),
+  wrench: svg(
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/>',
+  ),
+  chart: svg(
+    '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  ),
+  users: svg(
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/>',
+  ),
+  card: svg(
+    '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+  ),
+  lifebuoy: svg(
+    '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3"/><path d="m14.8 14.8 4.3 4.3"/><path d="m14.8 9.2 4.3-4.3"/><path d="m4.9 19.1 4.3-4.3"/>',
+  ),
+};
 const card = (l: Lang, from: string, a: Article) => {
   const tr = translations[l]?.get(a.meta.id);
   return `<li class="card"><a href="${href(from, articlePath(l, a.meta.id))}"><strong>${esc(tr?.meta.title || a.meta.title)}</strong><span>${esc(tr?.meta.description || a.meta.description)}</span></a></li>`;
 };
-const cards = (l: Lang, from: string, list: Article[]) => `<ul class="cards">${list.map((a) => card(l, from, a)).join('')}</ul>`;
+const cards = (l: Lang, from: string, list: Article[]) =>
+  `<ul class="cards">${list.map((a) => card(l, from, a)).join('')}</ul>`;
 const wfCard = (l: Lang, from: string, d: Diagram) =>
   `<li class="card wf"><a href="${href(from, `${langPrefix(l)}wf/${d.id}.html`)}"><img src="${href(from, `assets/diagrams/${d.id}.svg`)}" alt="" loading="lazy" /><strong>${esc(d.id.toUpperCase())} · ${esc(d.title)}</strong></a></li>`;
 const roleLabel = (l: Lang, r: string) => ui(l).role(r);
@@ -171,9 +272,16 @@ function articleHtml(l: Lang, a: Article, from: string) {
           ? `<p class="notice" role="note">${esc(t.draftNotice)}</p>`
           : '';
   const m = a.meta;
-  const list = (h: string, items?: string[]) => (items?.length ? `<section class="box"><h2>${esc(h)}</h2><ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>` : '');
-  const related = (m.related || []).filter((id) => pubIds.has(id)).map((id) => pub.find((x) => x.meta.id === id)!);
-  const wfs = [...new Set([...(m.diagrams || [])])].map((id) => diagrams.find((d) => d.id === id)!);
+  const list = (h: string, items?: string[]) =>
+    items?.length
+      ? `<section class="box"><h2>${esc(h)}</h2><ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></section>`
+      : '';
+  const related = (m.related || [])
+    .filter((id) => pubIds.has(id))
+    .map((id) => pub.find((x) => x.meta.id === id)!);
+  const wfs = [...new Set([...(m.diagrams || [])])].map((id) =>
+    diagrams.find((d) => d.id === id)!,
+  );
   const siblings = pub.filter((x) => x.meta.module === m.module);
   const toc = r.headings.filter((x) => x.level === 2);
   return {
@@ -210,7 +318,12 @@ for (const lang of site.languages) {
   const t = ui(l);
   const lp = langPrefix(l);
   const idx: unknown[] = [];
-  const add = (rel: string, html: string, title: string, o: Partial<PageOpts> = {}) => {
+  const add = (
+    rel: string,
+    html: string,
+    title: string,
+    o: Partial<PageOpts> = {},
+  ) => {
     write(rel, layout({ lang: l, rel, title, body: html, ...o }));
     if (!o.noindex) sitemap.push(site.baseUrl + rel);
   };
@@ -219,14 +332,21 @@ for (const lang of site.languages) {
   for (const a of pub) {
     const rel = articlePath(l, a.meta.id);
     const r = articleHtml(l, a, rel);
-    add(rel, r.html, r.title, { description: a.meta.description, sideModule: a.meta.module });
+    add(rel, r.html, r.title, {
+      description: a.meta.description,
+      sideModule: a.meta.module,
+    });
     const tr = translations[l]?.get(a.meta.id);
     idx.push({
       u: rel.slice(lp.length),
       t: r.title,
       d: tr?.meta.description || a.meta.description,
       m: a.meta.module,
-      k: [...(a.meta.keywords || []), ...(a.meta.helpIds || []), a.meta.id].join(' '),
+      k: [
+        ...(a.meta.keywords || []),
+        ...(a.meta.helpIds || []),
+        a.meta.id,
+      ].join(' '),
       h: r.headings.map((x) => x.text).join(' · '),
       b: r.text.slice(0, 2500),
       r: a.meta.roles,
@@ -238,7 +358,11 @@ for (const lang of site.languages) {
     const list = pub.filter((a) => a.meta.module === mod);
     if (!list.length) continue;
     const rel = `${lp}m/${moduleSlug(mod)}.html`;
-    const wfs = diagrams.filter((d) => visibleDiagramArticles(d).some((id) => list.some((a) => a.meta.id === id)));
+    const wfs = diagrams.filter((d) =>
+      visibleDiagramArticles(d).some((id) =>
+        list.some((a) => a.meta.id === id),
+      ),
+    );
     add(
       rel,
       `<nav class="crumbs"><a href="${href(rel, lp + 'index.html')}">${esc(t.home)}</a></nav><h1>${esc(t.module(mod))}</h1><p class="lede">${esc(t.articlesCount(list.length))}</p>${cards(l, rel, list)}${wfs.length ? `<h2>${esc(t.workflows)}</h2><ul class="cards wf-cards">${wfs.map((d) => wfCard(l, rel, d)).join('')}</ul>` : ''}`,
@@ -255,7 +379,11 @@ for (const lang of site.languages) {
       .filter(([, x]) => x.length)
       .map(([m, x]) => `<h2>${esc(t.module(m))}</h2>${cards(l, rel, x)}`)
       .join('');
-    add(rel, `<nav class="crumbs"><a href="${href(rel, lp + 'index.html')}">${esc(t.home)}</a></nav><h1>${esc(t.category(c.id, c.label))}</h1>${groups || `<p>${esc(t.noArticles)}</p>`}`, t.category(c.id, c.label));
+    add(
+      rel,
+      `<nav class="crumbs"><a href="${href(rel, lp + 'index.html')}">${esc(t.home)}</a></nav><h1>${esc(t.category(c.id, c.label))}</h1>${groups || `<p>${esc(t.noArticles)}</p>`}`,
+      t.category(c.id, c.label),
+    );
   }
   // Roles
   {
@@ -267,7 +395,11 @@ for (const lang of site.languages) {
         return `<li class="card"><a href="${href(rel, `${lp}r/${r}.html`)}"><strong>${esc(roleLabel(l, r))}</strong><span>${esc(t.articlesCount(n))}</span></a></li>`;
       })
       .join('');
-    add(rel, `<h1>${esc(t.roles)}</h1><p class="lede">${esc(t.rolesIntro)}</p><h2>${esc(t.roleGuides)}</h2>${cards(l, rel, guides)}<h2>${esc(t.byRole)}</h2><ul class="cards">${per}</ul>`, t.roles);
+    add(
+      rel,
+      `<h1>${esc(t.roles)}</h1><p class="lede">${esc(t.rolesIntro)}</p><h2>${esc(t.roleGuides)}</h2>${cards(l, rel, guides)}<h2>${esc(t.byRole)}</h2><ul class="cards">${per}</ul>`,
+      t.roles,
+    );
     for (const r of roleIds) {
       const relR = `${lp}r/${r}.html`;
       const list = pub.filter((a) => a.meta.roles.includes(r));
@@ -276,16 +408,26 @@ for (const lang of site.languages) {
         .filter(([, x]) => x.length)
         .map(([m, x]) => `<h2>${esc(t.module(m))}</h2>${cards(l, relR, x)}`)
         .join('');
-      add(relR, `<nav class="crumbs"><a href="${href(relR, lp + 'roles.html')}">${esc(t.roles)}</a></nav><h1>${esc(roleLabel(l, r))}</h1>${groups}`, roleLabel(l, r));
+      add(
+        relR,
+        `<nav class="crumbs"><a href="${href(relR, lp + 'roles.html')}">${esc(t.roles)}</a></nav><h1>${esc(roleLabel(l, r))}</h1>${groups}`,
+        roleLabel(l, r),
+      );
     }
   }
   // Workflows
   {
     const rel = `${lp}workflows.html`;
-    add(rel, `<h1>${esc(t.workflows)}</h1><p class="lede">${esc(t.workflowsIntro)}</p><ul class="cards wf-cards">${diagrams.map((d) => wfCard(l, rel, d)).join('')}</ul>`, t.workflows);
+    add(
+      rel,
+      `<h1>${esc(t.workflows)}</h1><p class="lede">${esc(t.workflowsIntro)}</p><ul class="cards wf-cards">${diagrams.map((d) => wfCard(l, rel, d)).join('')}</ul>`,
+      t.workflows,
+    );
     for (const d of diagrams) {
       const relW = `${lp}wf/${d.id}.html`;
-      const arts = visibleDiagramArticles(d).map((id) => pub.find((a) => a.meta.id === id)!);
+      const arts = visibleDiagramArticles(d).map((id) =>
+        pub.find((a) => a.meta.id === id)!,
+      );
       add(
         relW,
         `<nav class="crumbs"><a href="${href(relW, lp + 'workflows.html')}">${esc(t.workflows)}</a></nav>
@@ -296,42 +438,88 @@ for (const lang of site.languages) {
 ${arts.length ? `<h2>${esc(t.relatedArticles)}</h2>${cards(l, relW, arts)}` : ''}`,
         d.title,
       );
-      idx.push({ u: `wf/${d.id}.html`, t: `${d.id.toUpperCase()} · ${d.title}`, d: t.workflowDiagram, m: t.workflows, k: d.id, h: '', b: '', r: [], a: [] });
+      idx.push({
+        u: `wf/${d.id}.html`,
+        t: `${d.id.toUpperCase()} · ${d.title}`,
+        d: t.workflowDiagram,
+        m: t.workflows,
+        k: d.id,
+        h: '',
+        b: '',
+        r: [],
+        a: [],
+      });
     }
   }
   // Manuals
   {
     const rel = `${lp}manuals.html`;
     const items = manuals
-      .map((m) => `<li class="card"><a href="${href(rel, `assets/pdf/${m.file}`)}" download><strong>${esc(m.title)}</strong><span>${esc(m.subtitle)}</span><span class="pdf-meta" data-pdf="${esc(m.file)}">PDF</span></a></li>`)
+      .map(
+        (m) =>
+          `<li class="card"><a href="${href(rel, `assets/pdf/${m.file}`)}" download><strong>${esc(m.title)}</strong><span>${esc(m.subtitle)}</span><span class="pdf-meta" data-pdf="${esc(m.file)}">PDF</span></a></li>`,
+      )
       .join('');
-    add(rel, `<h1>${esc(t.manuals)}</h1><p class="lede">${esc(t.manualsIntro)}</p><ul class="cards">${items}</ul><p class="muted">${esc(t.manualsNote)}</p>`, t.manuals);
+    add(
+      rel,
+      `<h1>${esc(t.manuals)}</h1><p class="lede">${esc(t.manualsIntro)}</p><ul class="cards">${items}</ul><p class="muted">${esc(t.manualsNote)}</p>`,
+      t.manuals,
+    );
   }
   // Search page
-  add(`${lp}search.html`, `<h1>${esc(t.search)}</h1><form class="big-search" role="search"><input type="search" name="q" data-search-input placeholder="${esc(t.searchPlaceholder)}" aria-label="${esc(t.search)}" autofocus /></form><p class="muted" data-search-status data-word="${esc(t.results)}" data-none="${esc(t.noResults)}" aria-live="polite"></p><ol class="results" data-search-results></ol>`, t.search, { noindex: true });
+  add(
+    `${lp}search.html`,
+    `<h1>${esc(t.search)}</h1><form class="big-search" role="search"><input type="search" name="q" data-search-input placeholder="${esc(t.searchPlaceholder)}" aria-label="${esc(t.search)}" autofocus /></form><p class="muted" data-search-status data-word="${esc(t.results)}" data-none="${esc(t.noResults)}" aria-live="polite"></p><ol class="results" data-search-results></ol>`,
+    t.search,
+    { noindex: true },
+  );
   // Home
   {
     const rel = `${lp}index.html`;
     const byId = (id: string) => pub.find((a) => a.meta.id === id)!;
     const cats = site.categories
-      .map((c) => `<li class="card cat"><a href="${href(rel, `${lp}c/${c.id}.html`)}"><span class="icon icon-${c.icon}" aria-hidden="true"></span><strong>${esc(t.category(c.id, c.label))}</strong><span>${esc(t.articlesCount(pub.filter((a) => a.meta.category === c.id).length))}</span></a></li>`)
+      .map(
+        (c) =>
+          `<li class="card cat"><a href="${href(rel, `${lp}c/${c.id}.html`)}"><span class="icon" aria-hidden="true">${icons[c.icon] || icons.rocket}</span><strong>${esc(t.category(c.id, c.label))}</strong><span>${esc(t.articlesCount(pub.filter((a) => a.meta.category === c.id).length))}</span></a></li>`,
+      )
       .join('');
     const news = site.whatsNew
-      .map((w) => `<li><strong>${esc(site.product)} ${esc(w.version)}</strong> <span class="muted">${esc(w.date)}</span><br />${esc(w.text)} ${w.articles.map((id) => `<a href="${href(rel, articlePath(l, id))}">${esc(byId(id).meta.title)}</a>`).join(' · ')}</li>`)
+      .map(
+        (w) =>
+          `<li><strong>${esc(site.product)} ${esc(w.version)}</strong> <span class="muted">${esc(w.date)}</span><br />${esc(w.text)} ${w.articles.map((id) => `<a href="${href(rel, articlePath(l, id))}">${esc(byId(id).meta.title)}</a>`).join(' · ')}</li>`,
+      )
       .join('');
     add(
       rel,
       `<section class="hero"><h1>${esc(t.heroTitle)}</h1><p>${esc(t.tagline)}</p><form class="big-search" action="${href(rel, lp + 'search.html')}" role="search"><input type="search" name="q" placeholder="${esc(t.searchPlaceholder)}" aria-label="${esc(t.search)}" /><button class="btn btn-primary" type="submit">${esc(t.search)}</button></form><p class="muted">${esc(site.versionLabel)}</p></section>
 <h2>${esc(t.categories)}</h2><ul class="cards cats">${cats}</ul>
 <div class="two"><section><h2>${esc(t.popular)}</h2>${cards(l, rel, site.home.popular.map(byId))}</section><section><h2>${esc(t.gettingStarted)}</h2>${cards(l, rel, site.home.gettingStarted.map(byId))}</section></div>
-<h2>${esc(t.keyWorkflows)}</h2><ul class="cards wf-cards">${site.home.workflows.map((id) => wfCard(l, rel, diagrams.find((d) => d.id === id)!)).join('')}</ul>
+<h2>${esc(t.keyWorkflows)}</h2><ul class="cards wf-cards">${site.home.workflows
+        .map((id) =>
+          wfCard(
+            l,
+            rel,
+            diagrams.find((d) => d.id === id)!,
+          ),
+        )
+        .join('')}</ul>
 <div class="two"><section><h2>${esc(t.whatsNew)}</h2><ul class="news">${news}</ul></section><section><h2>${esc(t.manuals)}</h2><ul class="plain">${manuals.map((m) => `<li><a href="${href(rel, `assets/pdf/${m.file}`)}" download>${esc(m.title)}</a></li>`).join('')}</ul><p><a href="${href(rel, lp + 'manuals.html')}">${esc(t.allManuals)} →</a></p></section></div>`,
       t.helpCenter,
     );
   }
   // Contextual help resolver
-  add(`${lp}go.html`, `<h1>${esc(t.opening)}</h1><p data-go-status data-restricted="${esc(t.restricted)}">${esc(t.openingText)}</p><noscript><p><a href="${href(`${lp}go.html`, lp + 'index.html')}">${esc(t.home)}</a></p></noscript>`, t.opening, { noindex: true });
-  add(`${lp}404.html`, `<h1>${esc(t.notFound)}</h1><p>${esc(t.notFoundText)}</p><p><a class="btn" href="${href(`${lp}404.html`, lp + 'search.html')}">${esc(t.search)}</a></p>`, t.notFound, { noindex: true });
+  add(
+    `${lp}go.html`,
+    `<h1>${esc(t.opening)}</h1><p data-go-status data-restricted="${esc(t.restricted)}">${esc(t.openingText)}</p><noscript><p><a href="${href(`${lp}go.html`, lp + 'index.html')}">${esc(t.home)}</a></p></noscript>`,
+    t.opening,
+    { noindex: true },
+  );
+  add(
+    `${lp}404.html`,
+    `<h1>${esc(t.notFound)}</h1><p>${esc(t.notFoundText)}</p><p><a class="btn" href="${href(`${lp}404.html`, lp + 'search.html')}">${esc(t.search)}</a></p>`,
+    t.notFound,
+    { noindex: true },
+  );
   searchIndex[l] = idx;
 }
 // 404 at root must work from any depth: GitHub Pages serves /FMS/404.html only for the whole site,
@@ -341,17 +529,28 @@ ${arts.length ? `<h2>${esc(t.relatedArticles)}</h2>${cards(l, relW, arts)}` : ''
 const helpMap = {
   version: site.version,
   screens: site.screens,
-  helpIds: Object.fromEntries(pub.flatMap((a) => [[a.meta.id, a.meta.id], ...(a.meta.helpIds || []).map((h) => [h, a.meta.id])])),
+  helpIds: Object.fromEntries(
+    pub.flatMap((a) => [
+      [a.meta.id, a.meta.id],
+      ...(a.meta.helpIds || []).map((h) => [h, a.meta.id]),
+    ]),
+  ),
   public: [...pubIds],
-  restricted: all.filter((a) => a.meta.audience !== 'public').map((a) => a.meta.id),
+  restricted: all
+    .filter((a) => a.meta.audience !== 'public')
+    .map((a) => a.meta.id),
 };
 write('assets/help-map.json', JSON.stringify(helpMap));
-for (const [l, idx] of Object.entries(searchIndex)) write(`assets/search-${l}.json`, JSON.stringify(idx));
+for (const [l, idx] of Object.entries(searchIndex))
+  write(`assets/search-${l}.json`, JSON.stringify(idx));
 write(
   'sitemap.xml',
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemap.map((u) => `  <url><loc>${esc(u)}</loc><lastmod>${site.published}</lastmod></url>`).join('\n')}\n</urlset>\n`,
 );
-write('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${site.baseUrl}sitemap.xml\n`);
+write(
+  'robots.txt',
+  `User-agent: *\nAllow: /\nSitemap: ${site.baseUrl}sitemap.xml\n`,
+);
 const info = {
   product: site.product,
   version: site.version,
@@ -362,7 +561,16 @@ const info = {
   articles: { public: pub.length, restrictedExcluded: all.length - pub.length },
   diagrams: diagrams.length,
   screenshots: usedShots.size,
-  languages: Object.fromEntries(site.languages.map((x) => [x.id, x.id === 'en' ? pub.length : [...(translations[x.id]?.values() || [])].filter((t) => pubIds.has(t.meta.id)).length])),
+  languages: Object.fromEntries(
+    site.languages.map((x) => [
+      x.id,
+      x.id === 'en'
+        ? pub.length
+        : [...(translations[x.id]?.values() || [])].filter((t) =>
+            pubIds.has(t.meta.id),
+          ).length,
+    ]),
+  ),
 };
 write('build-info.json', JSON.stringify(info, null, 2));
 // Generated PDFs (help:pdf) are copied in when present.
@@ -370,16 +578,29 @@ const pdfDir = path.join(root, 'apps/help-web/pdf');
 if (existsSync(pdfDir)) {
   mkdirSync(path.join(out, 'assets/pdf'), { recursive: true });
   for (const f of readdirSync(pdfDir)) {
-    const target = f.startsWith('wf-') ? path.join(out, 'assets/diagrams', f) : path.join(out, 'assets/pdf', f);
+    const target = f.startsWith('wf-')
+      ? path.join(out, 'assets/diagrams', f)
+      : path.join(out, 'assets/pdf', f);
     copyFileSync(path.join(pdfDir, f), target);
   }
 }
 // Guard: nothing restricted may have leaked into the output.
-const leaked = all.filter((a) => a.meta.audience !== 'public').filter((a) => existsSync(path.join(out, 'a', a.meta.id + '.html')));
-const indexText = Object.values(searchIndex).map((x) => JSON.stringify(x)).join('');
-const leakedIds = all.filter((a) => a.meta.audience !== 'public').filter((a) => indexText.includes(`"a/${a.meta.id}.html"`));
+const leaked = all
+  .filter((a) => a.meta.audience !== 'public')
+  .filter((a) => existsSync(path.join(out, 'a', a.meta.id + '.html')));
+const indexText = Object.values(searchIndex)
+  .map((x) => JSON.stringify(x))
+  .join('');
+const leakedIds = all
+  .filter((a) => a.meta.audience !== 'public')
+  .filter((a) => indexText.includes(`"a/${a.meta.id}.html"`));
 if (leaked.length || leakedIds.length) {
-  console.error('Restricted article leaked into the public build:', [...leaked, ...leakedIds].map((a) => a.meta.id));
+  console.error(
+    'Restricted article leaked into the public build:',
+    [...leaked, ...leakedIds].map((a) => a.meta.id),
+  );
   process.exit(1);
 }
-console.log(`Help Center built: ${pub.length} public articles (${all.length - pub.length} restricted excluded), ${diagrams.length} diagrams, ${usedShots.size} screenshots, ${site.languages.length} languages → ${path.relative(root, out)}`);
+console.log(
+  `Help Center built: ${pub.length} public articles (${all.length - pub.length} restricted excluded), ${diagrams.length} diagrams, ${usedShots.size} screenshots, ${site.languages.length} languages → ${path.relative(root, out)}`,
+);

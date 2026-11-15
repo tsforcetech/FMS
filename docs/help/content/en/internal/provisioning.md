@@ -19,13 +19,31 @@ prerequisites:
 permissions:
   - Sharaco operator with project credentials
 diagrams: [wf-01, wf-03, wf-04]
-related: [platform.companies, setup.invitations, setup.staff-access, setup.customer-access, ts.not-linked]
+related:
+  [
+    platform.companies,
+    setup.invitations,
+    setup.staff-access,
+    setup.customer-access,
+    ts.not-linked,
+  ]
 sources:
   - scripts/provision-owner.mjs
   - scripts/provision-staff.mjs
   - apps/admin-web/src/management/tenantSaas.ts
   - apps/platform-web/src/store.ts
-keywords: [provision, owner, staff login, customer login, password setup link, provision-owner, provision-staff, Refusing to overwrite, Owner/admin roles are not provisioned here]
+keywords:
+  [
+    provision,
+    owner,
+    staff login,
+    customer login,
+    password setup link,
+    provision-owner,
+    provision-staff,
+    Refusing to overwrite,
+    Owner/admin roles are not provisioned here,
+  ]
 ---
 
 The normal path needs no operator: a Platform owner uses **Register company** in the console, which
@@ -42,17 +60,17 @@ operator with Application Default Credentials. They refuse emulator/demo project
 
 ## Prefer invitations
 
-| Need | Use |
-| --- | --- |
-| New company + owner | Console **Register company** (14-day owner invitation) |
-| Admin, manager, supervisor, technician, staff, viewer, customer | Company admin: **Administration → Invitations** (owners only invite admins) |
-| Company created outside the console, owner already has an account | `provision-owner.mjs` |
-| Staff/customer login where invitations cannot be used | `provision-staff.mjs` |
+| Need                                                              | Use                                                                         |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| New company + owner                                               | Console **Register company** (14-day owner invitation)                      |
+| Admin, manager, supervisor, technician, staff, viewer, customer   | Company admin: **Administration → Invitations** (owners only invite admins) |
+| Company created outside the console, owner already has an account | `provision-owner.mjs`                                                       |
+| Staff/customer login where invitations cannot be used             | `provision-staff.mjs`                                                       |
 
 ## Provision a company with an existing owner account
 
 The owner must already have an enabled email/password Firebase account. The script creates the
-company, the owner membership, the directory entry and an audit entry (*company.owner.provisioned*),
+company, the owner membership, the directory entry and an audit entry (_company.owner.provisioned_),
 and **refuses to overwrite** any existing company or membership.
 
 ```bash
@@ -65,7 +83,7 @@ Afterwards: the company has no plan and no usage counters. Run the
 ## Provision a staff or customer login
 
 Creates (or reuses) a Firebase account **without choosing a password**, sets the membership role,
-writes *company.staff.provisioned* to the company audit history and prints a **one-time
+writes _company.staff.provisioned_ to the company audit history and prints a **one-time
 password-setup link**.
 
 ```bash
@@ -77,7 +95,7 @@ Then:
 1. Send the password-setup link to the person privately.
 2. Ask a company owner/admin to link the login: staff → **Administration → Staff access** (to an
    employee); customer → **Administration → Customer access** (to a client). Until then the person
-   sees *Your login is not linked to an employee yet* (see [Not linked](article:ts.not-linked)).
+   sees _Your login is not linked to an employee yet_ (see [Not linked](article:ts.not-linked)).
 
 {{diagram wf-03}}
 
@@ -85,11 +103,11 @@ Then:
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Existing company or membership found. Refusing to overwrite.* | Company ID or membership exists. | Choose another ID or use invitations. |
-| *Owner must be an enabled, existing email/password account* / *Enable password authentication for this owner first* | Owner account missing, disabled or not password-based. | Fix the account first. |
-| *Role must be one of: … Owner/admin roles are not provisioned here.* | Owner/admin requested. | Use the console or an invitation. |
-| *This login is an owner/admin. Refusing to change it.* | Script would downgrade an admin. | Do not; ask the company owner. |
-| *Refusing to convert between a staff login and a customer login. Use a separate email address.* | Role family change. | Use a different email. |
-| *Company not found or not active.* | Wrong ID or company not active. | Check the ID and company status. |
+| Message                                                                                                             | Why                                                    | What to do                            |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------- |
+| _Existing company or membership found. Refusing to overwrite._                                                      | Company ID or membership exists.                       | Choose another ID or use invitations. |
+| _Owner must be an enabled, existing email/password account_ / _Enable password authentication for this owner first_ | Owner account missing, disabled or not password-based. | Fix the account first.                |
+| _Role must be one of: … Owner/admin roles are not provisioned here._                                                | Owner/admin requested.                                 | Use the console or an invitation.     |
+| _This login is an owner/admin. Refusing to change it._                                                              | Script would downgrade an admin.                       | Do not; ask the company owner.        |
+| _Refusing to convert between a staff login and a customer login. Use a separate email address._                     | Role family change.                                    | Use a different email.                |
+| _Company not found or not active._                                                                                  | Wrong ID or company not active.                        | Check the ID and company status.      |

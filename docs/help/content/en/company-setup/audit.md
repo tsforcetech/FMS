@@ -14,12 +14,30 @@ routes: [/audit]
 permissions:
   - Company owner or admin
 screenshots: [admin-audit.png]
-related: [setup.retention, setup.operations, tasks.history, inventory.movements, assets.transfer]
+related:
+  [
+    setup.retention,
+    setup.operations,
+    tasks.history,
+    inventory.movements,
+    assets.transfer,
+  ]
 sources:
   - apps/admin-web/src/management/Operations.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - firebase/firestore.rules
-keywords: [audit, audit trail, history, who changed, events, append-only, tamper, stock movements, asset transfers]
+keywords:
+  [
+    audit,
+    audit trail,
+    history,
+    who changed,
+    events,
+    append-only,
+    tamper,
+    stock movements,
+    asset transfers,
+  ]
 ---
 
 **Administration → Audit history** brings together the event histories that FacilityOS writes
@@ -54,10 +72,10 @@ newest first.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No events in this period* | Nothing of that source happened in the period. | Choose a longer period or **All events**. |
-| *This view is still being prepared by the database. Please try again in a few minutes.* | A database index needed for the query is still building. | Wait a few minutes and reload. See [Index pending](article:ts.index-pending). |
+| Message                                                                                 | Why                                                      | What to do                                                                    |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| _No events in this period_                                                              | Nothing of that source happened in the period.           | Choose a longer period or **All events**.                                     |
+| _This view is still being prepared by the database. Please try again in a few minutes._ | A database index needed for the query is still building. | Wait a few minutes and reload. See [Index pending](article:ts.index-pending). |
 
 ## Troubleshooting
 

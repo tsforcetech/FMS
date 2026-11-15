@@ -20,10 +20,20 @@ sources:
   - apps/staff-web/src/screens/Approvals.tsx
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["approvals", "Approve", "Return for correction", "Reject", "Reason", "Nothing waiting for your review", "supervisor", "inspection"]
+keywords:
+  [
+    'approvals',
+    'Approve',
+    'Return for correction',
+    'Reject',
+    'Reason',
+    'Nothing waiting for your review',
+    'supervisor',
+    'inspection',
+  ]
 ---
 
-Supervisors see an **Approvals** list with every task *Waiting for approval* at their sites.
+Supervisors see an **Approvals** list with every task _Waiting for approval_ at their sites.
 
 ## Before you start
 
@@ -31,12 +41,12 @@ Your login must be linked as a supervisor for the site. You only see tasks at yo
 
 ## Steps
 
-1. Open **Approvals**. With nothing to check you see *Nothing waiting for your review*.
+1. Open **Approvals**. With nothing to check you see _Nothing waiting for your review_.
 2. Open a task. Read the answers, **Failed checks**, remarks and **Task history**.
 3. Choose:
-   - **Approve** — the work is accepted and the task is *Completed*.
+   - **Approve** — the work is accepted and the task is _Completed_.
    - **Return for correction** — the worker must fix it (rework).
-   - **Reject** — the work is not accepted and the task is closed as *Rejected*.
+   - **Reject** — the work is not accepted and the task is closed as _Rejected_.
 4. For **Return for correction** and **Reject**, write a **Reason**.
 5. Confirm. The worker gets an alert.
 
@@ -54,11 +64,11 @@ The task leaves your **Approvals** list. A returned task shows the reason to the
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Enter a reason so the team knows what to correct.* | No reason for return or reject. | Write a reason. |
-| *You submitted this work, so another authorised reviewer must approve it.* | You cannot approve your own work. | Ask another supervisor or a manager. |
-| *You do not have permission for this. Ask your supervisor.* | The task's site is not linked to you. | Ask an administrator to check your site links. |
+| Message                                                                    | Why                                   | What to do                                     |
+| -------------------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| _Enter a reason so the team knows what to correct._                        | No reason for return or reject.       | Write a reason.                                |
+| _You submitted this work, so another authorised reviewer must approve it._ | You cannot approve your own work.     | Ask another supervisor or a manager.           |
+| _You do not have permission for this. Ask your supervisor._                | The task's site is not linked to you. | Ask an administrator to check your site links. |
 
 ## Troubleshooting
 

@@ -17,17 +17,30 @@ sources:
   - apps/staff-web/src/screens/Profile.tsx
   - apps/staff-web/src/i18n.tsx
   - packages/shared/src/cases.ts
-keywords: ["alerts", "notifications", "Mark all read", "You are all caught up", "profile", "shift", "leave", "Employee ID", "language", "Sign out", "push"]
+keywords:
+  [
+    'alerts',
+    'notifications',
+    'Mark all read',
+    'You are all caught up',
+    'profile',
+    'shift',
+    'leave',
+    'Employee ID',
+    'language',
+    'Sign out',
+    'push',
+  ]
 ---
 
-**Alerts** tells you when something changes — for example *New task assigned*, *Task due soon*,
-*Rework required* or *Work order assigned*. **Profile** shows your details and settings.
+**Alerts** tells you when something changes — for example _New task assigned_, _Task due soon_,
+_Rework required_ or _Work order assigned_. **Profile** shows your details and settings.
 
 ## Steps
 
 1. Select **Alerts** in the bottom bar. New alerts are highlighted. Select one to open the task or
    work order.
-2. Select **Mark all read** to clear the badge. With nothing new you see *You are all caught up*.
+2. Select **Mark all read** to clear the badge. With nothing new you see _You are all caught up_.
 3. Select **Profile** to see your **Employee ID**, company, sites, **My shift**, **Working days**
    and upcoming **Leave**.
 4. Under **Notifications** switch alert types on or off and save.
@@ -48,9 +61,9 @@ Alert settings are saved for your account and apply on the staff web and mobile 
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Check-in/check-out and location attendance are planned for the mobile app and are not active.* | Shown on the staff web profile: attendance is done in the mobile app. | Use the mobile app; see [Attendance](article:mobile.attendance). |
+| Message                                                                                         | Why                                                                   | What to do                                                       |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| _Check-in/check-out and location attendance are planned for the mobile app and are not active._ | Shown on the staff web profile: attendance is done in the mobile app. | Use the mobile app; see [Attendance](article:mobile.attendance). |
 
 ## Troubleshooting
 

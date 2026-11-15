@@ -13,17 +13,20 @@ description: See every recorded task action across the company and the issues ra
 routes: [/task-history]
 permissions:
   - Company owner or admin
-screenshots: [phase4-08-task-history.png]
+screenshots: [phase4-08-task-history.png, admin-task-history.png]
 related: [tasks.lifecycle, cases.reported-issues, setup.audit, reports.tasks]
 sources:
   - apps/admin-web/src/management/Tasks.tsx
   - packages/shared/src/tasks.ts
-keywords: [timeline, activity, audit, who did what, issues, acknowledged, closed]
+keywords:
+  [timeline, activity, audit, who did what, issues, acknowledged, closed]
 ---
 
-Every action on a task — *Created*, *Assigned*, *Started*, *Paused*, *Resumed*, *Submitted*,
-*Approved*, *Rework requested*, *Rejected*, *Rework started*, *Cancelled*, *Rescheduled* — is stored as
+Every action on a task — _Created_, _Assigned_, _Started_, _Paused_, _Resumed_, _Submitted_,
+_Approved_, _Rework requested_, _Rejected_, _Rework started_, _Cancelled_, _Rescheduled_ — is stored as
 an event that cannot be edited or deleted. **Task history** shows those events for the whole company.
+
+![The Task management → Task history screen](screens/admin-task-history.png)
 
 ## Steps
 
@@ -43,9 +46,9 @@ You can answer "who did what, and when" for any task without asking the team.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *No task activity yet* | No task has been created yet. | Create or generate tasks first. |
+| Message                | Why                           | What to do                      |
+| ---------------------- | ----------------------------- | ------------------------------- |
+| _No task activity yet_ | No task has been created yet. | Create or generate tasks first. |
 
 ## Troubleshooting
 

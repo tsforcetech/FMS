@@ -13,17 +13,35 @@ description: How cleaners and housekeeping attendants find their cleaning tasks,
 routes: ['/', /tasks, /report]
 prerequisites:
   - A login with role Staff, linked to your employee record
-screenshots: [phase5-04-my-day.png, phase5-06-checklist-step.png, phase5-14-arabic-rtl.png]
+screenshots:
+  [phase5-04-my-day.png, phase5-06-checklist-step.png, phase5-14-arabic-rtl.png]
 diagrams: [wf-26, wf-27, wf-28, wf-30, wf-36]
-related: [train.first-task, train.first-checklist, staff.my-day, staff.rework, mobile.language, train.report-ac]
+related:
+  [
+    train.first-task,
+    train.first-checklist,
+    staff.my-day,
+    staff.rework,
+    mobile.language,
+    train.report-ac,
+  ]
 sources:
   - apps/admin-web/src/management/staffStore.ts
   - apps/staff-web/src/i18n.tsx
   - packages/shared/src/cases.ts
-keywords: [housekeeping, cleaner, cleaning, janitor, attendant, room cleaning, toilet check]
+keywords:
+  [
+    housekeeping,
+    cleaner,
+    cleaning,
+    janitor,
+    attendant,
+    room cleaning,
+    toilet check,
+  ]
 ---
 
-Housekeeping attendants use the role **Staff** (`staff` — *Staff (housekeeping, security, general)*).
+Housekeeping attendants use the role **Staff** (`staff` — _Staff (housekeeping, security, general)_).
 "Housekeeping" is your job title; the app permissions are the same as other staff. You use the
 **FacilityOS Staff** web app or the **mobile app**, in English, Malayalam, Hindi or Arabic.
 
@@ -45,7 +63,7 @@ Housekeeping attendants use the role **Staff** (`staff` — *Staff (housekeeping
 1. **Check in** (mobile) and open **Home** — your cleaning rounds are listed by time.
 2. For each round: **Start task** → **Open checklist** → answer → **Review answers** → submit
    ([Quick start](article:train.first-task)).
-3. Problem found? Tap **Report**, choose *Cleaning*, *Plumbing*, *Pest control* or another type,
+3. Problem found? Tap **Report**, choose _Cleaning_, _Plumbing_, _Pest control_ or another type,
    describe it and send ([Report a problem](article:staff.report-issue)).
 4. Work returned? Open it, read **Reason from your supervisor**, tap **Start correction**
    ([Rework](article:staff.rework)).

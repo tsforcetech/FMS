@@ -18,17 +18,25 @@ sources:
   - apps/mobile/src/screens/Scan.tsx
   - apps/mobile/src/screens/TaskRun.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["QR invalid", "This is not a FacilityOS code.", "This code does not match any record you can access.", "You are not authorized for this asset or location.", "This code does not belong to this task’s asset or location.", "damaged label"]
+keywords:
+  [
+    'QR invalid',
+    'This is not a FacilityOS code.',
+    'This code does not match any record you can access.',
+    'You are not authorized for this asset or location.',
+    'This code does not belong to this task’s asset or location.',
+    'damaged label',
+  ]
 ---
 
 ## Symptom
 
-| Message | Meaning |
-| --- | --- |
-| *This is not a FacilityOS code.* | The QR code was not printed by FacilityOS. |
-| *This code does not match any record you can access.* | The record does not exist (deleted, or another company) or is outside your sites. |
-| *You are not authorized for this asset or location.* | The record is at a site not linked to you. |
-| *This code does not belong to this task’s asset or location.* | During a task you scanned a different place. |
+| Message                                                       | Meaning                                                                           |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| _This is not a FacilityOS code._                              | The QR code was not printed by FacilityOS.                                        |
+| _This code does not match any record you can access._         | The record does not exist (deleted, or another company) or is outside your sites. |
+| _You are not authorized for this asset or location._          | The record is at a site not linked to you.                                        |
+| _This code does not belong to this task’s asset or location._ | During a task you scanned a different place.                                      |
 
 ![The scanner (Chromium runtime test)](screens/phase6-03-scanner.png)
 

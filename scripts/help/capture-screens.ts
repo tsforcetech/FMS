@@ -16,8 +16,13 @@ import { execFileSync } from 'node:child_process';
 import { chromium, type Page } from 'playwright';
 import { appRoutes, chromiumOptions, helpDir, root } from './lib.ts';
 
-if (process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080' || process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099')
-  throw Error('Screenshots are taken from the local emulators only (FIRESTORE_EMULATOR_HOST / FIREBASE_AUTH_EMULATOR_HOST).');
+if (
+  process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080' ||
+  process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099'
+)
+  throw Error(
+    'Screenshots are taken from the local emulators only (FIRESTORE_EMULATOR_HOST / FIREBASE_AUTH_EMULATOR_HOST).',
+  );
 const pw = 'Local-only-123!';
 const env = {
   ...process.env,
@@ -34,13 +39,31 @@ const env = {
   VITE_PLATFORM_BASE_PATH: '/',
 };
 const serve = (app: string, port: number) =>
-  spawn(process.execPath, [path.join(root, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
-    cwd: path.join(root, 'apps', app),
-    stdio: 'pipe',
-    env,
-  });
-const apps = { admin: 5181, staff: 5182, customer: 5183, platform: 5184 } as const;
-const servers = Object.entries(apps).map(([a, p]) => serve(a === 'admin' ? 'admin-web' : `${a}-web`, p));
+  spawn(
+    process.execPath,
+    [
+      path.join(root, 'node_modules/vite/bin/vite.js'),
+      '--host',
+      '127.0.0.1',
+      '--port',
+      String(port),
+      '--strictPort',
+    ],
+    {
+      cwd: path.join(root, 'apps', app),
+      stdio: 'pipe',
+      env,
+    },
+  );
+const apps = {
+  admin: 5181,
+  staff: 5182,
+  customer: 5183,
+  platform: 5184,
+} as const;
+const servers = Object.entries(apps).map(([a, p]) =>
+  serve(a === 'admin' ? 'admin-web' : `${a}-web`, p),
+);
 const url = (a: keyof typeof apps) => `http://127.0.0.1:${apps[a]}`;
 const only = process.argv.slice(2);
 const out = path.join(helpDir, 'assets/screens');
@@ -63,7 +86,11 @@ async function settle(p: Page) {
   await p.waitForLoadState('networkidle').catch(() => undefined);
   await p.waitForTimeout(900);
   // Never photograph a loading skeleton.
-  await p.locator('[aria-label="Loading"]').first().waitFor({ state: 'detached', timeout: 8000 }).catch(() => undefined);
+  await p
+    .locator('[aria-label="Loading"]')
+    .first()
+    .waitFor({ state: 'detached', timeout: 8000 })
+    .catch(() => undefined);
 }
 async function shoot(p: Page, name: string) {
   if (only.length && !only.some((o) => name.startsWith(o))) return;
@@ -72,7 +99,11 @@ async function shoot(p: Page, name: string) {
   await p.screenshot({ path: file });
   // Palette-quantise (UI screenshots compress ~4x with no visible loss).
   try {
-    execFileSync('python3', ['-c', 'import sys;from PIL import Image;i=Image.open(sys.argv[1]).convert("RGB").quantize(256,method=2);i.save(sys.argv[1]+".tmp.png",optimize=True)', file]);
+    execFileSync('python3', [
+      '-c',
+      'import sys;from PIL import Image;i=Image.open(sys.argv[1]).convert("RGB").quantize(256,method=2);i.save(sys.argv[1]+".tmp.png",optimize=True)',
+      file,
+    ]);
     renameSync(file + '.tmp.png', file);
   } catch {
     /* keep the original PNG */
@@ -83,16 +114,27 @@ async function shoot(p: Page, name: string) {
 // Demo Sharaco platform account (emulator only), as scripts/grant-platform-role.mjs would set it.
 initializeApp({ projectId: 'demo-facilityos' });
 const auth = getAuth();
-const platformUser = await auth.getUserByEmail('platform@sharaco.test').catch(() =>
-  auth.createUser({ email: 'platform@sharaco.test', password: pw, emailVerified: true }),
-);
+const platformUser = await auth
+  .getUserByEmail('platform@sharaco.test')
+  .catch(() =>
+    auth.createUser({
+      email: 'platform@sharaco.test',
+      password: pw,
+      emailVerified: true,
+    }),
+  );
 await auth.setCustomUserClaims(platformUser.uid, { platformRole: 'owner' });
 const company = 'local-company-a';
 await waitUp();
-const browser = await chromium.launch({ ...chromiumOptions(), args: ['--no-sandbox'] });
+const browser = await chromium.launch({
+  ...chromiumOptions(),
+  args: ['--no-sandbox'],
+});
 try {
   // ---------------------------------------------------------------- platform
-  const pp = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage();
+  const pp = await (
+    await browser.newContext({ viewport: { width: 1366, height: 860 } })
+  ).newPage();
   pp.on('pageerror', (e) => errors.push('platform: ' + e.message));
   await pp.goto(url('platform'));
   await pp.getByLabel('Email').fill('platform@sharaco.test');
@@ -103,16 +145,35 @@ try {
   await pp.goto(`${url('platform')}/#/plans`);
   if (!(await pp.getByText(/Starter v1/).count())) {
     await pp.getByRole('button', { name: 'New plan' }).click();
-    await pp.getByLabel('Start from example').selectOption({ label: 'Starter' });
+    await pp
+      .getByLabel('Start from example')
+      .selectOption({ label: 'Starter' });
     await pp.getByRole('button', { name: 'Publish version' }).click();
     await pp.getByText(/Published Starter v1/).waitFor();
-    await promisify(execFile)(process.execPath, ['--import', 'tsx', 'scripts/usage-reconcile.ts', '--project', 'demo-facilityos', '--confirm-project', 'demo-facilityos', '--company', company, '--apply'], { cwd: root, env: process.env });
+    await promisify(execFile)(
+      process.execPath,
+      [
+        '--import',
+        'tsx',
+        'scripts/usage-reconcile.ts',
+        '--project',
+        'demo-facilityos',
+        '--confirm-project',
+        'demo-facilityos',
+        '--company',
+        company,
+        '--apply',
+      ],
+      { cwd: root, env: process.env },
+    );
     await pp.goto(`${url('platform')}/#/companies/${company}`);
     await pp.getByLabel('Plan').selectOption({ label: 'Starter v1' });
     await pp.getByRole('button', { name: 'Assign plan' }).click();
     await pp.getByText('Plan assigned').waitFor();
   }
-  const ctx = await browser.newContext({ viewport: { width: 1366, height: 860 } });
+  const ctx = await browser.newContext({
+    viewport: { width: 1366, height: 860 },
+  });
   // ---------------------------------------------------------------- admin
   const ap = await ctx.newPage();
   ap.on('pageerror', (e) => errors.push('admin: ' + e.message));
@@ -127,12 +188,19 @@ try {
     await shoot(ap, `admin-${id || 'home'}`);
   }
   // Join page (opened without an invitation; shows the explanation).
-  const jp = await (await browser.newContext({ viewport: { width: 1366, height: 860 } })).newPage();
+  const jp = await (
+    await browser.newContext({ viewport: { width: 1366, height: 860 } })
+  ).newPage();
   await jp.goto(`${url('admin')}/join`);
   await shoot(jp, 'join');
 
   // ---------------------------------------------------------------- staff (phone and desktop)
-  const sctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  const sctx = await browser.newContext({
+    viewport: { width: 412, height: 860 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
   const sp = await sctx.newPage();
   sp.on('pageerror', (e) => errors.push('staff: ' + e.message));
   await sp.goto(url('staff'));
@@ -156,7 +224,9 @@ try {
   }
 
   // ---------------------------------------------------------------- customer
-  const cctx = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+  const cctx = await browser.newContext({
+    viewport: { width: 1280, height: 860 },
+  });
   const cp = await cctx.newPage();
   cp.on('pageerror', (e) => errors.push('customer: ' + e.message));
   await cp.goto(url('customer'));
@@ -198,5 +268,8 @@ try {
   await browser.close();
   for (const s of servers) s.kill();
 }
-console.log(`Captured ${taken.length} screenshots into ${path.relative(root, out)}.`);
-if (errors.length) console.warn('Page errors:\n' + [...new Set(errors)].join('\n'));
+console.log(
+  `Captured ${taken.length} screenshots into ${path.relative(root, out)}.`,
+);
+if (errors.length)
+  console.warn('Page errors:\n' + [...new Set(errors)].join('\n'));

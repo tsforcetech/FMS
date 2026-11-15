@@ -13,18 +13,50 @@ description: Edit a schedule's timing or assignment, move one occurrence or a wh
 routes: [/recurring-tasks, /pm-plans, /task-calendar]
 permissions:
   - Company owner or admin
-screenshots: [phase4-11-schedule-detail.png, phase4-14-reschedule-scope.png]
+screenshots:
+  [
+    phase4-11-schedule-detail.png,
+    phase4-14-reschedule-scope.png,
+    admin-recurring-tasks.png,
+    admin-pm-plans.png,
+    admin-task-calendar.png,
+  ]
 diagrams: [wf-25]
-related: [scheduling.recurring, scheduling.generation, calendar.task-calendar, templates.publish, tasks.lifecycle]
+related:
+  [
+    scheduling.recurring,
+    scheduling.generation,
+    calendar.task-calendar,
+    templates.publish,
+    tasks.lifecycle,
+  ]
 sources:
   - apps/admin-web/src/management/Schedules.tsx
   - apps/admin-web/src/management/scheduling.ts
   - apps/admin-web/src/management/Calendar.tsx
-keywords: [edit schedule, rule version, pause, activate, archive, reschedule series, this occurrence only, this and future occurrences, entire schedule, Archived schedules cannot be edited]
+keywords:
+  [
+    edit schedule,
+    rule version,
+    pause,
+    activate,
+    archive,
+    reschedule series,
+    this occurrence only,
+    this and future occurrences,
+    entire schedule,
+    Archived schedules cannot be edited,
+  ]
 ---
 
 Schedules can change without breaking history. Work that has started or finished is **never** moved
 or changed; only future occurrences that have not started are replaced.
+
+![The Task management → Recurring tasks screen](screens/admin-recurring-tasks.png)
+
+![The Maintenance → Preventive plans screen](screens/admin-pm-plans.png)
+
+![The Task management → Task calendar screen](screens/admin-task-calendar.png)
 
 ## Steps
 
@@ -32,12 +64,12 @@ or changed; only future occurrences that have not started are replaced.
 
 1. Open **Task management → Recurring tasks** (or **Maintenance → Preventive plans**), open the
    schedule and select **Edit**.
-2. Change what you need and select **Save changes** (*Schedule updated.*). The code, template and site
+2. Change what you need and select **Save changes** (_Schedule updated._). The code, template and site
    of an existing schedule stay the same.
 3. If you changed the **timing** — repeat rule, start or end date, time, duration, time zone, working
-   days or holiday rule — the schedule gets a new **rule version** (shown as *Rule vN*). From the next
-   day not yet generated, *Pending* and *Assigned* occurrences of the old version are cancelled with the
-   reason *Schedule changed; replaced by the new rule version.* and the next scheduler run creates the
+   days or holiday rule — the schedule gets a new **rule version** (shown as _Rule vN_). From the next
+   day not yet generated, _Pending_ and _Assigned_ occurrences of the old version are cancelled with the
+   reason _Schedule changed; replaced by the new rule version._ and the next scheduler run creates the
    new ones.
 4. Name, priority and assignment changes apply to occurrences generated from now on, without a new rule
    version.
@@ -56,7 +88,7 @@ and choose the scope:
 - **The entire schedule** — "Re-plans all not-started occurrences from today. Completed and in-progress
   work is history and never moves."
 
-For a series move the toast says *Schedule updated. Run the scheduler to regenerate occurrences.*
+For a series move the toast says _Schedule updated. Run the scheduler to regenerate occurrences._
 
 ![Reschedule dialog with the three scopes](screens/phase4-14-reschedule-scope.png)
 
@@ -77,13 +109,13 @@ original times and results.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This schedule was changed by someone else. Reload and try again.* | Two people edited at once. | Reload and repeat. |
-| *Archived schedules cannot be edited.* / *Archived schedules cannot be changed.* | Archiving is final. | Create a new schedule. |
-| *A … task cannot be rescheduled.* | The task is in progress, awaiting approval or final. | Only pending, assigned, paused and rework tasks can move. |
-| *The end date must be on or after the start date.* | Dates are reversed. | Correct the end date. |
-| *Duration must be between 5 minutes and 7 days.* | Duration out of range. | Enter 5 to 10,080 minutes. |
+| Message                                                                          | Why                                                  | What to do                                                |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| _This schedule was changed by someone else. Reload and try again._               | Two people edited at once.                           | Reload and repeat.                                        |
+| _Archived schedules cannot be edited._ / _Archived schedules cannot be changed._ | Archiving is final.                                  | Create a new schedule.                                    |
+| _A … task cannot be rescheduled._                                                | The task is in progress, awaiting approval or final. | Only pending, assigned, paused and rework tasks can move. |
+| _The end date must be on or after the start date._                               | Dates are reversed.                                  | Correct the end date.                                     |
+| _Duration must be between 5 minutes and 7 days._                                 | Duration out of range.                               | Enter 5 to 10,080 minutes.                                |
 
 ## Troubleshooting
 

@@ -15,12 +15,30 @@ permissions:
   - Company owner or admin (view only; roles are changed by trusted provisioning)
 screenshots: [admin-access.png]
 diagrams: [wf-03]
-related: [gs.roles, setup.invitations, setup.staff-access, setup.customer-access, people.employees, ts.access-denied]
+related:
+  [
+    gs.roles,
+    setup.invitations,
+    setup.staff-access,
+    setup.customer-access,
+    people.employees,
+    ts.access-denied,
+  ]
 sources:
   - apps/admin-web/src/management/Admin.tsx
   - packages/shared/src/index.ts
   - firebase/firestore.rules
-keywords: [members, users, logins, accounts, membership, role, provisioning, Member listing will be available]
+keywords:
+  [
+    members,
+    users,
+    logins,
+    accounts,
+    membership,
+    role,
+    provisioning,
+    Member listing will be available,
+  ]
 ---
 
 **Administration → User access** lists the logins (members) of your company. It is a review page:
@@ -36,11 +54,11 @@ Read [Roles and permissions](article:gs.roles) to understand what each role can 
 2. Read the banner **Accounts are provisioned securely**: sign-in accounts and roles are created
    by the trusted operator procedure, never from this browser.
 3. Review the table:
-   - **Account** — the member, with a *You* tag on your own row.
+   - **Account** — the member, with a _You_ tag on your own row.
    - **Role** — the company role (owner, admin, supervisor, staff, customer…).
    - **Status** — whether the membership is active.
    - **Linked employee** — the employee record whose **Login account UID** matches this login,
-     or *Not linked*.
+     or _Not linked_.
    - **Last change** — when the membership last changed.
 4. To add a person, use [Invitations](article:setup.invitations). To let a staff member work in
    the staff portal, link them in [Staff access](article:setup.staff-access). To let a customer use
@@ -57,10 +75,10 @@ represents.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Member listing will be available once the latest database rules are published.* | The deployed security rules do not yet allow the member list to be read. | Ask your operator to publish the current rules release. Do not change the rules yourself. |
-| *No members found* | The list is empty or could not be loaded. | Refresh the page. |
+| Message                                                                          | Why                                                                      | What to do                                                                                |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| _Member listing will be available once the latest database rules are published._ | The deployed security rules do not yet allow the member list to be read. | Ask your operator to publish the current rules release. Do not change the rules yourself. |
+| _No members found_                                                               | The list is empty or could not be loaded.                                | Refresh the page.                                                                         |
 
 ## Troubleshooting
 

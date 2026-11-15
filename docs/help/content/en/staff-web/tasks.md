@@ -12,11 +12,23 @@ owner: Staff Experience
 description: Use the My tasks tabs, search and filters to find a task, and History to see finished work.
 routes: [/tasks, /history]
 screenshots: [staff-tasks.png, phase5-05-task-detail.png]
-related: [staff.my-day, staff.checklist, staff.rework, ts.no-tasks, ts.task-overdue]
+related:
+  [staff.my-day, staff.checklist, staff.rework, ts.no-tasks, ts.task-overdue]
 sources:
   - apps/staff-web/src/screens/MyTasks.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["My tasks", "Search tasks", "Any priority", "All my sites", "upcoming", "overdue", "rework", "history", "completed"]
+keywords:
+  [
+    'My tasks',
+    'Search tasks',
+    'Any priority',
+    'All my sites',
+    'upcoming',
+    'overdue',
+    'rework',
+    'history',
+    'completed',
+  ]
 ---
 
 **My tasks** lists every task assigned to you, grouped in tabs. **History** lists work you have
@@ -35,8 +47,8 @@ finished or submitted.
 3. To narrow the list, type in **Search tasks**, choose a priority (**Any priority**) or, if you
    work at more than one site, a site (**All my sites**).
 4. Select a task to open it. The task page shows **Instructions**, the checklist and **Task history**.
-5. To see older work, open **History**. It lists completed, rejected, cancelled and *Waiting for
-   approval* tasks.
+5. To see older work, open **History**. It lists completed, rejected, cancelled and _Waiting for
+   approval_ tasks.
 
 ![My tasks with tabs and filters](screens/staff-tasks.png)
 
@@ -49,10 +61,10 @@ The task opens with buttons that match its status — for example **Start task**
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| Empty list | No task matches the tab, search or filters. | Clear the search, set **Any priority** and **All my sites**. |
-| *You do not have permission for this. Ask your supervisor.* | The task is not assigned to you or is at a site you are not linked to. | Ask your supervisor to assign it to you. |
+| Message                                                     | Why                                                                    | What to do                                                   |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Empty list                                                  | No task matches the tab, search or filters.                            | Clear the search, set **Any priority** and **All my sites**. |
+| _You do not have permission for this. Ask your supervisor._ | The task is not assigned to you or is at a site you are not linked to. | Ask your supervisor to assign it to you.                     |
 
 ## Troubleshooting
 

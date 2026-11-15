@@ -17,18 +17,33 @@ prerequisites:
   - Node.js and repository dependencies (npm ci)
 permissions:
   - Sharaco operator with project credentials
-related: [platform.subscriptions, saas.plan-usage, ops.subscription-sweep, platform.audit]
+related:
+  [
+    platform.subscriptions,
+    saas.plan-usage,
+    ops.subscription-sweep,
+    platform.audit,
+  ]
 sources:
   - scripts/usage-reconcile.ts
   - apps/admin-web/src/management/usage.ts
   - packages/shared/src/saas.ts
-keywords: [usage counters, quota, reconcile, archived, plan limits, usage-reconcile, no usage counters]
+keywords:
+  [
+    usage counters,
+    quota,
+    reconcile,
+    archived,
+    plan limits,
+    usage-reconcile,
+    no usage counters,
+  ]
 ---
 
 Creating a quota-limited record in the apps bumps `companies/{company}/usage/counters` in the same
 transaction, and the security rules check the plan limit there. Archiving does **not** lower the
-counter. `scripts/usage-reconcile.ts` recounts **active** records (excluding statuses *archived*,
-*revoked*, *resigned* and *terminated*) for sites, employees, assets, recurring schedules and staff
+counter. `scripts/usage-reconcile.ts` recounts **active** records (excluding statuses _archived_,
+_revoked_, _resigned_ and _terminated_) for sites, employees, assets, recurring schedules and staff
 links, and writes the counters. It is a **dry run unless `--apply`** is given.
 
 > **Note:** Automatic reconciliation needs a trusted scheduled backend, which the Spark plan does not
@@ -37,7 +52,7 @@ links, and writes the counters. It is a **dry run unless `--apply`** is given.
 ## When to run
 
 - **Before assigning a plan to an existing company** that has no counters (the console refuses with
-  *This company has no usage counters yet…*).
+  _This company has no usage counters yet…_).
 - After a company archives many records and asks for the count to be corrected.
 - Regularly (for example weekly) for all companies.
 

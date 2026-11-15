@@ -18,7 +18,15 @@ sources:
   - apps/mobile/src/App.tsx
   - apps/mobile/src/offline/vault.ts
   - docs/phase6-report.md
-keywords: ["login", "mobile sign in", "sign out", "shared phone", "revoked", "company switch"]
+keywords:
+  [
+    'login',
+    'mobile sign in',
+    'sign out',
+    'shared phone',
+    'revoked',
+    'company switch',
+  ]
 ---
 
 The mobile app uses the same login as the staff web. Your access is exactly the same as on the
@@ -50,11 +58,11 @@ Home shows your name, today's work and the sync status in the top bar.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Your login is not linked to an employee yet* | Not linked by an administrator. | See [Login not linked](article:ts.not-linked). |
-| *Your staff access has been revoked* | Access removed. | See [Account revoked](article:ts.account-revoked). |
-| *Unable to connect. Check your connection and try again.* | No connection on first sign-in. | Connect to Wi-Fi or mobile data. |
+| Message                                                   | Why                             | What to do                                         |
+| --------------------------------------------------------- | ------------------------------- | -------------------------------------------------- |
+| _Your login is not linked to an employee yet_             | Not linked by an administrator. | See [Login not linked](article:ts.not-linked).     |
+| _Your staff access has been revoked_                      | Access removed.                 | See [Account revoked](article:ts.account-revoked). |
+| _Unable to connect. Check your connection and try again._ | No connection on first sign-in. | Connect to Wi-Fi or mobile data.                   |
 
 ![Not linked screen](screens/phase5-03-not-linked.png)
 

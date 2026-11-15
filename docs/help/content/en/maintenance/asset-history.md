@@ -13,23 +13,41 @@ description: See every inspection, preventive maintenance task and work order re
 routes: [/asset-history]
 permissions:
   - Company owner or admin
-screenshots: [phase4-16-work-order.png, phase4-04-asset-qr.png]
+screenshots:
+  [phase4-16-work-order.png, phase4-04-asset-qr.png, admin-asset-history.png]
 diagrams: [wf-31]
-related: [assets.register, maintenance.pm, maintenance.work-orders, reports.maintenance]
+related:
+  [
+    assets.register,
+    maintenance.pm,
+    maintenance.work-orders,
+    reports.maintenance,
+  ]
 sources:
   - apps/admin-web/src/management/Cases.tsx
-keywords: [asset history, equipment history, service history, inspections, preventive, recurring, manual]
+keywords:
+  [
+    asset history,
+    equipment history,
+    service history,
+    inspections,
+    preventive,
+    recurring,
+    manual,
+  ]
 ---
 
 **Asset maintenance history** brings together everything done on one asset: inspection and preventive
 tasks and corrective work orders.
 
+![The Maintenance → Asset maintenance history screen](screens/admin-asset-history.png)
+
 ## Steps
 
 1. Open **Maintenance → Asset maintenance history**.
 2. Choose the **Asset**.
-3. Read **Tasks and PM** — each task with its due time, its origin (*Preventive*, *Recurring* or
-   *Manual*) and status. Select one to open it with its checklist answers.
+3. Read **Tasks and PM** — each task with its due time, its origin (_Preventive_, _Recurring_ or
+   _Manual_) and status. Select one to open it with its checklist answers.
 4. Read the work orders column — each work order with its number, title, date and status. Select one to
    open it in **Work orders**.
 
@@ -45,11 +63,11 @@ You can show an auditor or client the complete service record of the asset.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose an asset* | No asset selected yet. | Pick the asset. |
-| *No tasks recorded for this asset.* | No task was created with this asset. | Select the asset when creating tasks and PM plans. |
-| *No work orders for this asset.* | No work order names this asset. | Choose the asset when raising work orders. |
+| Message                             | Why                                  | What to do                                         |
+| ----------------------------------- | ------------------------------------ | -------------------------------------------------- |
+| _Choose an asset_                   | No asset selected yet.               | Pick the asset.                                    |
+| _No tasks recorded for this asset._ | No task was created with this asset. | Select the asset when creating tasks and PM plans. |
+| _No work orders for this asset._    | No work order names this asset.      | Choose the asset when raising work orders.         |
 
 ## Troubleshooting
 

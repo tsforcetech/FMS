@@ -5,14 +5,39 @@ module: Reference
 category: getting-started
 audience: public
 apps: [admin, staff, mobile, customer]
-roles: [owner, admin, site_manager, department_manager, supervisor, technician, staff, viewer, customer]
-version: '0.8'
+roles:
+  [
+    owner,
+    admin,
+    site_manager,
+    department_manager,
+    supervisor,
+    technician,
+    staff,
+    viewer,
+    customer,
+  ]
+version: '0.9'
 reviewed: '2026-11-15'
 owner: Customer Success
 description: Release history of FacilityOS by version, with what is new and what is still pending activation.
 routes: []
 screenshots: [phase8-01-onboarding-starter-pack.png]
-related: [exports.overview, import.overview, setup.wizard, saas.plan-usage, setup.invitations, reports.dashboard, customer.requests, mobile.install, staff.my-day, scheduling.recurring, templates.builder, sites.create]
+related:
+  [
+    exports.overview,
+    import.overview,
+    setup.wizard,
+    saas.plan-usage,
+    setup.invitations,
+    reports.dashboard,
+    customer.requests,
+    mobile.install,
+    staff.my-day,
+    scheduling.recurring,
+    templates.builder,
+    sites.create,
+  ]
 sources:
   - docs/phase8-report.md
   - docs/phase7-report.md
@@ -20,6 +45,16 @@ sources:
   - docs/help/site.yaml
 keywords: [release notes, changelog, new features, version, update]
 ---
+
+## 0.9 — 15 November 2026
+
+- **Help Center** with search, module and role guides, troubleshooting, FAQs, quick starts and 45
+  workflow diagrams, in English with draft Malayalam, Hindi and Arabic staff guides.
+- **Help buttons** in every app open the article for the screen you are on, in your language where
+  available ([Finding your way around](article:gs.navigation)).
+- **PDF manuals** (complete system, administrator, staff web, mobile app, customer portal, workflow
+  reference and quick starts) generated from the same articles.
+- Clearer in-app texts on assignment, evidence capture, reports and retention.
 
 ## 0.8 — 15 November 2026
 

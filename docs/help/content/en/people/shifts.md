@@ -18,23 +18,40 @@ permissions:
   - Company owner or admin
 screenshots: [admin-shifts.png]
 diagrams: [wf-15]
-related: [people.employees, people.leave, people.teams, scheduling.assignment, ts.no-eligible-staff]
+related:
+  [
+    people.employees,
+    people.leave,
+    people.teams,
+    scheduling.assignment,
+    ts.no-eligible-staff,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
   - packages/shared/src/schedule.ts
-keywords: [shift, rota, night shift, overnight shift, break, working days, shift assignment, End time must differ from start time]
+keywords:
+  [
+    shift,
+    rota,
+    night shift,
+    overnight shift,
+    break,
+    working days,
+    shift assignment,
+    End time must differ from start time,
+  ]
 ---
 
-A **shift** is a working-time pattern at a site, for example *Morning 07:00–15:00, Sun–Thu*.
+A **shift** is a working-time pattern at a site, for example _Morning 07:00–15:00, Sun–Thu_.
 **Shift assignments** put employees on a shift for a period. Schedules that assign work by shift
 use them, and an employee whose shift does not cover a day is not eligible for automatic
 assignment that day.
 
 ## Before you start
 
-- Check the site's **Time zone**. *Shift times use this site's time zone.*
+- Check the site's **Time zone**. _Shift times use this site's time zone._
 - An end time earlier than the start time is an overnight shift (for example 22:00–06:00).
 
 ## Steps
@@ -46,7 +63,7 @@ assignment that day.
 3. Choose the **Site**. It cannot be changed later.
 4. Enter the **Start time**, **End time** and **Break** in minutes (0–600).
 5. Tick the **Working days** and optionally add a **Description**.
-6. Select **Save shift** (*Shift created.*).
+6. Select **Save shift** (_Shift created._).
 
 ### Assign employees
 
@@ -54,7 +71,7 @@ assignment that day.
    of the Shifts page, and select **Add shift assignment**.
 2. Choose the **Employee**, the **Effective from** date and, if known, **Effective until**. The
    code is generated automatically.
-3. Save. To take someone off the shift, set the assignment to *Ended* with an end date.
+3. Save. To take someone off the shift, set the assignment to _Ended_ with an end date.
 
 ![Shifts](screens/admin-shifts.png)
 
@@ -67,13 +84,13 @@ assignment that day.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *End time must differ from start time* | Start and end are the same. | Change one of the times. Use an earlier end time for an overnight shift. |
-| *Select valid working days* | No valid working day is ticked. | Tick at least one day. |
-| *Site cannot change after creation. Create a new record instead.* | You changed the site of a saved shift. | Create a new shift at the other site. |
-| *End date must follow start date* | The assignment ends before it starts. | Correct the dates. |
-| *Ended assignments cannot be reopened. Create a new assignment.* | You tried to reactivate an ended shift assignment. | Create a new assignment. |
+| Message                                                           | Why                                                | What to do                                                               |
+| ----------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
+| _End time must differ from start time_                            | Start and end are the same.                        | Change one of the times. Use an earlier end time for an overnight shift. |
+| _Select valid working days_                                       | No valid working day is ticked.                    | Tick at least one day.                                                   |
+| _Site cannot change after creation. Create a new record instead._ | You changed the site of a saved shift.             | Create a new shift at the other site.                                    |
+| _End date must follow start date_                                 | The assignment ends before it starts.              | Correct the dates.                                                       |
+| _Ended assignments cannot be reopened. Create a new assignment._  | You tried to reactivate an ended shift assignment. | Create a new assignment.                                                 |
 
 ## Troubleshooting
 

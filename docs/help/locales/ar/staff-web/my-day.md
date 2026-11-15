@@ -15,12 +15,40 @@ prerequisites:
   - أنت مسجّل الدخول إلى تطبيق الموظفين أو تطبيق الهاتف المحمول
 screenshots: [phase5-04-my-day.png, staff-my-day.png, phase6-01-my-day.png]
 diagrams: [wf-36]
-related: [staff.tasks, staff.checklist, staff.calendar, ts.no-tasks, ts.task-overdue, mobile.tasks]
+related:
+  [
+    staff.tasks,
+    staff.checklist,
+    staff.calendar,
+    ts.no-tasks,
+    ts.task-overdue,
+    mobile.tasks,
+  ]
 sources:
   - apps/staff-web/src/screens/MyDay.tsx
   - apps/staff-web/src/i18n.tsx
   - apps/mobile/src/screens/Main.tsx
-keywords: ["home", "today", "Today's work", "Start next task", "Continue task", "No tasks for today", "overdue", "shift", "leave", "الرئيسية", "اليوم", "عمل اليوم", "ابدأ المهمة التالية", "متابعة المهمة", "لا توجد مهام اليوم", "متأخرة", "مناوبة", "إجازة"]
+keywords:
+  [
+    'home',
+    'today',
+    "Today's work",
+    'Start next task',
+    'Continue task',
+    'No tasks for today',
+    'overdue',
+    'shift',
+    'leave',
+    'الرئيسية',
+    'اليوم',
+    'عمل اليوم',
+    'ابدأ المهمة التالية',
+    'متابعة المهمة',
+    'لا توجد مهام اليوم',
+    'متأخرة',
+    'مناوبة',
+    'إجازة',
+  ]
 translationOf: staff.my-day
 translatedFrom: '2026-11-15'
 translationStatus: draft
@@ -37,8 +65,8 @@ translationStatus: draft
 ## الخطوات
 
 1. افتح **الرئيسية**.
-2. اقرأ سطر **Shift today** (مناوبة اليوم). يعرض مناوبتك، أو *No shift assigned today* (لا توجد مناوبة
-   مُسندة اليوم)، أو *You are on approved leave today* (أنت في إجازة معتمدة اليوم)، أو *Holiday* (عطلة).
+2. اقرأ سطر **Shift today** (مناوبة اليوم). يعرض مناوبتك، أو _No shift assigned today_ (لا توجد مناوبة
+   مُسندة اليوم)، أو _You are on approved leave today_ (أنت في إجازة معتمدة اليوم)، أو _Holiday_ (عطلة).
 3. انظر إلى المربعات تحت **عمل اليوم**: **مُسندة** و**قيد الانتظار** و**قيد التنفيذ** و**مكتملة**
    و**متأخرة** و**إعادة العمل**. اختر مربعًا لفتح القائمة المطابقة له.
 4. اختر **ابدأ المهمة التالية** لفتح المهمة التالية المطلوبة. إذا كنت قد بدأت مهمة من قبل، فسيظهر على الزر
@@ -51,8 +79,8 @@ translationStatus: draft
 
 ## النتيجة المتوقعة
 
-- عندما لا يوجد ما تفعله ترى **لا توجد مهام اليوم** — *When your supervisor assigns work, it appears
-  here.* (عندما يُسند إليك مشرفك عملًا، سيظهر هنا.)
+- عندما لا يوجد ما تفعله ترى **لا توجد مهام اليوم** — _When your supervisor assigns work, it appears
+  here._ (عندما يُسند إليك مشرفك عملًا، سيظهر هنا.)
 - عندما يكتمل كل شيء ترى **All of today’s work is done. Well done!** (اكتمل كل عمل اليوم. أحسنت!)
 
 ![الرئيسية (My Day) على موقع الموظفين](screens/staff-my-day.png)
@@ -64,11 +92,11 @@ translationStatus: draft
 
 ## الأخطاء الشائعة
 
-| الرسالة | السبب | ماذا تفعل |
-| --- | --- | --- |
-| *لا توجد مهام اليوم* | لم يُسند إليك أي عمل اليوم، أو لم يتم إنشاء المهام بعد. | تحقّق من **مهامي ← القادمة**؛ واسأل مشرفك. انظر [لا تظهر أي مهام](article:ts.no-tasks). |
-| توجد مهمة في **متأخرة** | انتهى موعد استحقاقها ولم تكتمل. | افتحها وأنهِها؛ انظر [مهمة متأخرة](article:ts.task-overdue). |
-| *You are offline…* (أنت غير متصل…) | لا يوجد اتصال بالإنترنت. | أعد الاتصال. في تطبيق الهاتف المحمول يبقى عملك محفوظًا على الجهاز. |
+| الرسالة                            | السبب                                                  | ماذا تفعل                                                                              |
+| ---------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| _لا توجد مهام اليوم_               | لم يُسند إليك أي عمل اليوم، أو لم يتم إنشاء المهام بعد. | تحقّق من **مهامي ← القادمة**؛ واسأل مشرفك. انظر [لا تظهر أي مهام](article:ts.no-tasks). |
+| توجد مهمة في **متأخرة**            | انتهى موعد استحقاقها ولم تكتمل.                        | افتحها وأنهِها؛ انظر [مهمة متأخرة](article:ts.task-overdue).                            |
+| _You are offline…_ (أنت غير متصل…) | لا يوجد اتصال بالإنترنت.                               | أعد الاتصال. في تطبيق الهاتف المحمول يبقى عملك محفوظًا على الجهاز.                      |
 
 ## استكشاف الأخطاء وإصلاحها
 

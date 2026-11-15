@@ -13,32 +13,48 @@ description: The Import Center rejects a file or reports rows with errors.
 routes: []
 screenshots: [phase8-03-import-preview.png]
 diagrams: [wf-45]
-related: [import.overview, import.templates, import.resume, ts.duplicate-code, ts.read-only]
+related:
+  [
+    import.overview,
+    import.templates,
+    import.resume,
+    ts.duplicate-code,
+    ts.read-only,
+  ]
 sources:
   - packages/shared/src/importing.ts
   - apps/admin-web/src/management/ImportCenter.tsx
   - apps/admin-web/src/management/importStore.ts
-keywords: ["import error", "The file is larger than 5 MB", "Old .xls files are not supported", "formulas are not accepted — paste values only", "appears earlier in this file", "Missing column", "error report"]
+keywords:
+  [
+    'import error',
+    'The file is larger than 5 MB',
+    'Old .xls files are not supported',
+    'formulas are not accepted — paste values only',
+    'appears earlier in this file',
+    'Missing column',
+    'error report',
+  ]
 ---
 
 ## Symptom
 
 **File-level errors** (nothing imported):
 
-- *The file is larger than 5 MB. Split it into smaller files.*
-- *The file has 2,500 rows. Import at most 2,000 rows per file.*
-- *Upload an Excel (.xlsx) or CSV (.csv) file. Old .xls files are not supported.*
-- *This is not a valid Excel (.xlsx) file.* / *The Excel file could not be read. Save it again as .xlsx and retry.*
-- *The file is empty.* / *The file has a header row but no data rows.*
-- *Your subscription is read-only, so data cannot be imported.*
+- _The file is larger than 5 MB. Split it into smaller files._
+- _The file has 2,500 rows. Import at most 2,000 rows per file._
+- _Upload an Excel (.xlsx) or CSV (.csv) file. Old .xls files are not supported._
+- _This is not a valid Excel (.xlsx) file._ / _The Excel file could not be read. Save it again as .xlsx and retry._
+- _The file is empty._ / _The file has a header row but no data rows._
+- _Your subscription is read-only, so data cannot be imported._
 
 **Row errors** (shown in the preview and the error report):
 
-- *Missing column: …*
-- *Code: formulas are not accepted — paste values only*
-- *Code X appears earlier in this file*
-- *Store code: no store with code “…”*
-- *Opening balance already recorded for this store and material*
+- _Missing column: …_
+- _Code: formulas are not accepted — paste values only_
+- _Code X appears earlier in this file_
+- _Store code: no store with code “…”_
+- _Opening balance already recorded for this store and material_
 
 ![Import preview with row errors](screens/phase8-03-import-preview.png)
 
@@ -57,8 +73,8 @@ report** for the full list.
 1. Start from the **Excel template** or CSV template of the module.
 2. Paste values only (no formulas). Save as .xlsx or .csv.
 3. Import parent records first (sites before locations, materials before opening stock).
-4. Fix the rows and upload the **same file** again. *An earlier import of this file did not finish.
-   Validate and import again to resume — finished rows are skipped.*
+4. Fix the rows and upload the **same file** again. _An earlier import of this file did not finish.
+   Validate and import again to resume — finished rows are skipped._
 
 {{diagram wf-45}}
 

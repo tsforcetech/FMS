@@ -22,7 +22,19 @@ related: [setup.backup, ops.release, platform.audit]
 sources:
   - scripts/backup-export.ts
   - docs/backup-recovery.md
-keywords: [backup, restore, export, JSON, manifest, SHA-256, Spark, PITR, disaster recovery, backup-export]
+keywords:
+  [
+    backup,
+    restore,
+    export,
+    JSON,
+    manifest,
+    SHA-256,
+    Spark,
+    PITR,
+    disaster recovery,
+    backup-export,
+  ]
 ---
 
 **There is no automatic backup today.** The live project runs on the Firebase Spark plan, which has

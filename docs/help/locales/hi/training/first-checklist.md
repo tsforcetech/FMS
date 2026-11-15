@@ -17,7 +17,21 @@ related: [staff.checklist, train.first-task, staff.rework, mobile.photos]
 sources:
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: [checklist, questions, answers, review answers, save progress, evidence, चेकलिस्ट, सवाल, जवाब, उत्तर जाँचें, प्रगति सहेजें, सबूत]
+keywords:
+  [
+    checklist,
+    questions,
+    answers,
+    review answers,
+    save progress,
+    evidence,
+    चेकलिस्ट,
+    सवाल,
+    जवाब,
+    उत्तर जाँचें,
+    प्रगति सहेजें,
+    सबूत,
+  ]
 translationOf: train.first-checklist
 translatedFrom: '2026-11-15'
 translationStatus: draft
@@ -28,12 +42,12 @@ translationStatus: draft
 3. अपना जवाब चुनें या लिखें और **आगे** पर टैप करें। वापस जाने के लिए **पीछे** का इस्तेमाल करें।
 4. कुछ सवाल किसी खास जवाब के बाद ही दिखते हैं — यह सामान्य है।
 5. अगर आपको बीच में रुकना पड़े, तो **प्रगति सहेजें** पर टैप करें; आपके जवाब सुरक्षित रहते हैं
-   (*Progress saved.* — प्रगति सहेज ली गई।)।
+   (_Progress saved._ — प्रगति सहेज ली गई।)।
 6. फ़ोटो, QR या GPS सबूत मोबाइल ऐप में लिया जाता है; Staff वेब में इसे बाकी (pending) के रूप में
    दर्ज किया जाता है।
 7. **उत्तर जाँचें** पर टैप करें। **Failed checks** (असफल जाँचें) की सूची दिखती है; ज़रूरत हो तो
    **Remarks (optional)** (टिप्पणी — वैकल्पिक) जोड़ें।
-8. *Complete the highlighted answers first.* (पहले हाइलाइट किए गए जवाब पूरे करें।) के रूप में चिह्नित
+8. _Complete the highlighted answers first._ (पहले हाइलाइट किए गए जवाब पूरे करें।) के रूप में चिह्नित
    हर चीज़ ठीक करें।
 9. **मंज़ूरी के लिए भेजें** या **पूरा हुआ चिह्नित करें** पर टैप करें।
 

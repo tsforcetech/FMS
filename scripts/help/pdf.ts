@@ -15,12 +15,23 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
-import { type Article, chromiumOptions, helpDir, loadManuals, manualContents, renderMarkdown, root, validate } from './lib.ts';
+import {
+  type Article,
+  chromiumOptions,
+  helpDir,
+  loadManuals,
+  manualContents,
+  renderMarkdown,
+  root,
+  validate,
+} from './lib.ts';
 
 const { problems, site, articles, diagrams } = validate();
 if (problems.length) {
   for (const p of problems) console.error(`✗ ${p.file}: ${p.message}`);
-  console.error(`${problems.length} documentation problem(s) — fix them first (npm run help:check).`);
+  console.error(
+    `${problems.length} documentation problem(s) — fix them first (npm run help:check).`,
+  );
   process.exit(1);
 }
 const only = process.argv.slice(2);
@@ -28,11 +39,21 @@ const pubOut = path.join(root, 'apps/help-web/pdf');
 const restrictedOut = path.join(helpDir, '.restricted');
 const tmp = path.join(root, 'apps/help-web/.pdf-tmp');
 for (const d of [pubOut, restrictedOut, tmp]) mkdirSync(d, { recursive: true });
-const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const esc = (s: string) =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 const fileUrl = (p: string) => pathToFileURL(p).href;
 const commit = (() => {
   try {
-    return process.env.GITHUB_SHA?.slice(0, 7) || execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root }).toString().trim();
+    return (
+      process.env.GITHUB_SHA?.slice(0, 7) ||
+      execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: root })
+        .toString()
+        .trim()
+    );
   } catch {
     return 'local';
   }
@@ -43,7 +64,7 @@ const css = `
 @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
 * { box-sizing: border-box; }
 body { font: 10.5pt/1.5 'Noto Sans', 'DejaVu Sans', Arial, sans-serif; color: #17212b; margin: 0; }
-h1, h2, h3, h4 { line-height: 1.25; color: #10243a; }
+h1, h2, h3, h4 { line-height: 1.25; color: #10243a; break-after: avoid; page-break-after: avoid; }
 a { color: #1f5a98; text-decoration: none; }
 .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; }
 .cover .band { background: #2f6fb3; color: #fff; padding: 28mm 14mm 16mm; border-radius: 6px; }
@@ -70,10 +91,11 @@ article > h2 { font-size: 16pt; margin: 0 0 1mm; }
 .facts-box h4 { margin: 2mm 0 1mm; }
 .prose h3 { font-size: 13pt; margin-top: 6mm; }
 .prose h4 { font-size: 11pt; }
-.prose img, figure img { max-width: 100%; max-height: 120mm; display: block; margin: 0 auto; border: 1px solid #dbe3ec; border-radius: 2mm; }
+.prose img, figure img { max-width: 100%; max-height: 90mm; display: block; margin: 0 auto; border: 1px solid #dbe3ec; border-radius: 2mm; }
 figure { margin: 4mm 0; page-break-inside: avoid; }
 figcaption { font-size: 8.5pt; color: #5b6b7d; text-align: center; margin-top: 1mm; }
-.diagram-embed img { max-height: 200mm; border: 0; }
+.diagram-embed img { max-height: 235mm; border: 0; }
+.diagram-embed figure { page-break-before: auto; }
 .callout { border-left: 3pt solid #2f6fb3; background: #eef4fb; padding: 1mm 4mm; margin: 3mm 0; page-break-inside: avoid; }
 .callout-warning { border-color: #c27c0e; background: #fff6e6; } .callout-tip { border-color: #2e8b57; background: #ebf7f0; }
 .table-wrap { margin: 3mm 0; }
@@ -87,9 +109,19 @@ code { font-family: 'DejaVu Sans Mono', monospace; font-size: 9pt; background: #
 .muted { color: #5b6b7d; }
 `;
 
-function articleBlock(a: Article, num: string, inManual: Set<string>, restricted: boolean) {
+function articleBlock(
+  a: Article,
+  num: string,
+  inManual: Set<string>,
+  restricted: boolean,
+) {
   const r = renderMarkdown(a.body, {
-    link: (id) => (inManual.has(id) ? `#a-${id}` : byId.get(id)?.meta.audience === 'public' ? `${site.baseUrl}a/${id}.html` : '#'),
+    link: (id) =>
+      inManual.has(id)
+        ? `#a-${id}`
+        : byId.get(id)?.meta.audience === 'public'
+          ? `${site.baseUrl}a/${id}.html`
+          : '#',
     shot: (f) => fileUrl(path.join(helpDir, 'assets/screens', f)),
     diagram: (id) => {
       const d = diagrams.find((x) => x.id === id)!;
@@ -97,27 +129,64 @@ function articleBlock(a: Article, num: string, inManual: Set<string>, restricted
     },
   });
   // Demote article headings one level below the article title.
-  const html = r.html.replace(/<(\/?)h([1-5])(\s|>)/g, (_m, s: string, n: string, e: string) => `<${s}h${Math.min(6, Number(n) + 1)}${e}`);
+  const html = r.html.replace(
+    /<(\/?)h([1-5])(\s|>)/g,
+    (_m, s: string, n: string, e: string) =>
+      `<${s}h${Math.min(6, Number(n) + 1)}${e}`,
+  );
   const m = a.meta;
-  const box = (h: string, x?: string[]) => (x?.length ? `<h4>${esc(h)}</h4><ul>${x.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : '');
-  const facts = box('Before you start', m.prerequisites) + box('Who can do this', m.permissions);
+  const box = (h: string, x?: string[]) =>
+    x?.length
+      ? `<h4>${esc(h)}</h4><ul>${x.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`
+      : '';
+  const facts =
+    box('Before you start', m.prerequisites) +
+    box('Who can do this', m.permissions);
   void restricted;
   return `<article id="a-${esc(m.id)}"><span class="mark">§§${esc(m.id)}§§</span><h2>${esc(num)} ${esc(m.title)}</h2><p class="desc">${esc(m.description)}</p>${facts ? `<div class="facts-box">${facts}</div>` : ''}<div class="prose">${html}</div><p class="muted" style="font-size:8pt">Article ${esc(m.id)} · applies to ${esc(site.product)} ${esc(m.version)}+ · reviewed ${esc(m.reviewed)}</p></article>`;
 }
 
-const browser = await chromium.launch({ ...chromiumOptions(), args: ['--no-sandbox'] });
+const browser = await chromium.launch({
+  ...chromiumOptions(),
+  args: ['--no-sandbox'],
+});
 const page = await browser.newPage();
+page.setDefaultTimeout(600000);
 const results: { file: string; pages: number; audience: string }[] = [];
 
-async function render(html: string, out: string, title: string, restricted: boolean, landscape = false) {
+async function render(
+  html: string,
+  out: string,
+  title: string,
+  restricted: boolean,
+  landscape = false,
+) {
   const f = path.join(tmp, path.basename(out) + '.html');
-  writeFileSync(f, html);
-  await page.goto(fileUrl(f), { waitUntil: 'load' });
+  // Print needs every image loaded up front (no lazy loading off-screen).
+  writeFileSync(f, html.replace(/ loading="lazy"/g, ''));
+  await page.goto(fileUrl(f), { waitUntil: 'load', timeout: 300000 });
   await page.evaluate(async () => {
     await document.fonts.ready;
-    await Promise.all([...document.images].map((i) => (i.complete ? null : new Promise((r) => ((i.onload = r), (i.onerror = r))))));
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((i) =>
+          i.complete
+            ? null
+            : new Promise((r) => ((i.onload = r), (i.onerror = r))),
+        ),
+      ),
+      new Promise((r) => setTimeout(r, 60000)),
+    ]);
+    const broken = [...document.images]
+      .filter((i) => !i.naturalWidth)
+      .map((i) => i.src);
+    if (broken.length)
+      throw new Error(
+        'Images failed to load: ' + broken.slice(0, 5).join(', '),
+      );
   });
-  const small = 'font-size:7.5pt;color:#5b6b7d;width:100%;padding:0 16mm;font-family:Arial,sans-serif;display:flex;justify-content:space-between';
+  const small =
+    'font-size:7.5pt;color:#5b6b7d;width:100%;padding:0 16mm;font-family:Arial,sans-serif;display:flex;justify-content:space-between';
   await page.pdf({
     path: out,
     format: 'A4',
@@ -131,12 +200,17 @@ async function render(html: string, out: string, title: string, restricted: bool
     tagged: true,
   } as Parameters<typeof page.pdf>[0]);
 }
-const pagesOf = (pdf: string) => execFileSync('pdftotext', ['-layout', pdf, '-']).toString().split('\f');
+const pagesOf = (pdf: string) =>
+  execFileSync('pdftotext', ['-layout', pdf, '-']).toString().split('\f');
 
-for (const man of loadManuals().filter((m) => !only.length || only.includes(m.id))) {
+for (const man of loadManuals().filter(
+  (m) => !only.length || only.includes(m.id),
+)) {
   const restricted = man.audience !== 'public';
   const sections = manualContents(man, articles, diagrams, site.order);
-  const inManual = new Set(sections.flatMap((s) => s.articles.map((a) => a.meta.id)));
+  const inManual = new Set(
+    sections.flatMap((s) => s.articles.map((a) => a.meta.id)),
+  );
   const glossary = byId.get('ref.glossary');
   if (glossary && !inManual.has('ref.glossary')) {
     sections.push({ title: 'Glossary', articles: [glossary], diagrams: [] });
@@ -148,8 +222,18 @@ for (const man of loadManuals().filter((m) => !only.length || only.includes(m.id
       .map(
         (s) =>
           `<li class="sec"><a href="#s-${s.n}">${s.n}. ${esc(s.title)}</a><span class="dots"></span><span class="pg">${pages.get(`s${s.n}`) ?? ''}</span></li>` +
-          s.articles.map((a, j) => `<li class="art"><a href="#a-${esc(a.meta.id)}">${s.n}.${j + 1} ${esc(a.meta.title)}</a><span class="dots"></span><span class="pg">${pages.get(a.meta.id) ?? ''}</span></li>`).join('') +
-          s.diagrams.map((d, j) => `<li class="art"><a href="#d-${d.id}">${s.n}.${s.articles.length + j + 1} ${esc(d.id.toUpperCase())} ${esc(d.title)}</a><span class="dots"></span><span class="pg">${pages.get(d.id) ?? ''}</span></li>`).join(''),
+          s.articles
+            .map(
+              (a, j) =>
+                `<li class="art"><a href="#a-${esc(a.meta.id)}">${s.n}.${j + 1} ${esc(a.meta.title)}</a><span class="dots"></span><span class="pg">${pages.get(a.meta.id) ?? ''}</span></li>`,
+            )
+            .join('') +
+          s.diagrams
+            .map(
+              (d, j) =>
+                `<li class="art"><a href="#d-${d.id}">${s.n}.${s.articles.length + j + 1} ${esc(d.id.toUpperCase())} ${esc(d.title)}</a><span class="dots"></span><span class="pg">${pages.get(d.id) ?? ''}</span></li>`,
+            )
+            .join(''),
       )
       .join('')}</ol></section>`;
   const cover = `<section class="cover"><div class="band"><div style="font-size:11pt;letter-spacing:.08em">${esc(site.product.toUpperCase())} · ${esc(site.company.toUpperCase())}</div><h1>${esc(man.title)}</h1><div class="sub">${esc(man.subtitle)}</div></div>
@@ -162,37 +246,58 @@ ${restricted ? '<p><strong>Restricted document.</strong> Do not publish or forwa
     .map(
       (s) =>
         `<section class="sec" id="s-${s.n}"><span class="mark">§§s${s.n}§§</span><h1>${s.n}. ${esc(s.title)}</h1>` +
-        s.articles.map((a, j) => articleBlock(a, `${s.n}.${j + 1}`, inManual, restricted)).join('') +
+        s.articles
+          .map((a, j) =>
+            articleBlock(a, `${s.n}.${j + 1}`, inManual, restricted),
+          )
+          .join('') +
         s.diagrams
           .map((d, j) => {
-            const arts = d.articles.filter((id) => inManual.has(id) || byId.get(id)?.meta.audience === 'public');
+            const arts = d.articles.filter(
+              (id) =>
+                inManual.has(id) || byId.get(id)?.meta.audience === 'public',
+            );
             return `<div class="wf-page" id="d-${d.id}"><span class="mark">§§${d.id}§§</span><h2>${s.n}.${s.articles.length + j + 1} ${esc(d.id.toUpperCase())} · ${esc(d.title)}</h2><img src="${fileUrl(path.join(helpDir, 'diagrams/svg', d.id + '.svg'))}" alt="${esc(d.title)}" />${arts.length ? `<p class="muted">Described in: ${arts.map((id) => esc(byId.get(id)!.meta.title)).join(' · ')}</p>` : ''}</div>`;
           })
           .join('') +
         '</section>',
     )
     .join('');
-  const doc = (pages: Map<string, number>) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(man.title)}</title><style>${css}</style></head><body>${cover}${revision}${toc(pages)}${body}</body></html>`;
+  const doc = (pages: Map<string, number>) =>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(man.title)}</title><style>${css}</style></head><body>${cover}${revision}${toc(pages)}${body}</body></html>`;
   const out = path.join(restricted ? restrictedOut : pubOut, man.file);
   // Pass 1: find the page of every section/article/diagram marker.
   await render(doc(new Map()), out, man.title, restricted);
   const pages = new Map<string, number>();
   pagesOf(out).forEach((text, i) => {
-    for (const m of text.matchAll(/§§([a-z0-9.-]+)§§/g)) if (!pages.has(m[1])) pages.set(m[1], i + 1);
+    for (const m of text.matchAll(/§§([a-z0-9.-]+)§§/g))
+      if (!pages.has(m[1])) pages.set(m[1], i + 1);
   });
   // Pass 2: same layout, with page numbers filled in.
   await render(doc(pages), out, man.title, restricted);
   const final = pagesOf(out);
   const missing = [...inManual].filter((id) => !pages.has(id));
-  if (missing.length) throw Error(`${man.id}: articles not found in the PDF: ${missing.join(', ')}`);
-  results.push({ file: path.relative(root, out), pages: final.length - (final.at(-1)?.trim() ? 0 : 1), audience: man.audience });
-  console.log(`✓ ${man.title}: ${results.at(-1)!.pages} pages, ${inManual.size} articles → ${path.relative(root, out)}`);
+  if (missing.length)
+    throw Error(
+      `${man.id}: articles not found in the PDF: ${missing.join(', ')}`,
+    );
+  results.push({
+    file: path.relative(root, out),
+    pages: final.length - (final.at(-1)?.trim() ? 0 : 1),
+    audience: man.audience,
+  });
+  console.log(
+    `✓ ${man.title}: ${results.at(-1)!.pages} pages, ${inManual.size} articles → ${path.relative(root, out)}`,
+  );
 }
 
 // One PDF per workflow diagram (public; diagrams describe product behaviour only).
 if (!only.length || only.includes('diagrams'))
   for (const d of diagrams) {
-    const svg = readFileSync(path.join(helpDir, 'diagrams/svg', d.id + '.svg'), 'utf8');
+    const svg = readFileSync(
+      path.join(helpDir, 'diagrams/svg', d.id + '.svg'),
+      'utf8',
+    );
     const vb = /viewBox="[\d.-]+ [\d.-]+ ([\d.]+) ([\d.]+)"/.exec(svg);
     const landscape = !!vb && Number(vb[1]) > Number(vb[2]) * 1.1;
     const html = `<!doctype html><html><head><meta charset="utf-8"><style>${css}
@@ -200,9 +305,29 @@ if (!only.length || only.includes('diagrams'))
     const f = path.join(tmp, d.id + '.html');
     writeFileSync(f, html);
     await page.goto(fileUrl(f));
-    await page.pdf({ path: path.join(pubOut, d.id + '.pdf'), format: 'A4', landscape, printBackground: true, preferCSSPageSize: true });
+    await page.pdf({
+      path: path.join(pubOut, d.id + '.pdf'),
+      format: 'A4',
+      landscape,
+      printBackground: true,
+      preferCSSPageSize: true,
+    });
   }
 await browser.close();
 rmSync(tmp, { recursive: true, force: true });
-writeFileSync(path.join(pubOut, 'manifest.json'), JSON.stringify({ generated, commit, version: site.version, manuals: results.filter((r) => r.audience === 'public') }, null, 2));
-console.log(`PDF manuals: ${results.length}; diagram PDFs: ${only.length && !only.includes('diagrams') ? 0 : diagrams.length}.`);
+writeFileSync(
+  path.join(pubOut, 'manifest.json'),
+  JSON.stringify(
+    {
+      generated,
+      commit,
+      version: site.version,
+      manuals: results.filter((r) => r.audience === 'public'),
+    },
+    null,
+    2,
+  ),
+);
+console.log(
+  `PDF manuals: ${results.length}; diagram PDFs: ${only.length && !only.includes('diagrams') ? 0 : diagrams.length}.`,
+);

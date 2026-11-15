@@ -17,12 +17,26 @@ permissions:
   - Record invoice / Record payment received — Platform owner or Billing administrator
 screenshots: [platform-billing.png]
 diagrams: [wf-05]
-related: [platform.subscriptions, platform.overview, saas.plan-usage, faq.billing]
+related:
+  [platform.subscriptions, platform.overview, saas.plan-usage, faq.billing]
 sources:
   - apps/platform-web/src/App.tsx
   - apps/platform-web/src/store.ts
   - packages/shared/src/saas.ts
-keywords: [invoice, payment, MRR, ARR, revenue, paid manual, card, payment provider, Payment integration pending, Use a three-letter currency code, The period end must be after its start]
+keywords:
+  [
+    invoice,
+    payment,
+    MRR,
+    ARR,
+    revenue,
+    paid manual,
+    card,
+    payment provider,
+    Payment integration pending,
+    Use a three-letter currency code,
+    The period end must be after its start,
+  ]
 ---
 
 **Online payment is not active.** FacilityOS has a provider-neutral payment boundary, but no payment
@@ -31,7 +45,7 @@ records that Sharaco keeps for each company. Companies see their own invoices un
 **Administration → Plan & usage → Billing history**.
 
 > **Warning:** A browser can never mark a subscription paid on the strength of a payment result.
-> *Paid* here is a manual administrative record. Activating online payments needs an approved trusted
+> _Paid_ here is a manual administrative record. Activating online payments needs an approved trusted
 > backend and provider — **pending approval**.
 
 ## Steps — record an invoice
@@ -41,15 +55,15 @@ records that Sharaco keeps for each company. Companies see their own invoices un
 3. Enter the **Invoice number**, **Amount** (zero or more) and **Currency** (three letters, for example
    AED).
 4. Enter the **Service period start** and **Service period end**.
-5. Choose the **Status**: *Draft*, *Issued*, *Paid (manual)* or *Void*.
-6. Select **Save**. *Invoice recorded* appears and the event *invoice.saved* is written to the audit
+5. Choose the **Status**: _Draft_, _Issued_, _Paid (manual)_ or _Void_.
+6. Select **Save**. _Invoice recorded_ appears and the event _invoice.saved_ is written to the audit
    log.
 
 ## Steps — record a payment
 
-1. In the list, find the invoice with status *Issued*.
-2. Select **Record payment received**. The status becomes *Paid* (*Recorded as paid (manual)*), and
-   *invoice.paid_manual* is logged.
+1. In the list, find the invoice with status _Issued_.
+2. Select **Record payment received**. The status becomes _Paid_ (_Recorded as paid (manual)_), and
+   _invoice.paid_manual_ is logged.
 3. Renew the subscription on the company page if the payment covers a new period (see
    [Manage a subscription](article:platform.subscriptions)).
 
@@ -57,17 +71,17 @@ records that Sharaco keeps for each company. Companies see their own invoices un
 
 ## How revenue is computed
 
-The overview's **Recurring revenue** counts only invoices with status *Paid* whose service period
+The overview's **Recurring revenue** counts only invoices with status _Paid_ whose service period
 covers today. Each invoice amount is spread over the months of its service period (MRR), and ARR is
 MRR × 12. Results are per currency and never converted. Trials, drafts, issued and void invoices
 never count.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose the company.* | No company selected. | Choose one. |
-| *Enter the invoice number.* | Missing number. | Enter it. |
-| *Enter an amount of zero or more.* | Negative or invalid amount. | Correct it. |
-| *Use a three-letter currency code.* | Invalid currency. | For example AED, USD. |
-| *The period end must be after its start.* | Dates reversed. | Correct the dates. |
+| Message                                   | Why                         | What to do            |
+| ----------------------------------------- | --------------------------- | --------------------- |
+| _Choose the company._                     | No company selected.        | Choose one.           |
+| _Enter the invoice number._               | Missing number.             | Enter it.             |
+| _Enter an amount of zero or more._        | Negative or invalid amount. | Correct it.           |
+| _Use a three-letter currency code._       | Invalid currency.           | For example AED, USD. |
+| _The period end must be after its start._ | Dates reversed.             | Correct the dates.    |

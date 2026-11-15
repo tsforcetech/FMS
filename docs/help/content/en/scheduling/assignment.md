@@ -15,14 +15,43 @@ prerequisites:
   - Active employees, with shift assignments and approved leave kept up to date
 permissions:
   - Company owner or admin
-screenshots: [phase4-10-schedule-builder.png, phase4-15-staff-workload.png]
+screenshots:
+  [
+    phase4-10-schedule-builder.png,
+    phase4-15-staff-workload.png,
+    admin-recurring-tasks.png,
+    admin-pm-plans.png,
+  ]
 diagrams: [wf-25]
-related: [scheduling.recurring, scheduling.generation, tasks.assignments, people.shifts, people.leave, people.teams, ts.no-eligible-staff]
+related:
+  [
+    scheduling.recurring,
+    scheduling.generation,
+    tasks.assignments,
+    people.shifts,
+    people.leave,
+    people.teams,
+    ts.no-eligible-staff,
+  ]
 sources:
   - packages/shared/src/schedule.ts
   - apps/admin-web/src/management/scheduling.ts
   - apps/admin-web/src/management/Schedules.tsx
-keywords: [round robin, rotation, least workload, fixed employee, pool, eligibility, leave, shift, unassigned queue, No eligible employee, No employees match the assignment rule, Fixed assignee unavailable]
+keywords:
+  [
+    round robin,
+    rotation,
+    least workload,
+    fixed employee,
+    pool,
+    eligibility,
+    leave,
+    shift,
+    unassigned queue,
+    No eligible employee,
+    No employees match the assignment rule,
+    Fixed assignee unavailable,
+  ]
 ---
 
 Every recurring schedule and preventive maintenance plan has an **Assignment** setting. When the
@@ -30,17 +59,21 @@ scheduler creates an occurrence it builds the list of candidates, removes anyone
 that day, and then applies the strategy. It **never** falls back to someone who is not eligible — the
 task goes to the unassigned queue instead.
 
+![The Task management → Recurring tasks screen](screens/admin-recurring-tasks.png)
+
+![The Maintenance → Preventive plans screen](screens/admin-pm-plans.png)
+
 ## Strategies
 
-| Strategy | Who gets the occurrence |
-| --- | --- |
-| *Leave unassigned (queue)* | Nobody. The task is created *Pending* for a supervisor or admin to assign. |
-| *Fixed employee(s)* | The first eligible person in the order you listed them. |
-| *Round-robin rotation* | Eligible people take turns. The turn is worked out from the occurrence number, so running the scheduler again for the same occurrence always picks the same person. |
-| *Least workload* | The eligible person with the fewest planned minutes that day; ties go to the same person every time. |
+| Strategy                   | Who gets the occurrence                                                                                                                                             |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _Leave unassigned (queue)_ | Nobody. The task is created _Pending_ for a supervisor or admin to assign.                                                                                          |
+| _Fixed employee(s)_        | The first eligible person in the order you listed them.                                                                                                             |
+| _Round-robin rotation_     | Eligible people take turns. The turn is worked out from the occurrence number, so running the scheduler again for the same occurrence always picks the same person. |
+| _Least workload_           | The eligible person with the fewest planned minutes that day; ties go to the same person every time.                                                                |
 
-For *Round-robin* and *Least workload*, choose the **Pool**: *Selected employees*, *Department*,
-*Designation*, *Team*, *Shift* or *Site staff*, and the matching value. Tick **Only employees assigned
+For _Round-robin_ and _Least workload_, choose the **Pool**: _Selected employees_, _Department_,
+_Designation_, _Team_, _Shift_ or _Site staff_, and the matching value. Tick **Only employees assigned
 to this site** to keep people from other sites out of the pool.
 
 ## Who is eligible on a day
@@ -53,7 +86,7 @@ A person in the pool is skipped when, on that date, they:
   **Shift**, are not on that shift that day.
 
 > **Note:** An employee with no shift assignment at all is treated as available on every day (except
-> for a *Shift* pool). Give people shifts if you want the scheduler to respect working days.
+> for a _Shift_ pool). Give people shifts if you want the scheduler to respect working days.
 
 ## Steps
 
@@ -72,21 +105,21 @@ A person in the pool is skipped when, on that date, they:
 Generated tasks show the chosen assignee. When nobody is eligible the task is created unassigned
 with one of these reasons:
 
-| Reason | Meaning |
-| --- | --- |
-| *No eligible employee (leave, shift or inactive)* | The pool has people, but none can work that day. |
-| *No employees match the assignment rule* | The pool is empty (for example, nobody in that team). |
-| *Fixed assignee unavailable* | None of the fixed people is eligible that day. |
+| Reason                                            | Meaning                                               |
+| ------------------------------------------------- | ----------------------------------------------------- |
+| _No eligible employee (leave, shift or inactive)_ | The pool has people, but none can work that day.      |
+| _No employees match the assignment rule_          | The pool is empty (for example, nobody in that team). |
+| _Fixed assignee unavailable_                      | None of the fixed people is eligible that day.        |
 
 ![Staff workload with planned minutes used by least-workload assignment](screens/phase4-15-staff-workload.png)
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose the fixed employee(s).* | *Fixed employee(s)* with nobody selected. | Select employees. |
-| *Choose who is in the assignment pool.* | A pool type was chosen without its value. | Choose the department, team, shift, etc. |
-| *Choose the employees in the rotation.* | *Selected employees* pool with nobody selected. | Select employees. |
+| Message                                 | Why                                             | What to do                               |
+| --------------------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| _Choose the fixed employee(s)._         | _Fixed employee(s)_ with nobody selected.       | Select employees.                        |
+| _Choose who is in the assignment pool._ | A pool type was chosen without its value.       | Choose the department, team, shift, etc. |
+| _Choose the employees in the rotation._ | _Selected employees_ pool with nobody selected. | Select employees.                        |
 
 ## Troubleshooting
 

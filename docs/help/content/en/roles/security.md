@@ -13,9 +13,18 @@ description: How security guards complete patrol and inspection checklists, veri
 routes: ['/', /scan, /report]
 prerequisites:
   - A login with role Staff, linked to your employee record
-screenshots: [phase6-03-scanner.png, phase6-08-scan-result.png, phase6-02-attendance.png]
+screenshots:
+  [phase6-03-scanner.png, phase6-08-scan-result.png, phase6-02-attendance.png]
 diagrams: [wf-27, wf-36, wf-37, wf-38, wf-39]
-related: [mobile.qr, mobile.attendance, mobile.offline, staff.report-issue, train.first-checklist, role.housekeeping]
+related:
+  [
+    mobile.qr,
+    mobile.attendance,
+    mobile.offline,
+    staff.report-issue,
+    train.first-checklist,
+    role.housekeeping,
+  ]
 sources:
   - apps/admin-web/src/management/staffStore.ts
   - apps/mobile/src/screens/Scan.tsx
@@ -34,7 +43,7 @@ take photos and work offline.
 - **Home / My tasks** — your patrol and inspection rounds.
 - **Scan** (mobile) — scan a QR label at a location or asset to open your tasks there or verify a
   checkpoint (**Verify for task**).
-- **Report** — report incidents and faults (Problem type *Security*, *Fire & safety*, etc.).
+- **Report** — report incidents and faults (Problem type _Security_, _Fire & safety_, etc.).
 - **Attendance** (mobile) — **Check in** / **Check out**.
 
 ## Responsibilities
@@ -47,11 +56,11 @@ take photos and work offline.
 
 1. **Check in** at the start of the shift ([Attendance](article:mobile.attendance)).
 2. Open your next round, **Start task**.
-3. At each checkpoint **Scan** the QR label; *Verified* confirms you were there
+3. At each checkpoint **Scan** the QR label; _Verified_ confirms you were there
    ([QR scanning](article:mobile.qr)).
 4. Answer the checklist questions; add photos for anything abnormal.
 5. Submit the round. Repeat for each round.
-6. Incident or fault → **Report**, choose the type, *Urgent / unsafe* if needed
+6. Incident or fault → **Report**, choose the type, _Urgent / unsafe_ if needed
    ([Report a problem](article:staff.report-issue)).
 7. **Check out** at the end of the shift.
 
@@ -69,7 +78,7 @@ Then inform your supervisor and report it in the app.
 
 ## FAQs
 
-- **The scan says *You are not authorized for this asset or location*.** The checkpoint is on a site not
+- **The scan says _You are not authorized for this asset or location_.** The checkpoint is on a site not
   linked to your login — tell your supervisor ([Wrong site](article:ts.wrong-site)).
 - **No signal on the roof.** Keep working; the app queues your answers and syncs later
   ([Offline work](article:mobile.offline)).

@@ -11,7 +11,10 @@ import { chromiumOptions, helpDir, loadDiagrams, root } from './lib.ts';
 const only = process.argv.slice(2);
 const out = path.join(helpDir, 'diagrams/svg');
 mkdirSync(out, { recursive: true });
-const mermaidJs = readFileSync(path.join(root, 'node_modules/mermaid/dist/mermaid.min.js'), 'utf8');
+const mermaidJs = readFileSync(
+  path.join(root, 'node_modules/mermaid/dist/mermaid.min.js'),
+  'utf8',
+);
 const browser = await chromium.launch(chromiumOptions());
 const page = await browser.newPage();
 await page.setContent('<!doctype html><html><body></body></html>');
@@ -24,12 +27,26 @@ await page.evaluate(() => {
     htmlLabels: false,
     theme: 'base',
     fontFamily: 'Inter, "Segoe UI", Arial, sans-serif',
-    flowchart: { htmlLabels: false, curve: 'basis', useMaxWidth: true },
-    themeVariables: { primaryColor: '#e8f1fb', primaryBorderColor: '#2f6fb3', lineColor: '#5b6b7d', fontSize: '14px' },
+    flowchart: {
+      htmlLabels: false,
+      curve: 'basis',
+      useMaxWidth: true,
+      nodeSpacing: 28,
+      rankSpacing: 36,
+      padding: 10,
+    },
+    themeVariables: {
+      primaryColor: '#e8f1fb',
+      primaryBorderColor: '#2f6fb3',
+      lineColor: '#5b6b7d',
+      fontSize: '17px',
+    },
   });
 });
 let failed = 0;
-for (const d of loadDiagrams().filter((x) => !only.length || only.includes(x.id))) {
+for (const d of loadDiagrams().filter(
+  (x) => !only.length || only.includes(x.id),
+)) {
   const src = d.source
     .split('\n')
     .filter((l) => !/^%%\s*(title|articles|sources):/.test(l))
@@ -38,7 +55,10 @@ for (const d of loadDiagrams().filter((x) => !only.length || only.includes(x.id)
     async ({ id, src }) => {
       try {
         // @ts-expect-error mermaid global
-        const { svg } = await window.mermaid.render('m' + id.replace(/\W/g, ''), src);
+        const { svg } = await window.mermaid.render(
+          'm' + id.replace(/\W/g, ''),
+          src,
+        );
         return { svg };
       } catch (e) {
         return { error: String((e as Error).message || e) };
@@ -52,8 +72,14 @@ for (const d of loadDiagrams().filter((x) => !only.length || only.includes(x.id)
     continue;
   }
   // Mermaid already sets role/aria attributes; add a title element for accessibility and validate as XML below.
-  const svg = res.svg.replace(/(<svg[^>]*>)/, `$1<title>${d.title.replace(/[<&]/g, '')}</title>`);
-  writeFileSync(path.join(out, d.id + '.svg'), `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated from ${d.file} by npm run help:diagrams. Edit the .mmd source, not this file. -->\n${svg}\n`);
+  const svg = res.svg.replace(
+    /(<svg[^>]*>)/,
+    `$1<title>${d.title.replace(/[<&]/g, '')}</title>`,
+  );
+  writeFileSync(
+    path.join(out, d.id + '.svg'),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Generated from ${d.file} by npm run help:diagrams. Edit the .mmd source, not this file. -->\n${svg}\n`,
+  );
   const xmlError = await page.evaluate((x) => {
     const doc = new DOMParser().parseFromString(x, 'image/svg+xml');
     return doc.querySelector('parsererror')?.textContent || '';

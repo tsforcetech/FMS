@@ -9,7 +9,8 @@ type Dict = Record<string, string>;
 
 const en: Dict = {
   helpCenter: 'Help Center',
-  tagline: 'Guides, workflows and manuals for the FacilityOS facility management platform.',
+  tagline:
+    'Guides, workflows and manuals for the FacilityOS facility management platform.',
   heroTitle: 'How can we help?',
   search: 'Search',
   searchPlaceholder: 'Search articles, error messages, workflows…',
@@ -31,7 +32,8 @@ const en: Dict = {
   allManuals: 'All manuals',
   published: 'Published',
   build: 'Build',
-  footNote: 'This public Help Center contains customer, staff and administrator documentation only. Internal Sharaco runbooks are not published here.',
+  footNote:
+    'This public Help Center contains customer, staff and administrator documentation only. Internal Sharaco runbooks are not published here.',
   breadcrumb: 'Breadcrumb',
   prerequisites: 'Before you start',
   permissions: 'Who can do this',
@@ -43,26 +45,34 @@ const en: Dict = {
   print: 'Print',
   onThisPage: 'On this page',
   inThisModule: 'In this module',
-  fallbackNotice: 'This article has not been translated yet. It is shown in English.',
-  draftNotice: 'This translation is a draft and has not been reviewed yet. If anything is unclear, use the English version.',
+  fallbackNotice:
+    'This article has not been translated yet. It is shown in English.',
+  draftNotice:
+    'This translation is a draft and has not been reviewed yet. If anything is unclear, use the English version.',
   articles: 'articles',
   noArticles: 'No articles yet.',
-  rolesIntro: 'Choose your role to see the guides that apply to you. Business titles such as Facility Manager or Housekeeping are explained in the role guides.',
+  rolesIntro:
+    'Choose your role to see the guides that apply to you. Business titles such as Facility Manager or Housekeeping are explained in the role guides.',
   roleGuides: 'Role guides',
   byRole: 'Articles by role',
-  workflowsIntro: 'Each diagram shows a workflow as it is implemented in FacilityOS, who does each step and where it can branch. Diagrams can be downloaded as SVG, PDF or editable Mermaid source.',
+  workflowsIntro:
+    'Each diagram shows a workflow as it is implemented in FacilityOS, who does each step and where it can branch. Diagrams can be downloaded as SVG, PDF or editable Mermaid source.',
   workflowDiagram: 'Workflow diagram',
   mermaidSource: 'Mermaid source',
-  legend: 'Steps show the responsible role in brackets, for example [Supervisor]. Steps marked "(pending activation)" depend on infrastructure that is not switched on yet.',
-  manualsIntro: 'The PDF manuals are generated from the same articles as this website, so they always match it.',
-  manualsNote: 'Each manual has a cover, contents, numbered sections, page numbers, a glossary and revision information.',
+  legend:
+    'Steps show the responsible role in brackets, for example [Supervisor]. Steps marked "(pending activation)" depend on infrastructure that is not switched on yet.',
+  manualsIntro:
+    'The PDF manuals are generated from the same articles as this website, so they always match it.',
+  manualsNote:
+    'Each manual has a cover, contents, numbered sections, page numbers, a glossary and revision information.',
   opening: 'Opening help…',
   openingText: 'Finding the right article for this screen.',
   notFound: 'Page not found',
   notFoundText: 'The page you asked for does not exist. Try searching instead.',
   results: 'results',
   noResults: 'No results. Try a shorter or different word.',
-  restricted: 'This topic is documented in a restricted manual that is not published on the public Help Center. Ask your Sharaco contact for the Sharaco Platform Administration Manual.',
+  restricted:
+    'This topic is documented in a restricted manual that is not published on the public Help Center. Ask your Sharaco contact for the Sharaco Platform Administration Manual.',
   'app.admin': 'Admin web',
   'app.staff': 'Staff web',
   'app.mobile': 'Mobile app',
@@ -82,7 +92,8 @@ const en: Dict = {
 
 const ml: Dict = {
   helpCenter: 'സഹായ കേന്ദ്രം',
-  tagline: 'FacilityOS ഫെസിലിറ്റി മാനേജ്മെന്റ് പ്ലാറ്റ്ഫോമിനുള്ള ഗൈഡുകൾ, വർക്ക്ഫ്ലോകൾ, മാനുവലുകൾ.',
+  tagline:
+    'FacilityOS ഫെസിലിറ്റി മാനേജ്മെന്റ് പ്ലാറ്റ്ഫോമിനുള്ള ഗൈഡുകൾ, വർക്ക്ഫ്ലോകൾ, മാനുവലുകൾ.',
   heroTitle: 'ഞങ്ങൾ എങ്ങനെ സഹായിക്കണം?',
   search: 'തിരയുക',
   searchPlaceholder: 'ലേഖനങ്ങൾ, പിശക് സന്ദേശങ്ങൾ, വർക്ക്ഫ്ലോകൾ തിരയുക…',
@@ -110,7 +121,8 @@ const ml: Dict = {
   onThisPage: 'ഈ പേജിൽ',
   inThisModule: 'ഈ മൊഡ്യൂളിൽ',
   fallbackNotice: 'ഈ ലേഖനം ഇതുവരെ വിവർത്തനം ചെയ്തിട്ടില്ല. ഇംഗ്ലീഷിൽ കാണിക്കുന്നു.',
-  draftNotice: 'ഈ വിവർത്തനം ഒരു കരട് ആണ്, ഇതുവരെ അവലോകനം ചെയ്തിട്ടില്ല. സംശയമുണ്ടെങ്കിൽ ഇംഗ്ലീഷ് പതിപ്പ് ഉപയോഗിക്കുക.',
+  draftNotice:
+    'ഈ വിവർത്തനം ഒരു കരട് ആണ്, ഇതുവരെ അവലോകനം ചെയ്തിട്ടില്ല. സംശയമുണ്ടെങ്കിൽ ഇംഗ്ലീഷ് പതിപ്പ് ഉപയോഗിക്കുക.',
   articles: 'ലേഖനങ്ങൾ',
   roleGuides: 'റോൾ ഗൈഡുകൾ',
   notFound: 'പേജ് കണ്ടെത്തിയില്ല',
@@ -156,7 +168,8 @@ const hi: Dict = {
   onThisPage: 'इस पेज पर',
   inThisModule: 'इस मॉड्यूल में',
   fallbackNotice: 'इस लेख का अभी अनुवाद नहीं हुआ है। इसे अंग्रेज़ी में दिखाया गया है।',
-  draftNotice: 'यह अनुवाद एक मसौदा है और अभी इसकी समीक्षा नहीं हुई है। कुछ भी अस्पष्ट हो तो अंग्रेज़ी संस्करण देखें।',
+  draftNotice:
+    'यह अनुवाद एक मसौदा है और अभी इसकी समीक्षा नहीं हुई है। कुछ भी अस्पष्ट हो तो अंग्रेज़ी संस्करण देखें।',
   articles: 'लेख',
   roleGuides: 'भूमिका गाइड',
   notFound: 'पेज नहीं मिला',
@@ -202,7 +215,8 @@ const ar: Dict = {
   onThisPage: 'في هذه الصفحة',
   inThisModule: 'في هذه الوحدة',
   fallbackNotice: 'لم تتم ترجمة هذه المقالة بعد. يتم عرضها باللغة الإنجليزية.',
-  draftNotice: 'هذه الترجمة مسودة ولم تتم مراجعتها بعد. إذا كان أي شيء غير واضح فاستخدم النسخة الإنجليزية.',
+  draftNotice:
+    'هذه الترجمة مسودة ولم تتم مراجعتها بعد. إذا كان أي شيء غير واضح فاستخدم النسخة الإنجليزية.',
   articles: 'مقالات',
   roleGuides: 'أدلة الأدوار',
   notFound: 'الصفحة غير موجودة',
@@ -220,16 +234,45 @@ const ar: Dict = {
 
 const modulesT: Record<Lang, Dict> = {
   en: {},
-  ml: { 'Getting Started': 'തുടക്കം', 'Staff Web': 'സ്റ്റാഫ് വെബ്', 'Mobile Application': 'മൊബൈൽ ആപ്പ്', 'Customer Portal': 'കസ്റ്റമർ പോർട്ടൽ', Troubleshooting: 'പ്രശ്നപരിഹാരം', FAQs: 'പതിവ് ചോദ്യങ്ങൾ', 'Training & Quick Starts': 'പരിശീലനവും ക്വിക്ക് സ്റ്റാർട്ടുകളും', 'Role Guides': 'റോൾ ഗൈഡുകൾ' },
-  hi: { 'Getting Started': 'शुरुआत करें', 'Staff Web': 'स्टाफ़ वेब', 'Mobile Application': 'मोबाइल ऐप', 'Customer Portal': 'ग्राहक पोर्टल', Troubleshooting: 'समस्या निवारण', FAQs: 'अक्सर पूछे जाने वाले प्रश्न', 'Training & Quick Starts': 'प्रशिक्षण और क्विक स्टार्ट', 'Role Guides': 'भूमिका गाइड' },
-  ar: { 'Getting Started': 'البدء', 'Staff Web': 'بوابة الموظفين', 'Mobile Application': 'تطبيق الجوال', 'Customer Portal': 'بوابة العملاء', Troubleshooting: 'استكشاف الأخطاء وإصلاحها', FAQs: 'الأسئلة الشائعة', 'Training & Quick Starts': 'التدريب والبدء السريع', 'Role Guides': 'أدلة الأدوار' },
+  ml: {
+    'Getting Started': 'തുടക്കം',
+    'Staff Web': 'സ്റ്റാഫ് വെബ്',
+    'Mobile Application': 'മൊബൈൽ ആപ്പ്',
+    'Customer Portal': 'കസ്റ്റമർ പോർട്ടൽ',
+    Troubleshooting: 'പ്രശ്നപരിഹാരം',
+    FAQs: 'പതിവ് ചോദ്യങ്ങൾ',
+    'Training & Quick Starts': 'പരിശീലനവും ക്വിക്ക് സ്റ്റാർട്ടുകളും',
+    'Role Guides': 'റോൾ ഗൈഡുകൾ',
+  },
+  hi: {
+    'Getting Started': 'शुरुआत करें',
+    'Staff Web': 'स्टाफ़ वेब',
+    'Mobile Application': 'मोबाइल ऐप',
+    'Customer Portal': 'ग्राहक पोर्टल',
+    Troubleshooting: 'समस्या निवारण',
+    FAQs: 'अक्सर पूछे जाने वाले प्रश्न',
+    'Training & Quick Starts': 'प्रशिक्षण और क्विक स्टार्ट',
+    'Role Guides': 'भूमिका गाइड',
+  },
+  ar: {
+    'Getting Started': 'البدء',
+    'Staff Web': 'بوابة الموظفين',
+    'Mobile Application': 'تطبيق الجوال',
+    'Customer Portal': 'بوابة العملاء',
+    Troubleshooting: 'استكشاف الأخطاء وإصلاحها',
+    FAQs: 'الأسئلة الشائعة',
+    'Training & Quick Starts': 'التدريب والبدء السريع',
+    'Role Guides': 'أدلة الأدوار',
+  },
 };
 const dicts: Record<Lang, Dict> = { en, ml, hi, ar };
 
 export function ui(l: Lang) {
   const d = dicts[l];
   const s = (k: string) => d[k] ?? en[k] ?? k;
-  const proxy = new Proxy({} as Record<string, string>, { get: (_, k: string) => s(k) });
+  const proxy = new Proxy({} as Record<string, string>, {
+    get: (target, k: string) => (k in target ? target[k] : s(k)),
+  });
   return Object.assign(proxy, {
     module: (m: string) => modulesT[l][m] || m,
     category: (_id: string, label: string) => d['cat.' + _id] || label,

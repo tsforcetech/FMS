@@ -16,16 +16,44 @@ prerequisites:
   - A platform role granted by an operator (see Operator runbook — grant a platform role)
 permissions:
   - Any platform role (Platform owner, Billing administrator, Support, Read-only viewer)
-screenshots: [phase8-10-platform-overview.png, platform-overview.png, platform-settings.png]
+screenshots:
+  [
+    phase8-10-platform-overview.png,
+    platform-overview.png,
+    platform-settings.png,
+  ]
 diagrams: [wf-01, wf-05]
-related: [platform.companies, platform.plans, platform.subscriptions, platform.billing, platform.audit, platform.support, role.platform-admin, ts.platform-not-authorized, ops.grant-role]
+related:
+  [
+    platform.companies,
+    platform.plans,
+    platform.subscriptions,
+    platform.billing,
+    platform.audit,
+    platform.support,
+    role.platform-admin,
+    ts.platform-not-authorized,
+    ops.grant-role,
+  ]
 sources:
   - apps/platform-web/src/App.tsx
   - apps/platform-web/src/store.ts
   - packages/shared/src/saas.ts
   - scripts/grant-platform-role.mjs
   - firebase/firestore.rules
-keywords: [super admin, Sharaco, platform console, platformRole, custom claim, MRR, ARR, Not a Sharaco platform account, Multi-factor sign-in is not active, Your platform role needs a verified email address]
+keywords:
+  [
+    super admin,
+    Sharaco,
+    platform console,
+    platformRole,
+    custom claim,
+    MRR,
+    ARR,
+    Not a Sharaco platform account,
+    Multi-factor sign-in is not active,
+    Your platform role needs a verified email address,
+  ]
 ---
 
 The **FacilityOS platform console** is Sharaco's own back office for the FacilityOS service. It is
@@ -45,12 +73,12 @@ a trusted script with operator credentials (see
 [Grant or revoke a platform role](article:ops.grant-role)). There is no sign-up page and no
 button in any app that grants it.
 
-| Platform role | Label in the console | Can do |
-| --- | --- | --- |
-| `owner` | Platform owner | Everything below, plus **Register company** |
-| `billing` | Billing administrator | Plans, subscription actions, invoice records |
-| `support` | Support | Request support access to a company |
-| `viewer` | Read-only viewer | View all console pages, change nothing |
+| Platform role | Label in the console  | Can do                                       |
+| ------------- | --------------------- | -------------------------------------------- |
+| `owner`       | Platform owner        | Everything below, plus **Register company**  |
+| `billing`     | Billing administrator | Plans, subscription actions, invoice records |
+| `support`     | Support               | Request support access to a company          |
+| `viewer`      | Read-only viewer      | View all console pages, change nothing       |
 
 Every platform user can view every console page; buttons are only shown to roles that may use them,
 and the security rules refuse anything else.
@@ -58,9 +86,9 @@ and the security rules refuse anything else.
 ## Steps
 
 1. Open the console and sign in with your Sharaco email and password.
-2. If you see *Not a Sharaco platform account*, your account has no platform role, or the role has
+2. If you see _Not a Sharaco platform account_, your account has no platform role, or the role has
    not taken effect yet — see [Platform access refused](article:ts.platform-not-authorized).
-3. If you see *Your platform role needs a verified email address*, verify the address first.
+3. If you see _Your platform role needs a verified email address_, verify the address first.
 4. After sign-in the side menu shows **Overview**, **Companies**, **Plans**, **Subscriptions**,
    **Billing records**, **Platform audit log**, **Operational health** and **Configuration**. Your
    email and role label are shown at the bottom with **Sign out**.
@@ -76,7 +104,7 @@ and the security rules refuse anything else.
 - **Plan distribution** — how many subscriptions use each plan.
 - **Recurring revenue** — MRR and ARR per currency, computed **only** from invoices marked paid whose
   service period covers today. Trials and unpaid invoices never count, and currencies are not
-  converted. If nothing qualifies: *No paid invoices cover today, so recurring revenue is zero.*
+  converted. If nothing qualifies: _No paid invoices cover today, so recurring revenue is zero._
 - **Recent platform events** — the latest entries of the platform audit log.
 
 {{diagram wf-05}}
@@ -85,7 +113,7 @@ and the security rules refuse anything else.
 
 The console states these openly; do not promise them to customers:
 
-- **Multi-factor sign-in** — an amber banner *Multi-factor sign-in is not active.* appears. The console
+- **Multi-factor sign-in** — an amber banner _Multi-factor sign-in is not active._ appears. The console
   is MFA-ready, but enforcing MFA needs Firebase Identity Platform MFA, which is **pending approval**.
 - **Online payments** — disabled; invoices are recorded manually.
 - **Email delivery** — invitation links are copied and sent by hand.
@@ -97,8 +125,8 @@ See **Operational health** and [Platform audit, health and configuration](articl
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Not a Sharaco platform account* | No platform role on this account (a company admin account, for example). | Ask an operator to grant a role; company admins use the admin app. |
-| *Your platform role needs a verified email address.* | The claim exists but the email is unverified. | Verify the email, sign out and in again. |
-| A button is missing | Your role does not include that action. | Ask a platform owner. |
+| Message                                              | Why                                                                      | What to do                                                         |
+| ---------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| _Not a Sharaco platform account_                     | No platform role on this account (a company admin account, for example). | Ask an operator to grant a role; company admins use the admin app. |
+| _Your platform role needs a verified email address._ | The claim exists but the email is unverified.                            | Verify the email, sign out and in again.                           |
+| A button is missing                                  | Your role does not include that action.                                  | Ask a platform owner.                                              |

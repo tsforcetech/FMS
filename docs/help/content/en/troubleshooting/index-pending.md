@@ -16,12 +16,18 @@ related: [reports.dashboard, ts.access-denied]
 sources:
   - apps/admin-web/src/ui/kit.tsx
   - docs/phase7-report.md
-keywords: ["index", "failed-precondition", "This view is still being prepared by the database. Please try again in a few minutes.", "report not loading"]
+keywords:
+  [
+    'index',
+    'failed-precondition',
+    'This view is still being prepared by the database. Please try again in a few minutes.',
+    'report not loading',
+  ]
 ---
 
 ## Symptom
 
-A page shows *This view is still being prepared by the database. Please try again in a few minutes.*
+A page shows _This view is still being prepared by the database. Please try again in a few minutes._
 
 ## Likely cause
 

@@ -17,37 +17,56 @@ permissions:
   - Company owner or admin
 screenshots: [phase4-05-stock-ledger.png, admin-stock-transactions.png]
 diagrams: [wf-18, wf-19, wf-20]
-related: [inventory.materials, inventory.balances, inventory.reversal, import.opening-stock, setup.audit]
+related:
+  [
+    inventory.materials,
+    inventory.balances,
+    inventory.reversal,
+    import.opening-stock,
+    setup.audit,
+  ]
 sources:
   - apps/admin-web/src/management/Assets.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/inventory.ts
   - firebase/firestore.rules
-keywords: [stock, ledger, opening stock, receipt, GRN, issue, transfer, adjustment, stock count, Not enough stock]
+keywords:
+  [
+    stock,
+    ledger,
+    opening stock,
+    receipt,
+    GRN,
+    issue,
+    transfer,
+    adjustment,
+    stock count,
+    Not enough stock,
+  ]
 ---
 
 Every change to stock is a **stock transaction** in a permanent ledger. Balances are calculated
 from these transactions only; they can never be typed in. Stock can never go below zero.
 
-| Transaction type | Effect |
-| --- | --- |
-| **Opening stock** | Records the first balance of a material in a store. Allowed once per store and material. |
-| **Receipt** | Adds stock received from a supplier or another source. |
-| **Issue** | Removes stock consumed or handed out. |
-| **Transfer** | Moves stock between two stores in one step. |
-| **Adjustment (increase)** / **Adjustment (decrease)** | Corrects a counted difference. A reason is required. |
+| Transaction type                                      | Effect                                                                                   |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Opening stock**                                     | Records the first balance of a material in a store. Allowed once per store and material. |
+| **Receipt**                                           | Adds stock received from a supplier or another source.                                   |
+| **Issue**                                             | Removes stock consumed or handed out.                                                    |
+| **Transfer**                                          | Moves stock between two stores in one step.                                              |
+| **Adjustment (increase)** / **Adjustment (decrease)** | Corrects a counted difference. A reason is required.                                     |
 
 ## Before you start
 
 Set up [materials and stores](article:inventory.materials). Quantities follow the material's unit
-(for example up to 3 decimals for kilograms, whole numbers for *Each*).
+(for example up to 3 decimals for kilograms, whole numbers for _Each_).
 
 ## Steps
 
 1. Open **Materials & inventory → Stock transactions** and select **New transaction** (on an
    empty ledger: **Record opening stock**).
-2. The drawer **New stock transaction** opens: *Posted transactions are permanent. Correct
-   mistakes with a reversal.*
+2. The drawer **New stock transaction** opens: _Posted transactions are permanent. Correct
+   mistakes with a reversal._
 3. Under **1 Transaction type**, choose the type.
 4. Under **2 Material & stores**, choose the **Material** and the store: **Store** for opening
    stock, receipts, issues and adjustments; **From store** and **To store** for a transfer. Enter
@@ -55,7 +74,7 @@ Set up [materials and stores](article:inventory.materials). Quantities follow th
 5. Under **3 Details**, enter the **Date** and, optionally, a **Reference** (GRN, delivery note or
    request number). For an issue you can record the **Issued to employee** and the
    **Used at location**. Enter the **Reason** (required for adjustments) and **Notes**.
-6. Select the post button (for example **Post receipt**). The message *Receipt posted.* appears.
+6. Select the post button (for example **Post receipt**). The message _Receipt posted._ appears.
 
 ![The stock ledger](screens/phase4-05-stock-ledger.png)
 
@@ -66,21 +85,21 @@ Set up [materials and stores](article:inventory.materials). Quantities follow th
 - The transaction appears in the ledger with **Transaction**, **Material**, **Store**,
   **Quantity** and **Date**, and the balance in **Stock balance** changes.
 - Use **All transaction types** to filter the ledger.
-- The movement is listed in **Administration → Audit history** under *Stock movements*.
+- The movement is listed in **Administration → Audit history** under _Stock movements_.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Not enough stock. Available in the source store: N (smallest units).* | The issue, transfer or decrease is larger than the balance. | Post the missing receipt first, or reduce the quantity. |
-| *Stock is already recorded for this material in this store. Use a receipt or adjustment instead.* | Opening stock exists already for this material and store. | Use **Receipt** or **Adjustment (increase)**. |
-| *This unit only allows whole numbers* / *Use at most N decimal places for this unit* | The quantity has too many decimals. | Round to the unit's precision. |
-| *Enter a quantity greater than zero* / *Enter a positive number* | The quantity is empty, zero or negative. | Enter a positive quantity. |
-| *Choose the source store* / *Choose the destination store* / *Choose a different store* | A store is missing, or From and To are the same. | Choose two different stores. |
-| *Explain the adjustment* | An adjustment has no reason. | Describe the count difference. |
-| *Enter a valid date* | The date is empty or invalid. | Enter the date. |
-| *Choose an active material.* / *Choose active stores.* | The material or store is archived. | Choose active records. |
-| *This transaction was already posted. It was not posted again.* | The same form was submitted twice (for example after a network retry). | Nothing to do — it was recorded once. |
+| Message                                                                                           | Why                                                                    | What to do                                              |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------- |
+| _Not enough stock. Available in the source store: N (smallest units)._                            | The issue, transfer or decrease is larger than the balance.            | Post the missing receipt first, or reduce the quantity. |
+| _Stock is already recorded for this material in this store. Use a receipt or adjustment instead._ | Opening stock exists already for this material and store.              | Use **Receipt** or **Adjustment (increase)**.           |
+| _This unit only allows whole numbers_ / _Use at most N decimal places for this unit_              | The quantity has too many decimals.                                    | Round to the unit's precision.                          |
+| _Enter a quantity greater than zero_ / _Enter a positive number_                                  | The quantity is empty, zero or negative.                               | Enter a positive quantity.                              |
+| _Choose the source store_ / _Choose the destination store_ / _Choose a different store_           | A store is missing, or From and To are the same.                       | Choose two different stores.                            |
+| _Explain the adjustment_                                                                          | An adjustment has no reason.                                           | Describe the count difference.                          |
+| _Enter a valid date_                                                                              | The date is empty or invalid.                                          | Enter the date.                                         |
+| _Choose an active material._ / _Choose active stores._                                            | The material or store is archived.                                     | Choose active records.                                  |
+| _This transaction was already posted. It was not posted again._                                   | The same form was submitted twice (for example after a network retry). | Nothing to do — it was recorded once.                   |
 
 ## Troubleshooting
 

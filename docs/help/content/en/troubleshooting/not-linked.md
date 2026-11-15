@@ -1,6 +1,6 @@
 ---
 id: ts.not-linked
-title: "Your login is not linked to an employee yet"
+title: 'Your login is not linked to an employee yet'
 module: Troubleshooting
 category: technical-support
 audience: public
@@ -13,19 +13,27 @@ description: A staff member signs in but sees the not-linked screen instead of t
 routes: []
 screenshots: [phase5-03-not-linked.png, phase5-01-admin-link-login.png]
 diagrams: [wf-03]
-related: [staff.sign-in, setup.staff-access, setup.invitations, ts.account-revoked]
+related:
+  [staff.sign-in, setup.staff-access, setup.invitations, ts.account-revoked]
 sources:
   - apps/staff-web/src/App.tsx
   - apps/staff-web/src/i18n.tsx
   - firebase/firestore.rules
-keywords: ["not linked", "Your login is not linked to an employee yet", "Ask your administrator to link your account", "staff access", "identity"]
+keywords:
+  [
+    'not linked',
+    'Your login is not linked to an employee yet',
+    'Ask your administrator to link your account',
+    'staff access',
+    'identity',
+  ]
 ---
 
 ## Symptom
 
 After signing in to the staff web or mobile app the screen says **Your login is not linked to an
-employee yet** — *Ask your administrator to link your account to your employee record. You cannot
-choose an identity yourself.*
+employee yet** — _Ask your administrator to link your account to your employee record. You cannot
+choose an identity yourself._
 
 ![The not-linked screen](screens/phase5-03-not-linked.png)
 

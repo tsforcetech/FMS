@@ -18,13 +18,20 @@ sources:
   - apps/mobile/src/offline/sync.ts
   - apps/mobile/src/offline/executor.ts
   - apps/staff-web/src/i18n.tsx
-keywords: ["conflict", "Needs review", "The server changed while you were offline", "Your change was not applied", "Dismiss"]
+keywords:
+  [
+    'conflict',
+    'Needs review',
+    'The server changed while you were offline',
+    'Your change was not applied',
+    'Dismiss',
+  ]
 ---
 
 ## Symptom
 
-**Sync status** shows **Needs review**: *The server changed while you were offline. Your change was
-not applied; the server version is shown.*
+**Sync status** shows **Needs review**: _The server changed while you were offline. Your change was
+not applied; the server version is shown._
 
 ![A conflict in Sync status (Chromium runtime test)](screens/phase6-07-conflict.png)
 

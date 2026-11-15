@@ -15,21 +15,52 @@ prerequisites:
   - A site (and location) for each store
 permissions:
   - Company owner or admin
-screenshots: [admin-materials.png, admin-stores.png]
+screenshots:
+  [
+    admin-materials.png,
+    admin-stores.png,
+    admin-material-categories.png,
+    admin-suppliers.png,
+  ]
 diagrams: [wf-18]
-related: [inventory.movements, inventory.balances, inventory.reversal, import.opening-stock, assets.register, sites.archive]
+related:
+  [
+    inventory.movements,
+    inventory.balances,
+    inventory.reversal,
+    import.opening-stock,
+    assets.register,
+    sites.archive,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
   - packages/shared/src/inventory.ts
-keywords: [material, consumable, unit of measure, reorder level, store, storeroom, store keeper, supplier, material category, kg, litre]
+keywords:
+  [
+    material,
+    consumable,
+    unit of measure,
+    reorder level,
+    store,
+    storeroom,
+    store keeper,
+    supplier,
+    material category,
+    kg,
+    litre,
+  ]
 ---
 
 **Materials** are consumables you count — cleaning chemicals, filters, bulbs, paper. Stock is held
 in **stores** at a site and changes only through posted
 [stock transactions](article:inventory.movements). This article covers the master data you need
 first.
+
+![The Materials & inventory → Material categories screen](screens/admin-material-categories.png)
+
+![The Materials & inventory → Suppliers screen](screens/admin-suppliers.png)
 
 ## Before you start
 
@@ -42,7 +73,7 @@ first.
 ## Steps
 
 1. **Material categories:** open **Materials & inventory → Material categories**, select
-   **Add material category**, enter the **Code** and **Name** (for example *Cleaning chemicals*)
+   **Add material category**, enter the **Code** and **Name** (for example _Cleaning chemicals_)
    and save.
 2. **Suppliers (optional):** open **Suppliers** and select **Add supplier**. Enter the **Code**,
    **Name**, what it **Supplies** (Assets, Materials, Assets and materials, or Services) and the
@@ -50,7 +81,7 @@ first.
    **Tax / VAT identifier**).
 3. **Materials:** open **Materials** and select **Add material**. Enter the **Code** and **Name**,
    choose the **Category** and **Unit of measure**, and optionally the **Reorder level**
-   (*Balances at or below this level are flagged for reorder.*), the **Preferred supplier** and a
+   (_Balances at or below this level are flagged for reorder._), the **Preferred supplier** and a
    **Description**. Select **Save material**.
 4. **Stores:** open **Stores** and select **Add store**. Enter the **Code** and **Name**, choose
    the **Site**, optionally the **Location** and **Store keeper**, and save.
@@ -71,12 +102,12 @@ first.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Unit of measure cannot change after creation. Create a new record instead.* | You changed the unit of a saved material. | Create a new material with the correct unit and archive the old one. |
-| *Site cannot change after creation. Create a new record instead.* | You changed the site of a saved store. | Create a new store at the other site. |
-| *This code is already reserved. Choose another code.* | The code is already used. | Choose another code. |
-| *Archive or reassign active linked records first.* | A category or supplier is still used by active materials. | Change or archive those materials first. |
+| Message                                                                      | Why                                                       | What to do                                                           |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
+| _Unit of measure cannot change after creation. Create a new record instead._ | You changed the unit of a saved material.                 | Create a new material with the correct unit and archive the old one. |
+| _Site cannot change after creation. Create a new record instead._            | You changed the site of a saved store.                    | Create a new store at the other site.                                |
+| _This code is already reserved. Choose another code._                        | The code is already used.                                 | Choose another code.                                                 |
+| _Archive or reassign active linked records first._                           | A category or supplier is still used by active materials. | Change or archive those materials first.                             |
 
 ## Troubleshooting
 

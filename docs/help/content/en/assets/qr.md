@@ -15,9 +15,22 @@ prerequisites:
   - A registered asset that is not archived
 permissions:
   - Company owner or admin to print labels; any signed-in user with access to the asset's site to open it
-screenshots: [phase4-04-asset-qr.png, phase6-03-scanner.png, phase6-08-scan-result.png]
+screenshots:
+  [
+    phase4-04-asset-qr.png,
+    phase6-03-scanner.png,
+    phase6-08-scan-result.png,
+    admin-assets.png,
+  ]
 diagrams: [wf-37]
-related: [assets.register, assets.transfer, mobile.qr, ts.qr-invalid, maintenance.work-orders]
+related:
+  [
+    assets.register,
+    assets.transfer,
+    mobile.qr,
+    ts.qr-invalid,
+    maintenance.work-orders,
+  ]
 sources:
   - apps/admin-web/src/management/Assets.tsx
   - apps/mobile/src/screens/Scan.tsx
@@ -27,6 +40,8 @@ keywords: [QR, QR code, label, print label, barcode, scan, sticker, asset tag]
 
 Every asset has a QR label that encodes a link to the asset's page. The code contains **no
 credentials**: scanning opens the asset only after an authorised FacilityOS sign-in.
+
+![The Assets → Asset register screen](screens/admin-assets.png)
 
 ## Before you start
 
@@ -38,8 +53,8 @@ credentials**: scanning opens the asset only after an authorised FacilityOS sign
 ### Download or print the label
 
 1. Open **Assets → Asset register** and open the asset.
-2. Select **QR label**. The drawer shows the code and *Scanning opens this asset after sign-in.
-   The code contains no credentials.*
+2. Select **QR label**. The drawer shows the code and _Scanning opens this asset after sign-in.
+   The code contains no credentials._
 3. Select **Download** to save a PNG named after the asset code (for example `AC-T1-0201.png`), or
    **Print label** to print the code with the asset code, name and company name.
 4. Stick the label on the asset where it can be scanned easily.
@@ -48,8 +63,8 @@ credentials**: scanning opens the asset only after an authorised FacilityOS sign
 
 ### Scan a label
 
-1. In the mobile app, open **Scan** and point the camera at the label (*Point the camera at the
-   QR label on the asset or location.*). You can also type the code (*Or type the code*).
+1. In the mobile app, open **Scan** and point the camera at the label (_Point the camera at the
+   QR label on the asset or location._). You can also type the code (_Or type the code_).
 2. FacilityOS checks your access to the asset's site and shows the asset with
    **My open tasks here** and a way to report a problem.
 3. Any other phone camera opens the asset page in the browser, which still requires an authorised
@@ -71,11 +86,11 @@ their staff link covers the asset's site.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This is not a FacilityOS code.* | The QR code was not created by FacilityOS. | Scan the FacilityOS label, or type the code. |
-| *This code does not match any record you can access.* | The asset does not exist, is archived or disposed, or is not visible to you. | Check the asset status with an administrator. |
-| *You are not authorized for this asset or location.* | Your staff link does not include the asset's site. | Ask an administrator to add the site in **Staff access**. |
+| Message                                               | Why                                                                          | What to do                                                |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
+| _This is not a FacilityOS code._                      | The QR code was not created by FacilityOS.                                   | Scan the FacilityOS label, or type the code.              |
+| _This code does not match any record you can access._ | The asset does not exist, is archived or disposed, or is not visible to you. | Check the asset status with an administrator.             |
+| _You are not authorized for this asset or location._  | Your staff link does not include the asset's site.                           | Ask an administrator to add the site in **Staff access**. |
 
 ## Troubleshooting
 

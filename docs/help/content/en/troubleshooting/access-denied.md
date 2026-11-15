@@ -12,25 +12,42 @@ owner: Support
 description: What the permission messages mean and how to get the right access without weakening security.
 routes: []
 screenshots: [phase5-01-admin-link-login.png, phase7-01-admin-link-customer.png]
-related: [gs.roles, setup.user-access, setup.staff-access, setup.customer-access, ts.wrong-site, ts.account-revoked, ts.read-only]
+related:
+  [
+    gs.roles,
+    setup.user-access,
+    setup.staff-access,
+    setup.customer-access,
+    ts.wrong-site,
+    ts.account-revoked,
+    ts.read-only,
+  ]
 sources:
   - packages/shared/src/index.ts
   - apps/staff-web/src/i18n.tsx
   - apps/customer-web/src/App.tsx
   - firebase/firestore.rules
-keywords: ["permission denied", "access denied", "Access is no longer available", "You do not have permission for this. Ask your supervisor.", "This change was not allowed", "You do not have access to this company"]
+keywords:
+  [
+    'permission denied',
+    'access denied',
+    'Access is no longer available',
+    'You do not have permission for this. Ask your supervisor.',
+    'This change was not allowed',
+    'You do not have access to this company',
+  ]
 ---
 
 ## Symptom
 
 One of these messages appears:
 
-- *Access is no longer available. Contact your company owner or refresh your access.* (admin app)
-- *This change was not allowed. A linked record may have changed, or your access was updated.
-  Refresh and try again.* (admin app)
-- *You do not have permission for this. Ask your supervisor.* (staff web and mobile)
-- *You do not have access to this company* (staff web and mobile)
-- *Your account is not set up yet* or *This is not a customer account* (customer portal)
+- _Access is no longer available. Contact your company owner or refresh your access._ (admin app)
+- _This change was not allowed. A linked record may have changed, or your access was updated.
+  Refresh and try again._ (admin app)
+- _You do not have permission for this. Ask your supervisor._ (staff web and mobile)
+- _You do not have access to this company_ (staff web and mobile)
+- _Your account is not set up yet_ or _This is not a customer account_ (customer portal)
 
 ## Likely cause
 

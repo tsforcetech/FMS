@@ -18,12 +18,31 @@ permissions:
   - Company owner or admin
 screenshots: [phase4-02-site-form.png, admin-sites.png]
 diagrams: [wf-08]
-related: [sites.locations, sites.facilities, sites.archive, clients.allocations, setup.wizard, ts.duplicate-code]
+related:
+  [
+    sites.locations,
+    sites.facilities,
+    sites.archive,
+    clients.allocations,
+    setup.wizard,
+    ts.duplicate-code,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
-keywords: [site, property, building, add site, time zone, working days, opening time, property type, Choose a supported IANA time zone]
+keywords:
+  [
+    site,
+    property,
+    building,
+    add site,
+    time zone,
+    working days,
+    opening time,
+    property type,
+    Choose a supported IANA time zone,
+  ]
 ---
 
 A **site** is a physical property your company looks after — a tower, villa, warehouse, hotel,
@@ -40,8 +59,8 @@ shifts and tasks. A site **never needs a client or contract**; you connect clien
 ## Steps
 
 1. Open **Property → Sites** and select **Add site**. The form **New site** opens with the note
-   *Sites are physical properties and never need a client or contract. Connect clients later
-   through Contract allocations.*
+   _Sites are physical properties and never need a client or contract. Connect clients later
+   through Contract allocations._
 2. Enter the **Code** (uppercase letters, numbers, `-` or `_`, up to 40 characters) and the
    **Name**.
 3. Choose the **Property type**: Residential tower, Commercial building, Villa, Warehouse, Hotel,
@@ -50,7 +69,7 @@ shifts and tasks. A site **never needs a client or contract**; you connect clien
 5. Choose the **Time zone** (required) and the **Working days**, and optionally the
    **Opening time** and **Closing time**.
 6. Optionally enter the **Contact person**, **Contact phone** and **Description**.
-7. Select **Save site**. The message *Site created.* appears.
+7. Select **Save site**. The message _Site created._ appears.
 
 ![The new site form](screens/phase4-02-site-form.png)
 
@@ -58,7 +77,7 @@ shifts and tasks. A site **never needs a client or contract**; you connect clien
 
 ## Expected result
 
-- The site appears in **Property → Sites** with status *Active*.
+- The site appears in **Property → Sites** with status _Active_.
 - The site page has tabs **Overview**, **Location tree** and related lists: **Locations**,
   **Facilities**, **Assets**, **Stores**, **Allocations**, **Staff** and **Shifts**.
 - Next, add buildings, floors and rooms in [Locations](article:sites.locations).
@@ -67,18 +86,18 @@ shifts and tasks. A site **never needs a client or contract**; you connect clien
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Use uppercase letters, numbers, - or _* | The code has lower-case letters, spaces or other symbols. | Use a code like `TOWER-A`. |
-| *This code is already reserved. Choose another code.* | Another site — active or archived — already uses the code. | Choose a different code. See [Duplicate code](article:ts.duplicate-code). |
-| *Choose a supported IANA time zone* | The time zone is empty or unknown. | Pick one from the list, for example *Asia/Dubai*. |
-| *Select valid working days* | The working days are invalid. | Tick at least one day. |
-| *Business codes cannot be changed. They are reserved for historical references.* | You edited the code of an existing site. | Keep the code. Create a new site if you need another code. |
-| *Your plan allows N sites. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available.* | Your plan's site limit is reached. | Archive unused sites or ask about a larger plan. |
+| Message                                                                                                                | Why                                                        | What to do                                                                |
+| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
+| _Use uppercase letters, numbers, - or __                                                                               | The code has lower-case letters, spaces or other symbols.  | Use a code like `TOWER-A`.                                                |
+| _This code is already reserved. Choose another code._                                                                  | Another site — active or archived — already uses the code. | Choose a different code. See [Duplicate code](article:ts.duplicate-code). |
+| _Choose a supported IANA time zone_                                                                                    | The time zone is empty or unknown.                         | Pick one from the list, for example _Asia/Dubai_.                         |
+| _Select valid working days_                                                                                            | The working days are invalid.                              | Tick at least one day.                                                    |
+| _Business codes cannot be changed. They are reserved for historical references._                                       | You edited the code of an existing site.                   | Keep the code. Create a new site if you need another code.                |
+| _Your plan allows N sites. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available._ | Your plan's site limit is reached.                         | Archive unused sites or ask about a larger plan.                          |
 
 ## Troubleshooting
 
-- **The form shows *Legacy client link preserved***: the site was created before sites and
+- **The form shows _Legacy client link preserved_**: the site was created before sites and
   contracts were separated. Its original client link is kept for migration review and is not
   changed by your edit.
 - **Times are wrong on schedules:** check the site's **Time zone**; it can differ from the company

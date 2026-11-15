@@ -15,9 +15,25 @@ prerequisites:
   - Your plan includes Excel/PDF export (see Plan & usage)
 permissions:
   - Company owner or admin (customers can export their own service history in the customer portal)
-screenshots: [phase8-04-export-dialog.png, phase7-07-admin-management-dashboard.png]
+screenshots:
+  [
+    phase8-04-export-dialog.png,
+    phase7-07-admin-management-dashboard.png,
+    admin-departments.png,
+    admin-tasks.png,
+    admin-management.png,
+    admin-work-orders.png,
+    admin-stock-transactions.png,
+  ]
 diagrams: [wf-44]
-related: [exports.limits, train.export, reports.dashboard, customer.history, saas.plan-usage]
+related:
+  [
+    exports.limits,
+    train.export,
+    reports.dashboard,
+    customer.history,
+    saas.plan-usage,
+  ]
 sources:
   - apps/admin-web/src/ui/ExportMenu.tsx
   - apps/admin-web/src/management/exportStore.ts
@@ -25,7 +41,8 @@ sources:
   - apps/admin-web/src/management/reportExports.ts
   - packages/shared/src/exporting.ts
   - packages/shared/src/exportFiles.ts
-keywords: [download, excel, xlsx, pdf, csv, spreadsheet, print, export all, columns]
+keywords:
+  [download, excel, xlsx, pdf, csv, spreadsheet, print, export all, columns]
 ---
 
 Every list and report in FacilityOS has the same **Export** button. It downloads exactly the
@@ -45,16 +62,26 @@ Where you find it:
   attendance, SLA performance and the compliance register.
 - **Customer portal** — **Service history** (customer-safe columns only).
 
+![The People & teams → Departments screen](screens/admin-departments.png)
+
+![The Task management → Task register screen](screens/admin-tasks.png)
+
+![The Reports & analytics → Management dashboard screen](screens/admin-management.png)
+
+![The Maintenance → Work orders screen](screens/admin-work-orders.png)
+
+![The Materials & inventory → Stock transactions screen](screens/admin-stock-transactions.png)
+
 ## Steps
 
 1. Open the list or report and set the filters you want (status, site, period, search…).
 2. Select **Export**. The export panel opens.
-3. Choose the **Format**: *Excel (.xlsx)*, *PDF* or *CSV*.
+3. Choose the **Format**: _Excel (.xlsx)_, _PDF_ or _CSV_.
 4. Choose the **Scope**:
-   - *On screen* (or *Current page*) — exactly the rows already loaded on the screen.
-   - *All matching records* — FacilityOS reads every record that matches the filters in pages,
+   - _On screen_ (or _Current page_) — exactly the rows already loaded on the screen.
+   - _All matching records_ — FacilityOS reads every record that matches the filters in pages,
      with no 3,000-row display limit. An estimated row count is shown when it is available.
-5. Under **Columns**, tick the columns you need. Columns marked *(detail)* are optional extras.
+5. Under **Columns**, tick the columns you need. Columns marked _(detail)_ are optional extras.
 6. Check **Filters applied** and **Period** — they are printed on the file.
 7. Select **Export XLSX** / **Export PDF** / **Export CSV**. A progress bar shows the rows read; you
    can **Cancel export** at any time.
@@ -79,12 +106,12 @@ Where you find it:
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Excel/PDF export is not included in your plan* | Your plan has the export feature switched off. | Ask Sharaco to change the plan. |
-| *… rows are too many for a readable PDF (limit 10,000)* | PDF has a lower limit than Excel. | Use Excel, or narrow the filters. See [Export limits](article:exports.limits). |
-| *… rows exceed the in-browser limit of 100,000* | Very large exports run in your browser. | Export in parts, for example month by month. |
-| *Export cancelled.* | You pressed **Cancel export**. | Start again. |
+| Message                                                 | Why                                            | What to do                                                                     |
+| ------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| _Excel/PDF export is not included in your plan_         | Your plan has the export feature switched off. | Ask Sharaco to change the plan.                                                |
+| _… rows are too many for a readable PDF (limit 10,000)_ | PDF has a lower limit than Excel.              | Use Excel, or narrow the filters. See [Export limits](article:exports.limits). |
+| _… rows exceed the in-browser limit of 100,000_         | Very large exports run in your browser.        | Export in parts, for example month by month.                                   |
+| _Export cancelled._                                     | You pressed **Cancel export**.                 | Start again.                                                                   |
 
 ## Troubleshooting
 

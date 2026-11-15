@@ -17,7 +17,19 @@ sources:
   - packages/shared/src/saas.ts
   - apps/admin-web/src/management/planGate.ts
   - apps/admin-web/src/management/SaasPages.tsx
-keywords: ["FAQ", "billing", "plan", "subscription", "trial", "limit", "upgrade", "invoice", "payment", "read-only"]
+keywords:
+  [
+    'FAQ',
+    'billing',
+    'plan',
+    'subscription',
+    'trial',
+    'limit',
+    'upgrade',
+    'invoice',
+    'payment',
+    'read-only',
+  ]
 ---
 
 ## Where can I see my plan?
@@ -33,8 +45,8 @@ and whether the **Customer portal**, **Mobile app**, **Advanced reports**, **Exc
 
 ## What happens when I reach a limit?
 
-You cannot add more of that record: *Your plan allows … Archive unused records or ask Sharaco to
-upgrade your plan. Existing data stays available.*
+You cannot add more of that record: _Your plan allows … Archive unused records or ask Sharaco to
+upgrade your plan. Existing data stays available._
 
 ## How do I upgrade or change plan?
 
@@ -42,8 +54,8 @@ Contact Sharaco. Plan changes are made by Sharaco platform staff; a company cann
 
 ## What happens when the subscription ends?
 
-The subscription goes through *renewal due* (14 days before the end), a *grace* period and then
-*past due* and *expired*. If Sharaco sets the company to read-only, your data stays available to
+The subscription goes through _renewal due_ (14 days before the end), a _grace_ period and then
+_past due_ and _expired_. If Sharaco sets the company to read-only, your data stays available to
 view and export but changes are paused. Nothing is deleted. See
 [Read-only subscription](article:ts.read-only).
 

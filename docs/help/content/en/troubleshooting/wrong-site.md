@@ -17,15 +17,23 @@ sources:
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/mobile/src/screens/Scan.tsx
   - firebase/firestore.rules
-keywords: ["wrong site", "other site", "You are not authorized for this asset or location.", "This code does not match any record you can access.", "site scope", "All my sites"]
+keywords:
+  [
+    'wrong site',
+    'other site',
+    'You are not authorized for this asset or location.',
+    'This code does not match any record you can access.',
+    'site scope',
+    'All my sites',
+  ]
 ---
 
 ## Symptom
 
-- A task opens but the buttons are missing, or *You do not have permission for this. Ask your
-  supervisor.*
-- Scanning shows *You are not authorized for this asset or location.* or *This code does not match
-  any record you can access.*
+- A task opens but the buttons are missing, or _You do not have permission for this. Ask your
+  supervisor._
+- Scanning shows _You are not authorized for this asset or location._ or _This code does not match
+  any record you can access._
 - A task you were told about is not in **My tasks**.
 
 ## Likely cause
@@ -35,7 +43,7 @@ order is at another site, or the task is assigned to someone else.
 
 ## How to check
 
-1. In **Profile**, look at your sites (or *All my sites*).
+1. In **Profile**, look at your sites (or _All my sites_).
 2. The supervisor checks the task's site and assignee in the admin app.
 
 ![Scan result for a place the user can access](screens/phase6-08-scan-result.png)

@@ -16,11 +16,21 @@ related: [staff.notifications, faq.staff]
 sources:
   - apps/staff-web/src/i18n.tsx
   - apps/staff-web/src/screens/Profile.tsx
-keywords: ["language", "English", "Malayalam", "Hindi", "Arabic", "RTL", "translation", "preview"]
+keywords:
+  [
+    'language',
+    'English',
+    'Malayalam',
+    'Hindi',
+    'Arabic',
+    'RTL',
+    'translation',
+    'preview',
+  ]
 ---
 
 The staff web and mobile app are available in **English**, **Malayalam**, **Hindi** and **Arabic**.
-English is complete. The other languages cover the main actions and are marked *preview* with a
+English is complete. The other languages cover the main actions and are marked _preview_ with a
 percentage; any text not yet translated is shown in English.
 
 ## Steps
@@ -39,8 +49,8 @@ and browser.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
+| Message                     | Why                                                 | What to do                                  |
+| --------------------------- | --------------------------------------------------- | ------------------------------------------- |
 | Some words still in English | That text is not translated yet (preview language). | This is expected; it falls back to English. |
 
 ## Troubleshooting

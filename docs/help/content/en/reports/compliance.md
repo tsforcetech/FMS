@@ -13,13 +13,24 @@ description: Record statutory certificates and inspections with evidence and exp
 routes: [/compliance]
 permissions:
   - Company owner or admin
-screenshots: [phase7-07-admin-management-dashboard.png]
+screenshots: [phase7-07-admin-management-dashboard.png, admin-compliance.png]
 related: [reports.dashboard, maintenance.pm, assets.register, exports.overview]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
-keywords: [compliance, certificate, statutory inspection, fire safety certificate, lift inspection, expiry, evidence pending, verified, expiring]
+keywords:
+  [
+    compliance,
+    certificate,
+    statutory inspection,
+    fire safety certificate,
+    lift inspection,
+    expiry,
+    evidence pending,
+    verified,
+    expiring,
+  ]
 ---
 
 **Compliance & inspections** keeps certificates and statutory inspections — fire safety, electrical,
@@ -28,7 +39,9 @@ expiry dates.
 
 > **Note:** Verified means evidenced. A record counts as valid only when it is marked verified **and**
 > has an evidence reference (certificate number, document location or link). Records without evidence
-> show as *Evidence pending*, never as compliant.
+> show as _Evidence pending_, never as compliant.
+
+![The Reports & analytics → Compliance & inspections screen](screens/admin-compliance.png)
 
 ## Steps
 
@@ -48,22 +61,22 @@ expiry dates.
 The summary counts **Valid**, **Expiring ≤30 days**, **Expired** and **Evidence pending**. The table is
 sorted by expiry date so the next renewals come first.
 
-| Status | Meaning |
-| --- | --- |
-| Valid | Verified with evidence and not expiring within 30 days. |
-| Expiring | Verified with evidence, expiring within 30 days. |
-| Expired | Verified, but the expiry date has passed. |
-| Evidence pending | Not verified, or no evidence reference. |
+| Status           | Meaning                                                 |
+| ---------------- | ------------------------------------------------------- |
+| Valid            | Verified with evidence and not expiring within 30 days. |
+| Expiring         | Verified with evidence, expiring within 30 days.        |
+| Expired          | Verified, but the expiry date has passed.               |
+| Evidence pending | Not verified, or no evidence reference.                 |
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Enter a title.* | Title missing. | Add a title. |
-| *Choose a category.* | Category missing. | Choose one. |
-| *Choose the site.* | Site missing. | Choose the site. |
-| *The expiry date must be after the issue date.* | Dates reversed. | Correct the dates. |
-| *No compliance records yet* | Nothing recorded. | Select **Add record**. |
+| Message                                         | Why               | What to do             |
+| ----------------------------------------------- | ----------------- | ---------------------- |
+| _Enter a title._                                | Title missing.    | Add a title.           |
+| _Choose a category._                            | Category missing. | Choose one.            |
+| _Choose the site._                              | Site missing.     | Choose the site.       |
+| _The expiry date must be after the issue date._ | Dates reversed.   | Correct the dates.     |
+| _No compliance records yet_                     | Nothing recorded. | Select **Add record**. |
 
 ## Troubleshooting
 

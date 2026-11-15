@@ -23,7 +23,16 @@ sources:
   - apps/platform-web/src/store.ts
   - apps/admin-web/src/management/tenantSaas.ts
   - firebase/firestore.rules
-keywords: [support access, tenant data, privacy, setup summary, Request access, Explain why access is needed, View setup summary]
+keywords:
+  [
+    support access,
+    tenant data,
+    privacy,
+    setup summary,
+    Request access,
+    Explain why access is needed,
+    View setup summary,
+  ]
 ---
 
 Platform staff **cannot read tenant operational data**. When you need to help a company with its
@@ -36,12 +45,12 @@ employees, customers, stock, attendance and photos are never visible to platform
 1. Open **Companies** and select the company.
 2. In **Support access**, type the **Reason for access (shown to the tenant)** — be specific, for
    example "Check onboarding steps for ticket 1234".
-3. Select **Request access**. *Request sent to the tenant* appears and **Your request** shows
-   *Requested*.
+3. Select **Request access**. _Request sent to the tenant_ appears and **Your request** shows
+   _Requested_.
 4. Tell the company's contact through your normal support channel that a request is waiting under
    **Administration → Plan & usage → Sharaco support access**. There is no automatic email.
-5. When approved, **Your request** shows *Approved until …*. Select **View setup summary** to see
-   *Starter pack* and *Steps marked*.
+5. When approved, **Your request** shows _Approved until …_. Select **View setup summary** to see
+   _Starter pack_ and _Steps marked_.
 6. Access ends automatically at the expiry time (at most 72 hours; the admin app grants 24 hours) or
    as soon as the company selects **Revoke**.
 
@@ -52,10 +61,10 @@ the subscription.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Explain why access is needed.* | Empty reason. | Enter a reason. |
-| Summary refused | Not approved, expired or revoked. | Send a new request. |
+| Message                         | Why                               | What to do          |
+| ------------------------------- | --------------------------------- | ------------------- |
+| _Explain why access is needed._ | Empty reason.                     | Enter a reason.     |
+| Summary refused                 | Not approved, expired or revoked. | Send a new request. |
 
 > **Note:** Never ask a customer to share a password or to create an account for you. Use the access
 > request; if more is needed, the company admin can export data and share it under their own control.

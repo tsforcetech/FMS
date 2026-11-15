@@ -17,13 +17,20 @@ related: [scheduling.generation, scheduling.recurring, ts.no-tasks]
 sources:
   - apps/admin-web/src/management/Notifications.tsx
   - apps/admin-web/src/management/scheduling.ts
-keywords: ["scheduler", "No server run recorded yet", "The server job has not run in the last 2 hours", "Run scheduler now", "automatic generation"]
+keywords:
+  [
+    'scheduler',
+    'No server run recorded yet',
+    'The server job has not run in the last 2 hours',
+    'Run scheduler now',
+    'automatic generation',
+  ]
 ---
 
 ## Symptom
 
-Schedules are *Active* but no new tasks appear. **Administration → Scheduler monitor** shows *No
-server run recorded yet* or *The server job has not run in the last 2 hours*.
+Schedules are _Active_ but no new tasks appear. **Administration → Scheduler monitor** shows _No
+server run recorded yet_ or _The server job has not run in the last 2 hours_.
 
 ![Scheduler monitor](screens/phase4-17-scheduler-monitor.png)
 
@@ -31,7 +38,7 @@ server run recorded yet* or *The server job has not run in the last 2 hours*.
 
 Automatic generation runs as a scheduled server job every 30 minutes, signed in as a dedicated
 scheduler account. It works only after that account has been set up for your installation. Until
-then *nothing is generated automatically*.
+then _nothing is generated automatically_.
 
 ## How to check
 

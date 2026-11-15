@@ -17,7 +17,17 @@ sources:
   - apps/mobile/src/screens/TaskRun.tsx
   - apps/mobile/src/platform.ts
   - docs/phase6-report.md
-keywords: ["photo", "camera", "Take photo", "Before", "After", "Saved encrypted on this device", "upload pending", "evidence"]
+keywords:
+  [
+    'photo',
+    'camera',
+    'Take photo',
+    'Before',
+    'After',
+    'Saved encrypted on this device',
+    'upload pending',
+    'evidence',
+  ]
 ---
 
 Some checklist questions ask for a photo — for example before and after cleaning.
@@ -35,16 +45,16 @@ Some checklist questions ask for a photo — for example before and after cleani
 
 ## Expected result
 
-The card shows the photo phase you captured and *Saved encrypted on this device. Upload is pending
-activation (needs cloud storage).* The photo is made smaller (up to 1280 px) and encrypted. A photo
+The card shows the photo phase you captured and _Saved encrypted on this device. Upload is pending
+activation (needs cloud storage)._ The photo is made smaller (up to 1280 px) and encrypted. A photo
 never blocks you from submitting the task.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Camera permission is off.* | Camera blocked. | See [Camera or location denied](article:ts.permissions-denied). |
-| *The camera is not available.* | No camera, or it is used by another app. | Close other camera apps and try again. |
+| Message                        | Why                                      | What to do                                                      |
+| ------------------------------ | ---------------------------------------- | --------------------------------------------------------------- |
+| _Camera permission is off._    | Camera blocked.                          | See [Camera or location denied](article:ts.permissions-denied). |
+| _The camera is not available._ | No camera, or it is used by another app. | Close other camera apps and try again.                          |
 
 ## Troubleshooting
 

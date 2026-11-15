@@ -13,18 +13,38 @@ description: The admin app layout — the menu groups, the top bar, record lists
 routes: [/]
 permissions:
   - Company owner or admin
-screenshots: [phase4-dashboard-desktop.png, phase4-list-desktop.png, phase4-form-mobile.png]
+screenshots:
+  [
+    phase4-dashboard-desktop.png,
+    phase4-list-desktop.png,
+    phase4-form-mobile.png,
+    admin-home.png,
+  ]
 related: [gs.overview, gs.roles, sites.create, setup.notifications]
 sources:
   - apps/admin-web/src/nav.ts
   - apps/admin-web/src/App.tsx
   - apps/admin-web/src/management/Records.tsx
-keywords: [menu, sidebar, navigation, search, export, filter, archive, record page, tabs, breadcrumb]
+keywords:
+  [
+    menu,
+    sidebar,
+    navigation,
+    search,
+    export,
+    filter,
+    archive,
+    record page,
+    tabs,
+    breadcrumb,
+  ]
 ---
 
 The admin app has a menu on the left, a top bar with the current page, notifications and your
 company, and the page content in the middle. Every master-data page (sites, employees, assets and
 so on) works the same way, so once you know one list you know them all.
+
+![The Home screen](screens/admin-home.png)
 
 ## Before you start
 
@@ -38,7 +58,7 @@ Sign in as an owner or admin (see [Signing in](article:gs.sign-in)).
    **Notifications**, **Reports & analytics** and **Administration**. On a phone, open the menu
    with the menu button in the top bar.
 2. **Read the top bar.** It shows the group and page you are on (for example
-   *Property › Sites*), a search button that returns to the **Overview**, the notification bell,
+   _Property › Sites_), a search button that returns to the **Overview**, the notification bell,
    the **Current company** selector and your profile menu with **Sign out**.
 3. **Work with a list.** A record list offers:
    - **Add <record>** (for example **Add site**) to open the form.
@@ -47,12 +67,12 @@ Sign in as an owner or admin (see [Signing in](article:gs.sign-in)).
      [Exports](article:exports.overview)).
    - Selecting a row opens the record page.
 4. **Work with a record page.** The header shows the name, the **Code**, the status and, when
-   other active records refer to it, a pill such as *3 active links*. Buttons on the right are
+   other active records refer to it, a pill such as _3 active links_. Buttons on the right are
    **Edit**, **Archive** and record-specific actions (for example **Add child location**,
    **QR label** or **Transfer**). Tabs below show related records and history.
 5. **Save forms.** A form shows **New <record>** or **Edit <record>**. Required fields are marked.
-   After saving you see a confirmation such as *Site created.* If you close a form with unsaved
-   changes FacilityOS asks *Discard unsaved changes?*
+   After saving you see a confirmation such as _Site created._ If you close a form with unsaved
+   changes FacilityOS asks _Discard unsaved changes?_
 
 ![A record list with search, status filter and export](screens/phase4-list-desktop.png)
 
@@ -65,17 +85,17 @@ on every list and record page.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This record changed. Close the form and reload before editing.* | Someone else saved the same record after you opened it. | Close the form, refresh, and make your change again. |
-| *Module pending activation* | That part of the system is not active for your company yet. | No action needed; the page activates when the module is released. |
-| *Read-only subscription.* banner | Your subscription is read-only. Data can be viewed and exported but not changed. | See **Administration → Plan & usage** and [Read-only mode](article:saas.read-only). |
+| Message                                                          | Why                                                                              | What to do                                                                          |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| _This record changed. Close the form and reload before editing._ | Someone else saved the same record after you opened it.                          | Close the form, refresh, and make your change again.                                |
+| _Module pending activation_                                      | That part of the system is not active for your company yet.                      | No action needed; the page activates when the module is released.                   |
+| _Read-only subscription._ banner                                 | Your subscription is read-only. Data can be viewed and exported but not changed. | See **Administration → Plan & usage** and [Read-only mode](article:saas.read-only). |
 
 ## Troubleshooting
 
 - **A list looks empty:** clear the search box and set the status filter back to
-  **All statuses**. Archived records stay in the list with the status *Archived*; choose
-  *Active* to hide them.
+  **All statuses**. Archived records stay in the list with the status _Archived_; choose
+  _Active_ to hide them.
 - **The form is cut off on a phone:** forms scroll; the save button is at the bottom of the
   drawer.
 

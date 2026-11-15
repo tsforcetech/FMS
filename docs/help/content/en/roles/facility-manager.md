@@ -11,9 +11,26 @@ reviewed: '2026-11-15'
 owner: Customer Success
 description: How a facility manager is set up in FacilityOS (as company admin or site/facility manager), what they can access and how they run the operation.
 routes: ['/', /approvals, /maintenance]
-screenshots: [phase4-09-task-dashboard.png, phase4-16-work-order.png, phase7-06-admin-sla-report.png]
+screenshots:
+  [
+    phase4-09-task-dashboard.png,
+    phase4-16-work-order.png,
+    phase7-06-admin-sla-report.png,
+    admin-home.png,
+    admin-approvals.png,
+    admin-maintenance.png,
+  ]
 diagrams: [wf-29, wf-31, wf-32, wf-34, wf-35, wf-43]
-related: [role.owner-admin, role.site-manager, gs.roles, maintenance.dashboard, cases.sla, reports.dashboard, ref.raci-matrix]
+related:
+  [
+    role.owner-admin,
+    role.site-manager,
+    gs.roles,
+    maintenance.dashboard,
+    cases.sla,
+    reports.dashboard,
+    ref.raci-matrix,
+  ]
 sources:
   - apps/admin-web/src/data.ts
   - apps/admin-web/src/management/staffStore.ts
@@ -21,17 +38,23 @@ sources:
 keywords: [facility manager, FM, operations manager, site manager, admin]
 ---
 
-*Facility manager* is a job title, not a separate permission. In FacilityOS it maps to one of two
+_Facility manager_ is a job title, not a separate permission. In FacilityOS it maps to one of two
 roles — choose based on what the person must do:
 
-| If the facility manager must… | Give the role | Apps |
-| --- | --- | --- |
-| Set up sites, people, templates, schedules, run reports and exports | **Company admin** (`admin`) | Admin app + Staff/mobile |
+| If the facility manager must…                                                       | Give the role                                | Apps                                          |
+| ----------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------- |
+| Set up sites, people, templates, schedules, run reports and exports                 | **Company admin** (`admin`)                  | Admin app + Staff/mobile                      |
 | Supervise work on site, approve tasks, work on jobs, without changing company setup | **Site / facility manager** (`site_manager`) | Staff web and mobile app (with **Approvals**) |
 
 > **Note:** A `site_manager` cannot open the admin app. The site-scoped admin permissions shown in
 > **Roles & permissions** are prepared but **not enforced yet**, so today only owners and admins
 > manage master data.
+
+![The Home screen](screens/admin-home.png)
+
+![The Task management → Pending approvals screen](screens/admin-approvals.png)
+
+![The Maintenance → Maintenance dashboard screen](screens/admin-maintenance.png)
 
 ## Responsibilities
 
@@ -60,7 +83,7 @@ with emphasis on:
 
 ## Escalation
 
-1. Unsafe condition → stop work, make safe, report as *Urgent / unsafe*, phone the owner.
+1. Unsafe condition → stop work, make safe, report as _Urgent / unsafe_, phone the owner.
 2. SLA at risk → reassign or raise an escalation case to the responsible department.
 3. Contract or client dispute → company owner.
 4. System problem → company admin, then Sharaco support.

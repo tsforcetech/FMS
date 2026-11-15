@@ -18,13 +18,38 @@ permissions:
   - Subscription actions — Platform owner or Billing administrator
 screenshots: [phase8-08-platform-company.png, platform-subscriptions.png]
 diagrams: [wf-05, wf-06, wf-07]
-related: [platform.plans, platform.billing, saas.read-only, saas.plan-usage, ops.usage-reconcile, ops.subscription-sweep]
+related:
+  [
+    platform.plans,
+    platform.billing,
+    saas.read-only,
+    saas.plan-usage,
+    ops.usage-reconcile,
+    ops.subscription-sweep,
+  ]
 sources:
   - apps/platform-web/src/App.tsx
   - apps/platform-web/src/store.ts
   - packages/shared/src/saas.ts
   - scripts/subscription-sweep.ts
-keywords: [renew, extend trial, upgrade, downgrade, suspend, reactivate, cancel, grace, past due, expired, This company has no usage counters yet, Only trials can be extended, Extend a trial by 1 to 90 days, Reactivate the subscription before renewing, The subscription is already running]
+keywords:
+  [
+    renew,
+    extend trial,
+    upgrade,
+    downgrade,
+    suspend,
+    reactivate,
+    cancel,
+    grace,
+    past due,
+    expired,
+    This company has no usage counters yet,
+    Only trials can be extended,
+    Extend a trial by 1 to 90 days,
+    Reactivate the subscription before renewing,
+    The subscription is already running,
+  ]
 ---
 
 Each company has at most one **subscription**. Its status is computed from the subscription dates
@@ -33,10 +58,10 @@ read — so plan limits, features and read-only access take effect as soon as yo
 
 ## Subscription statuses
 
-*Trial* → (trial ends) → *Past due* → (30 days) → *Expired*.
-*Active* → (14 days before period end) *Renewal due* → (period end) *Grace* (7 days) → *Past due*
-(30 days) → *Expired*. Administrative states: *Suspended* and *Cancelled*. *Suspended*, *Cancelled* and
-*Expired* make the company **read-only**; data is never deleted.
+_Trial_ → (trial ends) → _Past due_ → (30 days) → _Expired_.
+_Active_ → (14 days before period end) _Renewal due_ → (period end) _Grace_ (7 days) → _Past due_
+(30 days) → _Expired_. Administrative states: _Suspended_ and _Cancelled_. _Suspended_, _Cancelled_ and
+_Expired_ make the company **read-only**; data is never deleted.
 
 {{diagram wf-05}}
 
@@ -49,9 +74,9 @@ and **Period ends**. Filter with **All statuses**, and select a row to open the 
 
 ## Steps — assign the first plan
 
-1. Open **Companies** and select the company. Under **Subscription** it says *No plan assigned.
-   Existing data is unaffected; no limits apply.*
-2. Check **Usage**. If it says *No usage counters*, stop: an operator must first run the usage
+1. Open **Companies** and select the company. Under **Subscription** it says _No plan assigned.
+   Existing data is unaffected; no limits apply._
+2. Check **Usage**. If it says _No usage counters_, stop: an operator must first run the usage
    reconciliation for this company (see [Usage reconciliation](article:ops.usage-reconcile)).
 3. Choose the plan in **Choose plan…** and select **Assign plan**. If the plan has trial days, the
    subscription starts as a trial; otherwise a monthly or annual period starts today.
@@ -63,15 +88,15 @@ On the company page, under **Subscription** (facts: **Plan**, **Trial ends**, **
 
 - **Renew** — adds one billing period (1 month or 12 months) from the current period end, or from
   today if it has already passed. Ends a trial.
-- **Extend trial** — enter 1–90 days and select **Extend trial** (only for *Trial* or a trial that is
-  *Past due*).
+- **Extend trial** — enter 1–90 days and select **Extend trial** (only for _Trial_ or a trial that is
+  _Past due_).
 - **Upgrade / downgrade** — choose a plan version in **Change plan…** and confirm. New limits and
   features apply immediately; nothing is deleted if usage is above a smaller plan's limits.
 - **Suspend (read-only)** — the company becomes read-only immediately.
 - **Reactivate** — returns a suspended or cancelled subscription to running.
-- **Cancel** — confirm *Cancel this subscription? The company keeps read-only access to its data.*
+- **Cancel** — confirm _Cancel this subscription? The company keeps read-only access to its data._
 
-Each action writes an audit event (for example *subscription.renew*) in the same step.
+Each action writes an audit event (for example _subscription.renew_) in the same step.
 
 ![Company page with subscription actions, usage and support access](screens/phase8-08-platform-company.png)
 
@@ -79,21 +104,21 @@ Each action writes an audit event (for example *subscription.renew*) in the same
 
 ## Usage
 
-The **Usage** box shows the company's counters for each limit with *of N* or *Unlimited*. Counters go
+The **Usage** box shows the company's counters for each limit with _of N_ or _Unlimited_. Counters go
 up when the company creates records and are corrected for archived records only by the usage
 reconciliation.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This company has no usage counters yet. Run the usage reconciliation (scripts/usage-reconcile.ts --apply) for it first…* | Older company without counters. | Ask an operator to run it, then assign. |
-| *No subscription for this company. Assign a plan first.* | Action on a company without a plan. | Assign a plan. |
-| *Only trials can be extended.* | Subscription not in trial. | Use **Renew**. |
-| *Extend a trial by 1 to 90 days.* | Days out of range. | Correct it. |
-| *Reactivate the subscription before renewing.* | Suspended or cancelled. | **Reactivate** first. |
-| *The subscription is already running.* | Reactivate on a running subscription. | Nothing to do. |
-| *The subscription is cancelled.* | Suspend on a cancelled subscription. | Reactivate if needed. |
+| Message                                                                                                                   | Why                                   | What to do                              |
+| ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | --------------------------------------- |
+| _This company has no usage counters yet. Run the usage reconciliation (scripts/usage-reconcile.ts --apply) for it first…_ | Older company without counters.       | Ask an operator to run it, then assign. |
+| _No subscription for this company. Assign a plan first._                                                                  | Action on a company without a plan.   | Assign a plan.                          |
+| _Only trials can be extended._                                                                                            | Subscription not in trial.            | Use **Renew**.                          |
+| _Extend a trial by 1 to 90 days._                                                                                         | Days out of range.                    | Correct it.                             |
+| _Reactivate the subscription before renewing._                                                                            | Suspended or cancelled.               | **Reactivate** first.                   |
+| _The subscription is already running._                                                                                    | Reactivate on a running subscription. | Nothing to do.                          |
+| _The subscription is cancelled._                                                                                          | Suspend on a cancelled subscription.  | Reactivate if needed.                   |
 
 ## Troubleshooting
 

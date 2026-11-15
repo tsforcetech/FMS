@@ -16,7 +16,16 @@ related: [customer.requests, exports.overview, ts.export-limit]
 sources:
   - apps/customer-web/src/App.tsx
   - apps/admin-web/src/management/exportStore.ts
-keywords: ["Service history", "export", "Excel", "PDF", "CSV", "finished requests", "report"]
+keywords:
+  [
+    'Service history',
+    'export',
+    'Excel',
+    'PDF',
+    'CSV',
+    'finished requests',
+    'report',
+  ]
 ---
 
 **Service history** lists your requests that are no longer open — resolved, closed or cancelled.
@@ -37,6 +46,6 @@ screen. It never contains internal notes, staff or costs.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
+| Message               | Why                                     | What to do                                                                        |
+| --------------------- | --------------------------------------- | --------------------------------------------------------------------------------- |
 | Too many rows for PDF | PDF exports are limited to 10,000 rows. | Use Excel or filter by location. See [Export too large](article:ts.export-limit). |

@@ -17,12 +17,28 @@ permissions:
   - Any active employee whose login is linked under Administration → Staff access
 screenshots: [phase5-02-staff-login.png, phase5-03-not-linked.png]
 diagrams: [wf-03]
-related: [staff.my-day, ts.not-linked, ts.account-revoked, mobile.sign-in, setup.staff-access]
+related:
+  [
+    staff.my-day,
+    ts.not-linked,
+    ts.account-revoked,
+    mobile.sign-in,
+    setup.staff-access,
+  ]
 sources:
   - apps/staff-web/src/App.tsx
   - apps/staff-web/src/i18n.tsx
   - packages/shared/src/index.ts
-keywords: ["login", "password", "FacilityOS Staff", "Sign in to start your day", "Forgot your password?", "The email or password is not correct.", "not linked"]
+keywords:
+  [
+    'login',
+    'password',
+    'FacilityOS Staff',
+    'Sign in to start your day',
+    'Forgot your password?',
+    'The email or password is not correct.',
+    'not linked',
+  ]
 ---
 
 The staff app (**FacilityOS Staff**) is where technicians, housekeeping, security staff and
@@ -54,20 +70,20 @@ employee record — you never choose who you are.
 
 ## Forgot your password
 
-Select **Forgot your password?**, enter your email and send. The app always answers *If this email
-is eligible, you will receive password reset instructions.* — it never tells anyone whether an
+Select **Forgot your password?**, enter your email and send. The app always answers _If this email
+is eligible, you will receive password reset instructions._ — it never tells anyone whether an
 account exists. If no email arrives, ask your administrator.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *The email or password is not correct.* | Typing mistake or old password. | Check the email, try again or use **Forgot your password?** |
-| *Too many attempts. Please try again later.* | Several wrong passwords in a row. | Wait a few minutes before trying again. |
-| *Your login is not linked to an employee yet* | The account exists but is not connected to an employee record. | Ask your administrator; see [Login not linked](article:ts.not-linked). |
-| *Your staff access has been revoked* | An administrator removed your staff access. | Talk to your supervisor; see [Account revoked](article:ts.account-revoked). |
-| *Your employee record is not active* | Your employee record was made inactive. | Ask HR or your administrator. |
-| *You do not have access to this company* | Your membership in this company is not active. | Ask your administrator. |
+| Message                                       | Why                                                            | What to do                                                                  |
+| --------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| _The email or password is not correct._       | Typing mistake or old password.                                | Check the email, try again or use **Forgot your password?**                 |
+| _Too many attempts. Please try again later._  | Several wrong passwords in a row.                              | Wait a few minutes before trying again.                                     |
+| _Your login is not linked to an employee yet_ | The account exists but is not connected to an employee record. | Ask your administrator; see [Login not linked](article:ts.not-linked).      |
+| _Your staff access has been revoked_          | An administrator removed your staff access.                    | Talk to your supervisor; see [Account revoked](article:ts.account-revoked). |
+| _Your employee record is not active_          | Your employee record was made inactive.                        | Ask HR or your administrator.                                               |
+| _You do not have access to this company_      | Your membership in this company is not active.                 | Ask your administrator.                                                     |
 
 ![Screen shown when a login is not linked to an employee](screens/phase5-03-not-linked.png)
 

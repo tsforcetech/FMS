@@ -13,28 +13,40 @@ description: How large an export can be, which columns are removed for privacy, 
 routes: [/audit]
 permissions:
   - Company owner or admin
-screenshots: [phase8-04-export-dialog.png]
+screenshots: [phase8-04-export-dialog.png, admin-audit.png]
 diagrams: [wf-44]
 related: [exports.overview, ts.export-limit, setup.audit]
 sources:
   - apps/admin-web/src/management/exportStore.ts
   - packages/shared/src/exporting.ts
   - firebase/firestore.rules
-keywords: [limit, 100000, 10000, truncated, formula injection, sensitive, export log, audit]
+keywords:
+  [
+    limit,
+    100000,
+    10000,
+    truncated,
+    formula injection,
+    sensitive,
+    export log,
+    audit,
+  ]
 ---
 
 Exports run in your browser. They read the same records you can open on screen, with the same
 permissions — exporting never gives access to anything new.
 
+![The Administration → Audit history screen](screens/admin-audit.png)
+
 ## Limits
 
-| Format | Maximum rows per export |
-| --- | --- |
-| Excel (.xlsx) | 100,000 |
-| CSV | 100,000 |
-| PDF | 10,000 |
+| Format        | Maximum rows per export |
+| ------------- | ----------------------- |
+| Excel (.xlsx) | 100,000                 |
+| CSV           | 100,000                 |
+| PDF           | 10,000                  |
 
-*All matching records* reads the data in pages of 500 until every matching record is collected.
+_All matching records_ reads the data in pages of 500 until every matching record is collected.
 FacilityOS never silently cuts an export short: if the rows exceed the limit for the format, the
 export stops with a message telling you how many rows matched. Interactive reports on screen read
 up to 3,000 rows and say so when a period is larger; their **Export** reads the whole period.
@@ -64,7 +76,7 @@ The exported rows themselves are not stored anywhere.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| Row limit message | More rows than the format allows | Narrow the filters or use Excel |
-| *Access is no longer available…* | Your access changed, or the export log could not be written | Sign in again; ask your owner to check your role |
+| Message                          | Why                                                         | What to do                                       |
+| -------------------------------- | ----------------------------------------------------------- | ------------------------------------------------ |
+| Row limit message                | More rows than the format allows                            | Narrow the filters or use Excel                  |
+| _Access is no longer available…_ | Your access changed, or the export log could not be written | Sign in again; ask your owner to check your role |

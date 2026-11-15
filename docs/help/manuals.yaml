@@ -21,15 +21,24 @@ manuals:
       - { title: Task templates, modules: [Task Templates] }
       - { title: Recurring scheduling, modules: [Recurring Scheduling] }
       - { title: Task calendar, modules: [Task Calendar] }
-      - { title: Maintenance and work orders, modules: [Maintenance & Work Orders] }
-      - { title: Complaints and escalations, modules: [Complaints & Escalations] }
+      - {
+          title: Maintenance and work orders,
+          modules: [Maintenance & Work Orders],
+        }
+      - {
+          title: Complaints and escalations,
+          modules: [Complaints & Escalations],
+        }
       - { title: Staff web portal, modules: [Staff Web] }
       - { title: Mobile application, modules: [Mobile Application] }
       - { title: Customer portal, modules: [Customer Portal] }
       - { title: Reports and analytics, modules: [Reports & Analytics] }
       - { title: Excel and PDF exports, modules: [Excel & PDF Exports] }
       - { title: Bulk import, modules: [Bulk Import] }
-      - { title: Plans and subscriptions, modules: [SaaS Plans & Subscriptions] }
+      - {
+          title: Plans and subscriptions,
+          modules: [SaaS Plans & Subscriptions],
+        }
       - { title: Role guides, modules: [Role Guides] }
       - { title: Troubleshooting, modules: [Troubleshooting] }
       - { title: Frequently asked questions, modules: [FAQs] }
@@ -51,17 +60,51 @@ manuals:
       - { title: Task templates, modules: [Task Templates] }
       - { title: Recurring scheduling, modules: [Recurring Scheduling] }
       - { title: Task calendar, modules: [Task Calendar] }
-      - { title: Maintenance and work orders, modules: [Maintenance & Work Orders] }
-      - { title: Complaints and escalations, modules: [Complaints & Escalations] }
+      - {
+          title: Maintenance and work orders,
+          modules: [Maintenance & Work Orders],
+        }
+      - {
+          title: Complaints and escalations,
+          modules: [Complaints & Escalations],
+        }
       - { title: Reports and analytics, modules: [Reports & Analytics] }
       - { title: Excel and PDF exports, modules: [Excel & PDF Exports] }
       - { title: Bulk import, modules: [Bulk Import] }
-      - { title: Plans and subscriptions, modules: [SaaS Plans & Subscriptions] }
+      - {
+          title: Plans and subscriptions,
+          modules: [SaaS Plans & Subscriptions],
+        }
       - title: Administrator role guides
         articles: [role.owner-admin, role.facility-manager, role.site-manager]
       - title: Troubleshooting
-        articles: [ts.not-linked, ts.access-denied, ts.no-tasks, ts.no-eligible-staff, ts.scheduler-not-active, ts.task-overdue, ts.index-pending, ts.export-limit, ts.import-failed, ts.duplicate-code, ts.read-only, ts.allocation-expired, ts.account-revoked]
-      - { title: Reference, articles: [faq.general, faq.billing, ref.raci-matrix, ref.glossary, ref.whats-new] }
+        articles:
+          [
+            ts.not-linked,
+            ts.access-denied,
+            ts.no-tasks,
+            ts.no-eligible-staff,
+            ts.scheduler-not-active,
+            ts.task-overdue,
+            ts.index-pending,
+            ts.export-limit,
+            ts.import-failed,
+            ts.duplicate-code,
+            ts.read-only,
+            ts.allocation-expired,
+            ts.account-revoked,
+          ]
+      - {
+          title: Reference,
+          articles:
+            [
+              faq.general,
+              faq.billing,
+              ref.raci-matrix,
+              ref.glossary,
+              ref.whats-new,
+            ],
+        }
 
   - id: staff
     title: FacilityOS Staff Web User Manual
@@ -71,11 +114,27 @@ manuals:
     sections:
       - { title: Staff web portal, modules: [Staff Web] }
       - title: Role guides
-        articles: [role.supervisor, role.technician, role.housekeeping, role.security]
+        articles:
+          [role.supervisor, role.technician, role.housekeeping, role.security]
       - title: Quick starts
-        articles: [train.first-task, train.first-checklist, train.report-ac, train.approve-inspection]
+        articles:
+          [
+            train.first-task,
+            train.first-checklist,
+            train.report-ac,
+            train.approve-inspection,
+          ]
       - title: Troubleshooting
-        articles: [ts.not-linked, ts.access-denied, ts.no-tasks, ts.task-overdue, ts.cannot-submit, ts.evidence-missing, ts.account-revoked]
+        articles:
+          [
+            ts.not-linked,
+            ts.access-denied,
+            ts.no-tasks,
+            ts.task-overdue,
+            ts.cannot-submit,
+            ts.evidence-missing,
+            ts.account-revoked,
+          ]
       - { title: Questions, articles: [faq.staff, ref.glossary] }
 
   - id: mobile
@@ -86,9 +145,26 @@ manuals:
     sections:
       - { title: Mobile application, modules: [Mobile Application] }
       - title: Working on tasks
-        articles: [staff.my-day, staff.checklist, staff.rework, staff.report-issue, staff.work-orders]
+        articles:
+          [
+            staff.my-day,
+            staff.checklist,
+            staff.rework,
+            staff.report-issue,
+            staff.work-orders,
+          ]
       - title: Troubleshooting
-        articles: [ts.not-linked, ts.cannot-submit, ts.evidence-missing, ts.qr-invalid, ts.wrong-site, ts.sync-conflict, ts.sync-pending, ts.permissions-denied]
+        articles:
+          [
+            ts.not-linked,
+            ts.cannot-submit,
+            ts.evidence-missing,
+            ts.qr-invalid,
+            ts.wrong-site,
+            ts.sync-conflict,
+            ts.sync-pending,
+            ts.permissions-denied,
+          ]
       - { title: Questions, articles: [faq.staff, ref.glossary] }
 
   - id: customer
@@ -127,7 +203,10 @@ manuals:
     sections:
       - { title: Platform console, modules: [Sharaco Platform Administration] }
       - { title: Role guide, articles: [role.platform-admin] }
-      - { title: Troubleshooting, articles: [ts.platform-not-authorized, ts.read-only] }
+      - {
+          title: Troubleshooting,
+          articles: [ts.platform-not-authorized, ts.read-only],
+        }
 
   - id: operations
     title: FacilityOS Operator Runbook
@@ -135,5 +214,8 @@ manuals:
     audience: internal
     file: FacilityOS-Operator-Runbook.pdf
     sections:
-      - { title: Platform operations, modules: [Sharaco Platform Administration] }
+      - {
+          title: Platform operations,
+          modules: [Sharaco Platform Administration],
+        }
       - { title: Backup and recovery, articles: [setup.backup] }

@@ -13,20 +13,44 @@ description: Create a task template and build its checklist — sections, questi
 routes: [/task-templates]
 permissions:
   - Company owner or admin
-screenshots: [phase4-06-template-builder.png]
+screenshots: [phase4-06-template-builder.png, admin-task-templates.png]
 diagrams: [wf-21]
-related: [templates.categories, templates.publish, templates.raci, tasks.execution, train.first-checklist, scheduling.recurring]
+related:
+  [
+    templates.categories,
+    templates.publish,
+    templates.raci,
+    tasks.execution,
+    train.first-checklist,
+    scheduling.recurring,
+  ]
 sources:
   - apps/admin-web/src/management/TemplateBuilder.tsx
   - apps/admin-web/src/management/tasksStore.ts
   - packages/shared/src/tasks.ts
   - packages/shared/src/operations.ts
-keywords: [checklist builder, question, answer type, section, conditional question, show only when, expected range, critical limits, escalate on failure, evidence, draft, This template already has a draft]
+keywords:
+  [
+    checklist builder,
+    question,
+    answer type,
+    section,
+    conditional question,
+    show only when,
+    expected range,
+    critical limits,
+    escalate on failure,
+    evidence,
+    draft,
+    This template already has a draft,
+  ]
 ---
 
-A **task template** describes a kind of work once — for example *Daily AC inspection* — so that every
+A **task template** describes a kind of work once — for example _Daily AC inspection_ — so that every
 task created from it asks the same questions. The checklist is built as a **version**: you edit a
 **draft**, then publish it. Published versions never change.
+
+![The Task management → Task templates screen](screens/admin-task-templates.png)
 
 ## Before you start
 
@@ -46,9 +70,9 @@ task created from it asks the same questions. The checklist is built as a **vers
 4. **Checklist** — add questions, grouped into sections (**New section**, move or remove sections).
    For each question set:
    - the **label** (required) and optional **Help text**;
-   - the **Answer type** — *Yes / No*, *Pass / Fail*, *Single choice*, *Multiple choice*, *Whole
-     number*, *Decimal number*, *Temperature*, *Reading with unit*, *Short text*, *Long text*, *Date*,
-     *Time*, *Asset condition*, *Photo evidence*, *QR verification* or *GPS location*;
+   - the **Answer type** — _Yes / No_, _Pass / Fail_, _Single choice_, _Multiple choice_, _Whole
+     number_, _Decimal number_, _Temperature_, _Reading with unit_, _Short text_, _Long text_, _Date_,
+     _Time_, _Asset condition_, _Photo evidence_, _QR verification_ or _GPS location_;
    - **Required**;
    - for choices: up to 20 **Choices** (no `|` character);
    - for numbers: **Unit**, **Minimum/Maximum allowed** (values outside are refused), **Expected
@@ -58,18 +82,18 @@ task created from it asks the same questions. The checklist is built as a **vers
    - **Escalate on failure** — raise a failed or out-of-range answer as critical instead of a warning.
 5. **Evidence** — choose per question whether photo, QR or GPS proof is wanted (see the note below).
 6. **Responsibilities** — build the RACI matrix (see [RACI responsibilities](article:templates.raci)).
-7. **Assignment defaults** — choose **Assign by** (*Choose per task*, employee, department, team,
+7. **Assignment defaults** — choose **Assign by** (_Choose per task_, employee, department, team,
    shift or site) to pre-fill assignees when a task is created.
 8. Use the **staff checklist preview** to check what staff will see, then **Save draft**
-   (*Draft saved.*).
+   (_Draft saved._).
 
 ![Template builder with sections, question types and limits](screens/phase4-06-template-builder.png)
 
 {{diagram wf-21}}
 
 > **Note:** Photo upload, QR and GPS proof are captured by the mobile app. A photo, QR or GPS
-> question cannot be made *required* until file storage and the mobile app are available — publishing
-> shows *… cannot be required until file storage/the mobile app is available*.
+> question cannot be made _required_ until file storage and the mobile app are available — publishing
+> shows _… cannot be required until file storage/the mobile app is available_.
 
 ## Expected result
 
@@ -78,19 +102,19 @@ A draft version exists with your questions. Tasks cannot use it until you
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This template already has a draft. Edit or publish it first.* | Only one draft at a time. | Select **Continue editing** on the existing draft. |
-| *This draft changed. Reload before saving.* | Someone else saved the same draft. | Reload, then repeat your change. |
-| *Published versions cannot be edited. Create a new draft.* | The version was published. | Use **New draft from vN**. |
-| *A question cannot depend on itself* | **Show only when** points to the same question. | Choose another condition question. |
-| *Conditional questions form a loop: …* | Two or more questions depend on each other. | Break the loop. |
+| Message                                                        | Why                                             | What to do                                         |
+| -------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| _This template already has a draft. Edit or publish it first._ | Only one draft at a time.                       | Select **Continue editing** on the existing draft. |
+| _This draft changed. Reload before saving._                    | Someone else saved the same draft.              | Reload, then repeat your change.                   |
+| _Published versions cannot be edited. Create a new draft._     | The version was published.                      | Use **New draft from vN**.                         |
+| _A question cannot depend on itself_                           | **Show only when** points to the same question. | Choose another condition question.                 |
+| _Conditional questions form a loop: …_                         | Two or more questions depend on each other.     | Break the loop.                                    |
 
 ## Troubleshooting
 
-- **Allowed vs expected vs critical:** use *allowed* for physically impossible values, *expected* for
-  normal operating range and *critical* for values that need immediate action.
-- **Leaving with unsaved changes** asks *Discard unsaved changes?* — choose **Discard changes** only if
+- **Allowed vs expected vs critical:** use _allowed_ for physically impossible values, _expected_ for
+  normal operating range and _critical_ for values that need immediate action.
+- **Leaving with unsaved changes** asks _Discard unsaved changes?_ — choose **Discard changes** only if
   you meant to.
 - **The Assignment defaults banner** still mentions Phase 3; recurring schedules now assign
   automatically (see [Assignment strategies](article:scheduling.assignment)).

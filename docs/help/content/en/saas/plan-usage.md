@@ -18,13 +18,36 @@ permissions:
   - Company owner or admin (the admin app is only open to these two roles)
 screenshots: [phase8-09-tenant-plan-read-only.png, admin-plan.png]
 diagrams: [wf-05, wf-06]
-related: [saas.read-only, saas.support-access, exports.overview, import.overview, faq.billing, ref.whats-new]
+related:
+  [
+    saas.read-only,
+    saas.support-access,
+    exports.overview,
+    import.overview,
+    faq.billing,
+    ref.whats-new,
+  ]
 sources:
   - apps/admin-web/src/management/SaasPages.tsx
   - apps/admin-web/src/management/usage.ts
   - apps/admin-web/src/management/planGate.ts
   - packages/shared/src/saas.ts
-keywords: [subscription, plan, quota, limit, usage counters, upgrade, downgrade, invoice, billing history, Your plan allows, Usage counters are not set up for this company yet, No plan assigned yet, Unlimited]
+keywords:
+  [
+    subscription,
+    plan,
+    quota,
+    limit,
+    usage counters,
+    upgrade,
+    downgrade,
+    invoice,
+    billing history,
+    Your plan allows,
+    Usage counters are not set up for this company yet,
+    No plan assigned yet,
+    Unlimited,
+  ]
 ---
 
 Sharaco sells FacilityOS on **plans**. A plan sets limits (how many sites, employees, assets,
@@ -34,21 +57,21 @@ Plan & usage** shows your current plan, how much of each limit you use, the feat
 the invoices Sharaco has recorded for you and any support-access requests.
 
 > **Note:** Your company may have **no plan assigned yet**. Companies that existed before plans were
-> introduced keep working with no limits until Sharaco assigns a plan. The page then shows *No plan
-> assigned yet*.
+> introduced keep working with no limits until Sharaco assigns a plan. The page then shows _No plan
+> assigned yet_.
 
 ## Steps
 
 1. In the admin app open **Administration → Plan & usage**.
-2. Read the heading: it shows the plan name (for example *Starter*) and its status pill (*Trial*,
-   *Active*, *Renewal due*, *Grace*, *Past due*, *Suspended*, *Cancelled* or *Expired*).
+2. Read the heading: it shows the plan name (for example _Starter_) and its status pill (_Trial_,
+   _Active_, _Renewal due_, _Grace_, _Past due_, _Suspended_, _Cancelled_ or _Expired_).
 3. Check the limits table. For each limit — **Sites**, **Employees**, **Assets**, **Recurring
-   schedules** and **Staff logins** — it shows **Used**, **Allowed** (*Unlimited* when the plan has no
+   schedules** and **Staff logins** — it shows **Used**, **Allowed** (_Unlimited_ when the plan has no
    limit) and a bar that fills as you approach the limit.
 4. Check the feature pills under the table. Green means included; grey means not included in your
-   plan: *Customer portal*, *Mobile app*, *Advanced reports*, *Excel/PDF export*, *Bulk import*.
+   plan: _Customer portal_, _Mobile app_, _Advanced reports_, _Excel/PDF export_, _Bulk import_.
 5. Scroll to **Billing history** to see invoices Sharaco has recorded for your company (number,
-   service period, amount and status *Draft*, *Issued*, *Paid* or *Void*).
+   service period, amount and status _Draft_, _Issued_, _Paid_ or _Void_).
 6. Scroll to **Sharaco support access** to approve or revoke support requests (see
    [Sharaco support access](article:saas.support-access)).
 
@@ -84,12 +107,12 @@ You can see the plan, its status, your usage against each limit and which featur
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Your plan allows N sites. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available.* (or employees, assets, recurring schedules, staff logins) | The limit is reached. | Archive records you no longer use and ask Sharaco to reconcile usage, or ask for a larger plan. |
-| *Usage counters are not set up for this company yet. Ask Sharaco support to reconcile usage.* | A plan was assigned before the usage counters were created. | Contact Sharaco support; an operator runs the usage reconciliation. |
-| *Excel/PDF export is not included in your plan (…). Contact Sharaco to upgrade.* | The feature is switched off in your plan. | Ask Sharaco to change your plan. |
-| *Bulk import is not included in your plan (…).* | As above, for the Import Center. | Ask Sharaco to change your plan. |
+| Message                                                                                                                                                                          | Why                                                         | What to do                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| _Your plan allows N sites. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available._ (or employees, assets, recurring schedules, staff logins) | The limit is reached.                                       | Archive records you no longer use and ask Sharaco to reconcile usage, or ask for a larger plan. |
+| _Usage counters are not set up for this company yet. Ask Sharaco support to reconcile usage._                                                                                    | A plan was assigned before the usage counters were created. | Contact Sharaco support; an operator runs the usage reconciliation.                             |
+| _Excel/PDF export is not included in your plan (…). Contact Sharaco to upgrade._                                                                                                 | The feature is switched off in your plan.                   | Ask Sharaco to change your plan.                                                                |
+| _Bulk import is not included in your plan (…)._                                                                                                                                  | As above, for the Import Center.                            | Ask Sharaco to change your plan.                                                                |
 
 ## Troubleshooting
 

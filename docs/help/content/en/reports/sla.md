@@ -13,19 +13,38 @@ description: Report response and resolution times and breaches for work orders, 
 routes: [/report-sla]
 permissions:
   - Company owner or admin
-screenshots: [phase7-06-admin-sla-report.png]
+screenshots: [phase7-06-admin-sla-report.png, admin-report-sla.png]
 diagrams: [wf-35, wf-43]
-related: [cases.sla, cases.complaints, maintenance.work-orders, cases.escalations, reports.dashboard, exports.overview]
+related:
+  [
+    cases.sla,
+    cases.complaints,
+    maintenance.work-orders,
+    cases.escalations,
+    reports.dashboard,
+    exports.overview,
+  ]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
   - packages/shared/src/schedule.ts
-keywords: [SLA report, within SLA, response breached, resolution breached, average response, average resolution, reopened complaints]
+keywords:
+  [
+    SLA report,
+    within SLA,
+    response breached,
+    resolution breached,
+    average response,
+    average resolution,
+    reopened complaints,
+  ]
 ---
 
 **SLA performance** measures cases created in the period against the targets **stored when each case
 was created** — later policy changes never rewrite history.
+
+![The Reports & analytics → SLA performance screen](screens/admin-report-sla.png)
 
 ## Steps
 
@@ -47,14 +66,14 @@ was created** — later policy changes never rewrite history.
 - **Resolution time** — from creation to resolution.
 - **Breached** — the time passed the stored target. An open case is breached once its due time has
   passed.
-- Cases without targets (*No SLA*) are counted in **Cases** but not in **With SLA targets**.
+- Cases without targets (_No SLA_) are counted in **Cases** but not in **With SLA targets**.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
+| Message                                      | Why                               | What to do                                            |
+| -------------------------------------------- | --------------------------------- | ----------------------------------------------------- |
 | **With SLA targets** is lower than **Cases** | Some cases matched no SLA policy. | Add policies (see [SLA policies](article:cases.sla)). |
-| *Partial period* | More than 3,000 records. | Narrow the period or export. |
+| _Partial period_                             | More than 3,000 records.          | Narrow the period or export.                          |
 
 ## Troubleshooting
 

@@ -2,8 +2,8 @@
 product: FacilityOS
 baseUrl: https://tsforcetech.github.io/FMS/help/
 company: Sharaco Technologies
-version: '0.8'
-versionLabel: FacilityOS 0.8 (Phase 8 — exports, imports, onboarding, SaaS plans)
+version: '0.9'
+versionLabel: FacilityOS 0.9 (Phase 9 — Help Center, manuals and in-app help)
 published: '2026-11-15'
 languages:
   - { id: en, label: English, dir: ltr }
@@ -51,15 +51,79 @@ categories:
   - { id: technical-support, label: Technical Support, icon: lifebuoy }
 
 home:
-  popular: [gs.overview, staff.checklist, scheduling.recurring, maintenance.work-orders, import.overview, exports.overview]
-  gettingStarted: [gs.first-week, setup.wizard, sites.create, people.employees, templates.builder, train.first-task]
+  popular:
+    [
+      gs.overview,
+      staff.checklist,
+      scheduling.recurring,
+      maintenance.work-orders,
+      import.overview,
+      exports.overview,
+    ]
+  gettingStarted:
+    [
+      gs.first-week,
+      setup.wizard,
+      sites.create,
+      people.employees,
+      templates.builder,
+      train.first-task,
+    ]
   workflows: [wf-02, wf-25, wf-27, wf-32, wf-41, wf-45]
 
 whatsNew:
-  - { version: '0.8', date: '2026-11-15', text: Excel and PDF export on every list and report, Import Center, company setup wizard with starter packs, plans and subscriptions, invitations and the Sharaco platform console., articles: [exports.overview, import.overview, setup.wizard, saas.plan-usage, setup.invitations] }
-  - { version: '0.7', date: '2026-11-15', text: Reports & analytics, management dashboard, customer portal, compliance records, maintenance costs, audit history and backup status., articles: [reports.dashboard, customer.requests, reports.compliance] }
-  - { version: '0.6', date: '2026-11-15', text: Android/iOS mobile app with QR scanning, photos, GPS, attendance and offline work., articles: [mobile.install, mobile.offline] }
-  - { version: '0.5', date: '2026-11-14', text: Staff web portal for day-to-day work., articles: [staff.my-day] }
+  - {
+      version: '0.9',
+      date: '2026-11-15',
+      text: Help Center with search,
+      role guides,
+      troubleshooting,
+      45 workflow diagrams and PDF manuals; help buttons in every app.,
+      articles: [ref.whats-new, gs.navigation],
+    }
+  - {
+      version: '0.8',
+      date: '2026-11-15',
+      text: Excel and PDF export on every list and report,
+      Import Center,
+      company setup wizard with starter packs,
+      plans and subscriptions,
+      invitations and the Sharaco platform console.,
+      articles:
+        [
+          exports.overview,
+          import.overview,
+          setup.wizard,
+          saas.plan-usage,
+          setup.invitations,
+        ],
+    }
+  - {
+      version: '0.7',
+      date: '2026-11-15',
+      text: Reports & analytics,
+      management dashboard,
+      customer portal,
+      compliance records,
+      maintenance costs,
+      audit history and backup status.,
+      articles: [reports.dashboard, customer.requests, reports.compliance],
+    }
+  - {
+      version: '0.6',
+      date: '2026-11-15',
+      text: Android/iOS mobile app with QR scanning,
+      photos,
+      GPS,
+      attendance and offline work.,
+      articles: [mobile.install, mobile.offline],
+    }
+  - {
+      version: '0.5',
+      date: '2026-11-14',
+      text: Staff web portal for day-to-day work.,
+      articles: [staff.my-day],
+    }
 
 # Reading order of articles inside a module (navigation and manuals). Articles not listed come last.
 order:

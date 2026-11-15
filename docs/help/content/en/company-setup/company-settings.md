@@ -21,7 +21,16 @@ sources:
   - apps/admin-web/src/management/Admin.tsx
   - packages/shared/src/index.ts
   - firebase/firestore.rules
-keywords: [company profile, company name, time zone, contact email, address, country, Save company profile]
+keywords:
+  [
+    company profile,
+    company name,
+    time zone,
+    contact email,
+    address,
+    country,
+    Save company profile,
+  ]
 ---
 
 **Administration → Company settings** holds the company profile: the name shown across the apps,
@@ -45,19 +54,19 @@ the company time zone and the contact details. It also shows read-only facts abo
 
 ## Expected result
 
-- The message *Company profile saved.* appears.
-- The details panel shows the **Company ID**, **Status** (for example *Active* or *Read only*)
+- The message _Company profile saved._ appears.
+- The details panel shows the **Company ID**, **Status** (for example _Active_ or _Read only_)
   and **Created** date. These are managed by Sharaco and cannot be edited here.
-- The *Company information* step in **Company setup** is done once the name, time zone and
+- The _Company information_ step in **Company setup** is done once the name, time zone and
   contact email are filled in.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| A field message under the form (for example an invalid email) | A value does not pass validation; the first problem found is shown. | Correct the value and save again. |
-| *This change was not allowed. A linked record may have changed, or your access was updated. Refresh and try again.* | The security rules refused the change — your membership changed or the subscription is read-only. | Refresh; check **Plan & usage** for read-only status. |
-| *You appear to be offline. Check your connection and try again.* | No network connection. | Reconnect and save again. |
+| Message                                                                                                             | Why                                                                                               | What to do                                            |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| A field message under the form (for example an invalid email)                                                       | A value does not pass validation; the first problem found is shown.                               | Correct the value and save again.                     |
+| _This change was not allowed. A linked record may have changed, or your access was updated. Refresh and try again._ | The security rules refused the change — your membership changed or the subscription is read-only. | Refresh; check **Plan & usage** for read-only status. |
+| _You appear to be offline. Check your connection and try again._                                                    | No network connection.                                                                            | Reconnect and save again.                             |
 
 ## Troubleshooting
 

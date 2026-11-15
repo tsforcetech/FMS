@@ -14,14 +14,29 @@ routes: ['/', /locations, /requests, /new, /history, /updates]
 prerequisites:
   - Your facility provider invited you and linked your login to your organisation
   - Your provider's plan includes the customer portal
-screenshots: [phase7-02-customer-overview.png, phase7-03-customer-new-request.png, phase7-05-customer-resolved.png]
+screenshots:
+  [
+    phase7-02-customer-overview.png,
+    phase7-03-customer-new-request.png,
+    phase7-05-customer-resolved.png,
+  ]
 diagrams: [wf-04, wf-41, wf-42]
-related: [customer.sign-in, customer.requests, customer.confirm, customer.history, customer.updates, train.customer-request, faq.customer]
+related:
+  [
+    customer.sign-in,
+    customer.requests,
+    customer.confirm,
+    customer.history,
+    customer.updates,
+    train.customer-request,
+    faq.customer,
+  ]
 sources:
   - apps/customer-web/src/App.tsx
   - apps/admin-web/src/management/customerStore.ts
   - apps/admin-web/src/management/tenantSaas.ts
-keywords: [customer, tenant, client, occupant, portal, service request, complaint]
+keywords:
+  [customer, tenant, client, occupant, portal, service request, complaint]
 ---
 
 If your company rents or uses space managed by a facility provider that uses FacilityOS, you may be
@@ -31,14 +46,14 @@ notes.
 
 ## What you can access
 
-| Page | Use |
-| --- | --- |
-| **Overview** | Requests that need attention, recent requests, requests **To confirm** |
-| **My locations** | The locations covered for your organisation (active, ended or starting later) |
-| **Requests** / **New service request** | Raise and follow requests, add messages |
-| **Service history** | Completed requests; export (if enabled) |
-| **Updates** | Progress messages from the service team |
-| **Profile** | Your organisation, contact and account |
+| Page                                   | Use                                                                           |
+| -------------------------------------- | ----------------------------------------------------------------------------- |
+| **Overview**                           | Requests that need attention, recent requests, requests **To confirm**        |
+| **My locations**                       | The locations covered for your organisation (active, ended or starting later) |
+| **Requests** / **New service request** | Raise and follow requests, add messages                                       |
+| **Service history**                    | Completed requests; export (if enabled)                                       |
+| **Updates**                            | Progress messages from the service team                                       |
+| **Profile**                            | Your organisation, contact and account                                        |
 
 ![Customer overview](screens/phase7-02-customer-overview.png)
 

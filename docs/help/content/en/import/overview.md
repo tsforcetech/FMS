@@ -18,12 +18,32 @@ permissions:
   - Company owner or admin
 screenshots: [phase8-03-import-preview.png, admin-import.png]
 diagrams: [wf-45]
-related: [import.templates, import.opening-stock, import.resume, ts.import-failed, ts.duplicate-code, train.import]
+related:
+  [
+    import.templates,
+    import.opening-stock,
+    import.resume,
+    ts.import-failed,
+    ts.duplicate-code,
+    train.import,
+  ]
 sources:
   - apps/admin-web/src/management/ImportCenter.tsx
   - apps/admin-web/src/management/importStore.ts
   - packages/shared/src/importing.ts
-keywords: [import, upload, excel, csv, spreadsheet, bulk, migrate, dry run, validate, template]
+keywords:
+  [
+    import,
+    upload,
+    excel,
+    csv,
+    spreadsheet,
+    bulk,
+    migrate,
+    dry run,
+    validate,
+    template,
+  ]
 ---
 
 The **Import Center** (**Administration → Import data**) loads master data from an Excel (.xlsx)
@@ -44,11 +64,11 @@ categories**, **Materials**, **Stores**, **Task categories** and **Opening stock
 4. In **2. Upload and map columns**, choose your file (**.xlsx** or **.csv**, at most 5 MB and
    2,000 data rows).
 5. Check the column mapping. FacilityOS matches your headers to fields automatically; change any
-   field with its drop-down, or choose *— not in file —*. Required fields are marked **\***.
+   field with its drop-down, or choose _— not in file —_. Required fields are marked **\***.
 6. Select **Validate (dry run)**. FacilityOS reads the file, checks every row and looks up codes —
    but writes nothing.
-7. In **3. Review and confirm**, read the counts: *New*, *Match found (no change)*, *Update
-   candidate*, *Duplicate in file*, *Invalid*, *Skipped (empty)*. Select a count to filter the
+7. In **3. Review and confirm**, read the counts: _New_, _Match found (no change)_, _Update
+   candidate_, _Duplicate in file_, _Invalid_, _Skipped (empty)_. Select a count to filter the
    table. Each row shows its source row number and the reason for any problem.
 8. If some existing records have different values, decide whether to tick **Also update the …
    existing record(s)** — only the columns in your file change.
@@ -63,14 +83,14 @@ categories**, **Materials**, **Stores**, **Task categories** and **Opening stock
 ## Expected result
 
 - New records exist with exactly the codes from your file, and appear in their normal lists.
-- **Import history** shows the file, module, status (*Completed* or *Partial*), the counts and who
+- **Import history** shows the file, module, status (_Completed_ or _Partial_), the counts and who
   ran it.
 
 ## How matching works
 
 A row is matched to an existing record **only by its exact code** (codes are unique per record
 type in your company and stored in upper case). Names are never used to decide that two records
-are the same. References to other records — *Site (code)*, *Department (code)* and so on — are also
+are the same. References to other records — _Site (code)_, _Department (code)_ and so on — are also
 given as codes and must exist already.
 
 > **Warning:** Each row is saved with exactly the same checks as the normal form: required fields,
@@ -79,14 +99,14 @@ given as codes and must exist already.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Upload an Excel (.xlsx) or CSV (.csv) file. Old .xls files are not supported.* | Wrong file type | Save as .xlsx or CSV |
-| *The file is larger than 5 MB.* / *Import at most 2,000 rows per file.* | File too big | Split the file |
-| *Missing column: …* | A required column is not mapped | Map it, or add it to the file |
-| *Site (code): no site with code "…"* | The referenced record does not exist | Create or import it first |
-| *Code … appears earlier in this file* | The same code twice | Keep one row |
-| *…: formulas are not accepted — paste values only* | A cell contains a formula | Copy and *Paste values* in Excel |
-| *Your plan allows …* | A plan limit was reached during the import | See [Plan & usage](article:saas.plan-usage) |
+| Message                                                                         | Why                                        | What to do                                  |
+| ------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------- |
+| _Upload an Excel (.xlsx) or CSV (.csv) file. Old .xls files are not supported._ | Wrong file type                            | Save as .xlsx or CSV                        |
+| _The file is larger than 5 MB._ / _Import at most 2,000 rows per file._         | File too big                               | Split the file                              |
+| _Missing column: …_                                                             | A required column is not mapped            | Map it, or add it to the file               |
+| _Site (code): no site with code "…"_                                            | The referenced record does not exist       | Create or import it first                   |
+| _Code … appears earlier in this file_                                           | The same code twice                        | Keep one row                                |
+| _…: formulas are not accepted — paste values only_                              | A cell contains a formula                  | Copy and _Paste values_ in Excel            |
+| _Your plan allows …_                                                            | A plan limit was reached during the import | See [Plan & usage](article:saas.plan-usage) |
 
 See also [Import validation failed](article:ts.import-failed) and [Repeat and resumed imports](article:import.resume).

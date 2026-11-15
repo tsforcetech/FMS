@@ -18,18 +18,29 @@ prerequisites:
 permissions:
   - Sharaco operator with project credentials
 diagrams: [wf-05, wf-07]
-related: [platform.subscriptions, saas.read-only, ops.usage-reconcile, platform.audit]
+related:
+  [platform.subscriptions, saas.read-only, ops.usage-reconcile, platform.audit]
 sources:
   - scripts/subscription-sweep.ts
   - packages/shared/src/saas.ts
-keywords: [sweep, expiry, grace, past due, expired, read only, subscription-sweep, lapsed]
+keywords:
+  [
+    sweep,
+    expiry,
+    grace,
+    past due,
+    expired,
+    read only,
+    subscription-sweep,
+    lapsed,
+  ]
 ---
 
 Subscription statuses depend on dates (trial end, renewal due 14 days before period end, grace,
 past due, expired). The console computes them for display, but the **company snapshot** that the
 security rules read is only updated by an administrative action or by this sweep.
 `scripts/subscription-sweep.ts` recomputes every subscription, updates each company's plan snapshot,
-and sets the company to `read_only` when the status is *Suspended*, *Cancelled* or *Expired* (or back
+and sets the company to `read_only` when the status is _Suspended_, _Cancelled_ or _Expired_ (or back
 to `active` otherwise). **Data is never deleted.** It is a dry run unless `--apply` is given.
 
 > **Note:** Automatic runs need a trusted scheduled backend — **pending approval**. Until then lapsed
@@ -55,7 +66,7 @@ to `active` otherwise). **Data is never deleted.** It is a dry run unless `--app
    npx tsx scripts/subscription-sweep.ts --project facilityos-43386 --confirm-project facilityos-43386 --apply
    ```
 
-5. Each change writes *subscription.sweep* to the platform audit log (By: *trusted-operator*). Inform
+5. Each change writes _subscription.sweep_ to the platform audit log (By: _trusted-operator_). Inform
    affected companies through the normal account channel (no automatic email).
 
 {{diagram wf-07}}
@@ -64,7 +75,7 @@ to `active` otherwise). **Data is never deleted.** It is a dry run unless `--app
 
 ## Notes
 
-- Companies whose company status is an operator lockout (*suspended* or *archived* on the company
+- Companies whose company status is an operator lockout (_suspended_ or _archived_ on the company
   record itself) are skipped.
 - Recommended cadence while manual: daily on working days.
 - To restore a company after payment, record the invoice and **Renew** or **Reactivate** in the console

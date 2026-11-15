@@ -13,14 +13,33 @@ description: Check opening, received, issued, transferred, adjusted, reversed an
 routes: [/report-inventory]
 permissions:
   - Company owner or admin
-screenshots: [phase4-05-stock-ledger.png]
+screenshots: [phase4-05-stock-ledger.png, admin-report-inventory.png]
 diagrams: [wf-43]
-related: [inventory.movements, inventory.balances, inventory.reversal, maintenance.work-orders, exports.overview]
+related:
+  [
+    inventory.movements,
+    inventory.balances,
+    inventory.reversal,
+    maintenance.work-orders,
+    exports.overview,
+  ]
 sources:
   - apps/admin-web/src/management/Reports.tsx
   - apps/admin-web/src/management/reportsStore.ts
   - packages/shared/src/reports.ts
-keywords: [stock reconciliation, inventory movements, opening, closing, received, issued, transfer, adjustment, reversal, Ledger too large to reconcile here]
+keywords:
+  [
+    stock reconciliation,
+    inventory movements,
+    opening,
+    closing,
+    received,
+    issued,
+    transfer,
+    adjustment,
+    reversal,
+    Ledger too large to reconcile here,
+  ]
 ---
 
 **Inventory reconciliation** rebuilds every store's quantities for a period from the stock ledger, so
@@ -29,6 +48,8 @@ you can prove that closing stock matches the movements.
 **Opening + received − issued + transfers in − transfers out ± adjustments ± reversals = closing.**
 
 Quantities only — FacilityOS records no unit costs.
+
+![The Reports & analytics → Inventory reconciliation screen](screens/admin-report-inventory.png)
 
 ## Steps
 
@@ -47,9 +68,9 @@ Quantities only — FacilityOS records no unit costs.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Ledger too large to reconcile here* | Opening balances need the full movement history, which exceeds what an interactive report reads. | Use **Stock balance** for current balances, or export the report. |
+| Message                              | Why                                                                                              | What to do                                                        |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| _Ledger too large to reconcile here_ | Opening balances need the full movement history, which exceeds what an interactive report reads. | Use **Stock balance** for current balances, or export the report. |
 
 ## Troubleshooting
 

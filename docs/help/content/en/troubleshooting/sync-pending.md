@@ -17,7 +17,15 @@ related: [mobile.offline, ts.sync-conflict, ts.account-revoked]
 sources:
   - apps/mobile/src/offline/sync.ts
   - apps/mobile/src/screens/Main.tsx
-keywords: ["Sync pending", "not syncing", "Sync now", "Last synced", "stuck", "Saved on this device"]
+keywords:
+  [
+    'Sync pending',
+    'not syncing',
+    'Sync now',
+    'Last synced',
+    'stuck',
+    'Saved on this device',
+  ]
 ---
 
 ## Symptom

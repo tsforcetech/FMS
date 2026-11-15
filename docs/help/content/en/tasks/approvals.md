@@ -17,21 +17,42 @@ permissions:
   - Admin app — company owner or admin
   - Staff web — supervisor, site manager or department manager for the task's site
   - Nobody may approve work they submitted themselves
-screenshots: [phase4-task-desktop.png]
+screenshots: [phase4-task-desktop.png, admin-approvals.png]
 diagrams: [wf-29, wf-30]
-related: [tasks.lifecycle, tasks.execution, staff.supervisor, staff.rework, templates.raci, train.approve-inspection]
+related:
+  [
+    tasks.lifecycle,
+    tasks.execution,
+    staff.supervisor,
+    staff.rework,
+    templates.raci,
+    train.approve-inspection,
+  ]
 sources:
   - apps/admin-web/src/management/Tasks.tsx
   - apps/admin-web/src/management/tasksStore.ts
   - firebase/firestore.rules
-keywords: [approve, review, rework, reject, supervisor approval, self-approval, You submitted this work, A decision was already recorded, Enter a reason so the team knows what to correct]
+keywords:
+  [
+    approve,
+    review,
+    rework,
+    reject,
+    supervisor approval,
+    self-approval,
+    You submitted this work,
+    A decision was already recorded,
+    Enter a reason so the team knows what to correct,
+  ]
 ---
 
-When a template has **Approval required** switched on, a submitted task waits as *Awaiting approval*
+When a template has **Approval required** switched on, a submitted task waits as _Awaiting approval_
 until a reviewer decides. Every decision is **permanent** and is kept with the submission it belongs to.
 
-> **Note:** RACI on the template describes who is *accountable*; it does not grant approval rights.
+> **Note:** RACI on the template describes who is _accountable_; it does not grant approval rights.
 > Who may approve is decided by company role and site scope, checked by the security rules.
+
+![The Task management → Pending approvals screen](screens/admin-approvals.png)
 
 ## Before you start
 
@@ -47,12 +68,12 @@ until a reviewer decides. Every decision is **permanent** and is kept with the s
 2. Open a task and read the **Submissions & reviews** tab: the answers, any exceptions and the
    submitter.
 3. Decide:
-   - **Approve** — confirm *Approve this submission?* The task becomes *Completed* (*Submission
-     approved.*).
-   - **Request rework** — answer *What needs to be corrected?* The task becomes *Rework required* and
-     the assignees are notified (*Rework requested.*).
-   - **Reject** — confirm *Reject and close this task?* with a *Reason for rejection*. The task becomes
-     *Rejected* and is closed (*Submission rejected.*).
+   - **Approve** — confirm _Approve this submission?_ The task becomes _Completed_ (_Submission
+     approved._).
+   - **Request rework** — answer _What needs to be corrected?_ The task becomes _Rework required_ and
+     the assignees are notified (_Rework requested._).
+   - **Reject** — confirm _Reject and close this task?_ with a _Reason for rejection_. The task becomes
+     _Rejected_ and is closed (_Submission rejected._).
 
 ![Submissions and reviews on a task that was returned once and approved on attempt 2](screens/phase4-task-desktop.png)
 
@@ -68,12 +89,12 @@ until a reviewer decides. Every decision is **permanent** and is kept with the s
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *You submitted this work, so another authorised reviewer must approve it.* | Self-approval is blocked. | Ask another owner, admin or site supervisor. |
-| *Enter a reason so the team knows what to correct.* | Rework or rejection needs a reason. | Type the reason. |
-| *A decision was already recorded for this attempt.* | Another reviewer decided first. | Reload; the existing decision stands. |
-| *This task is not awaiting approval.* | The task changed since you opened it. | Reload the task. |
+| Message                                                                    | Why                                   | What to do                                   |
+| -------------------------------------------------------------------------- | ------------------------------------- | -------------------------------------------- |
+| _You submitted this work, so another authorised reviewer must approve it._ | Self-approval is blocked.             | Ask another owner, admin or site supervisor. |
+| _Enter a reason so the team knows what to correct._                        | Rework or rejection needs a reason.   | Type the reason.                             |
+| _A decision was already recorded for this attempt._                        | Another reviewer decided first.       | Reload; the existing decision stands.        |
+| _This task is not awaiting approval._                                      | The task changed since you opened it. | Reload the task.                             |
 
 ## Troubleshooting
 

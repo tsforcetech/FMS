@@ -17,14 +17,23 @@ related: [exports.overview, exports.limits, customer.history, ts.read-only]
 sources:
   - apps/admin-web/src/management/exportStore.ts
   - apps/admin-web/src/management/planGate.ts
-keywords: ["export", "too many rows", "readable PDF", "limit 10,000", "in-browser limit of 100,000", "Narrow the filters", "not included in your plan"]
+keywords:
+  [
+    'export',
+    'too many rows',
+    'readable PDF',
+    'limit 10,000',
+    'in-browser limit of 100,000',
+    'Narrow the filters',
+    'not included in your plan',
+  ]
 ---
 
 ## Symptom
 
-- *12,500 rows are too many for a readable PDF (limit 10,000). Use Excel, or narrow the filters.*
-- *120,000 rows exceed the in-browser limit of 100,000. Narrow the filters and export in parts.*
-- *Excel/PDF export is not included in your plan (…). Contact Sharaco to upgrade.*
+- _12,500 rows are too many for a readable PDF (limit 10,000). Use Excel, or narrow the filters._
+- _120,000 rows exceed the in-browser limit of 100,000. Narrow the filters and export in parts._
+- _Excel/PDF export is not included in your plan (…). Contact Sharaco to upgrade._
 
 ![The export dialog](screens/phase8-04-export-dialog.png)
 

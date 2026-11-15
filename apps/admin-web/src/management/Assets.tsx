@@ -577,8 +577,7 @@ export function QrDialog({
         <p className="muted small" style={{ marginTop: 12 }}>
           Staff scan this label with Scan in the FacilityOS mobile app to see
           their open tasks here or prove a visit. Any other phone camera opens
-          the asset page, which still requires an authorised FacilityOS
-          sign-in.
+          the asset page, which still requires an authorised FacilityOS sign-in.
         </p>
       </div>
     </Drawer>

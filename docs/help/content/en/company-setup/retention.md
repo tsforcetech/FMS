@@ -18,7 +18,18 @@ related: [setup.audit, setup.backup, mobile.gps, mobile.attendance]
 sources:
   - apps/admin-web/src/management/Operations.tsx
   - apps/admin-web/src/management/reportsStore.ts
-keywords: [retention, privacy, GPS, attendance, photos, purge, delete data, policy, Keep audit history for at least one year]
+keywords:
+  [
+    retention,
+    privacy,
+    GPS,
+    attendance,
+    photos,
+    purge,
+    delete data,
+    policy,
+    Keep audit history for at least one year,
+  ]
 ---
 
 **Administration → Data retention** records how long your company intends to keep personal and
@@ -50,15 +61,15 @@ Agree the periods with whoever is responsible for privacy in your company. Defau
 
 ## Expected result
 
-The message *Retention policy saved* appears and the values are kept for your company. They
+The message _Retention policy saved_ appears and the values are kept for your company. They
 document your policy for audits and for a future purge process; existing data is unchanged.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Retention periods must be whole days (1 or more).* | A field is empty, zero, has decimals or is above 36,500. | Enter a whole number from 1 to 36,500. |
-| *Keep audit history for at least one year.* | **Audit history (days)** is below 365. | Enter 365 or more. |
+| Message                                             | Why                                                      | What to do                             |
+| --------------------------------------------------- | -------------------------------------------------------- | -------------------------------------- |
+| _Retention periods must be whole days (1 or more)._ | A field is empty, zero, has decimals or is above 36,500. | Enter a whole number from 1 to 36,500. |
+| _Keep audit history for at least one year._         | **Audit history (days)** is below 365.                   | Enter 365 or more.                     |
 
 ## Troubleshooting
 

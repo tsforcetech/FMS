@@ -13,9 +13,19 @@ description: How technicians receive preventive maintenance tasks and repair wor
 routes: ['/', /work-orders, /scan]
 prerequisites:
   - A login with role Technician, linked to your employee record
-screenshots: [phase5-12-work-order.png, phase6-03-scanner.png, phase6-04-evidence.png]
+screenshots:
+  [phase5-12-work-order.png, phase6-03-scanner.png, phase6-04-evidence.png]
 diagrams: [wf-27, wf-31, wf-32, wf-37, wf-39]
-related: [train.work-order, staff.work-orders, staff.tasks, mobile.qr, mobile.photos, mobile.offline, train.report-ac]
+related:
+  [
+    train.work-order,
+    staff.work-orders,
+    staff.tasks,
+    mobile.qr,
+    mobile.photos,
+    mobile.offline,
+    train.report-ac,
+  ]
 sources:
   - apps/staff-web/src/screens/WorkOrders.tsx
   - packages/shared/src/cases.ts
@@ -62,7 +72,7 @@ photos and offline work. You do not have the admin app or Approvals.
 ## Escalation
 
 1. Need parts or another trade → **Put on hold** / **Request assistance** with a note.
-2. Unsafe → stop, make safe, report *Urgent / unsafe*, phone your supervisor.
+2. Unsafe → stop, make safe, report _Urgent / unsafe_, phone your supervisor.
 3. Job reopened after you resolved it → read the reason in the work order history and continue.
 
 ## FAQs

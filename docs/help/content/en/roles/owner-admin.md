@@ -11,16 +11,45 @@ reviewed: '2026-11-15'
 owner: Customer Success
 description: What company owners and admins can do in FacilityOS, their responsibilities, daily and weekly routines, and how to escalate.
 routes: ['/', /onboarding, /approvals, /management]
-screenshots: [phase8-02-onboarding-progress.png, phase4-09-task-dashboard.png, phase7-07-admin-management-dashboard.png]
+screenshots:
+  [
+    phase8-02-onboarding-progress.png,
+    phase4-09-task-dashboard.png,
+    phase7-07-admin-management-dashboard.png,
+    admin-home.png,
+    admin-onboarding.png,
+    admin-approvals.png,
+    admin-management.png,
+  ]
 diagrams: [wf-02, wf-03, wf-04, wf-21, wf-25, wf-29, wf-43]
-related: [gs.roles, gs.first-week, setup.wizard, setup.invitations, setup.staff-access, setup.customer-access, saas.plan-usage, ref.raci-matrix, role.facility-manager]
+related:
+  [
+    gs.roles,
+    gs.first-week,
+    setup.wizard,
+    setup.invitations,
+    setup.staff-access,
+    setup.customer-access,
+    saas.plan-usage,
+    ref.raci-matrix,
+    role.facility-manager,
+  ]
 sources:
   - apps/admin-web/src/data.ts
   - apps/admin-web/src/nav.ts
   - packages/shared/src/inventory.ts
   - apps/admin-web/src/management/tenantSaas.ts
   - apps/admin-web/src/management/staffStore.ts
-keywords: [owner, admin, administrator, company admin, permissions, responsibilities, admin app]
+keywords:
+  [
+    owner,
+    admin,
+    administrator,
+    company admin,
+    permissions,
+    responsibilities,
+    admin app,
+  ]
 ---
 
 **Company owner** and **Company admin** are the only roles that can open the **FacilityOS admin
@@ -28,14 +57,22 @@ app**. They set up and run the company: sites, people, assets, inventory, templa
 maintenance, cases, reports, exports, imports, invitations and access. Owners and admins can also use
 the Staff web and mobile app (with **Approvals**) once their login is linked to an employee record.
 
+![The Home screen](screens/admin-home.png)
+
+![The Administration → Company setup screen](screens/admin-onboarding.png)
+
+![The Task management → Pending approvals screen](screens/admin-approvals.png)
+
+![The Reports & analytics → Management dashboard screen](screens/admin-management.png)
+
 ## Owner vs admin
 
-| | Owner | Admin |
-| --- | --- | --- |
-| Admin app — all modules | Yes | Yes |
-| Invite people | Yes, including **admins** | Yes, all roles except admin and owner |
-| Change an existing person's role | No — roles are set by invitation or trusted provisioning | No |
-| Plan & usage, support-access approval | Yes | Yes |
+|                                       | Owner                                                    | Admin                                 |
+| ------------------------------------- | -------------------------------------------------------- | ------------------------------------- |
+| Admin app — all modules               | Yes                                                      | Yes                                   |
+| Invite people                         | Yes, including **admins**                                | Yes, all roles except admin and owner |
+| Change an existing person's role      | No — roles are set by invitation or trusted provisioning | No                                    |
+| Plan & usage, support-access approval | Yes                                                      | Yes                                   |
 
 Nobody can invite an **owner** from inside the company; the first owner is created by Sharaco when
 the company is registered.
@@ -80,12 +117,12 @@ the company is registered.
 
 ## Escalation
 
-| Problem | Escalate to |
-| --- | --- |
-| Plan limit, read-only subscription, billing | Sharaco account contact ([Plan & usage](article:saas.plan-usage)) |
-| Something in the app does not work as documented | Sharaco support (approve support access only if asked) |
-| Data loss or wrong data | Sharaco support — operators hold manual backups |
-| Operational issue at a site | The site manager or the responsible department, using an escalation case |
+| Problem                                          | Escalate to                                                              |
+| ------------------------------------------------ | ------------------------------------------------------------------------ |
+| Plan limit, read-only subscription, billing      | Sharaco account contact ([Plan & usage](article:saas.plan-usage))        |
+| Something in the app does not work as documented | Sharaco support (approve support access only if asked)                   |
+| Data loss or wrong data                          | Sharaco support — operators hold manual backups                          |
+| Operational issue at a site                      | The site manager or the responsible department, using an escalation case |
 
 ## FAQs
 

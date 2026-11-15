@@ -12,17 +12,32 @@ owner: Support
 description: Recurring tasks appear unassigned with "No eligible employee" or "No employees match the assignment rule".
 routes: []
 screenshots: [phase4-15-staff-workload.png, phase4-11-schedule-detail.png]
-related: [scheduling.assignment, scheduling.recurring, tasks.assignments, people.shifts, people.leave]
+related:
+  [
+    scheduling.assignment,
+    scheduling.recurring,
+    tasks.assignments,
+    people.shifts,
+    people.leave,
+  ]
 sources:
   - packages/shared/src/schedule.ts
   - apps/admin-web/src/management/Tasks.tsx
-keywords: ["unassigned", "No eligible employee (leave, shift or inactive)", "No employees match the assignment rule", "round robin", "least workload", "pool"]
+keywords:
+  [
+    'unassigned',
+    'No eligible employee (leave, shift or inactive)',
+    'No employees match the assignment rule',
+    'round robin',
+    'least workload',
+    'pool',
+  ]
 ---
 
 ## Symptom
 
-Generated tasks show no assignee and the reason *No eligible employee (leave, shift or inactive)*
-or *No employees match the assignment rule*. They appear under **Task management → Task
+Generated tasks show no assignee and the reason _No eligible employee (leave, shift or inactive)_
+or _No employees match the assignment rule_. They appear under **Task management → Task
 assignments** and on the dashboard.
 
 ## Likely cause

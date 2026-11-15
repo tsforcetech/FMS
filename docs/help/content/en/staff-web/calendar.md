@@ -16,7 +16,7 @@ related: [staff.my-day, staff.tasks, calendar.task-calendar]
 sources:
   - apps/staff-web/src/screens/StaffCalendar.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["calendar", "Week", "Month", "Agenda", "schedule", "plan"]
+keywords: ['calendar', 'Week', 'Month', 'Agenda', 'schedule', 'plan']
 ---
 
 The calendar helps you plan ahead. It shows only your own tasks.
@@ -38,8 +38,8 @@ Each task is shown at its due time in your company's time zone, with its status 
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
+| Message    | Why                                          | What to do                                  |
+| ---------- | -------------------------------------------- | ------------------------------------------- |
 | Empty week | No tasks are assigned to you in that period. | Move to another week or check **My tasks**. |
 
 ## Troubleshooting

@@ -15,12 +15,29 @@ permissions:
   - Company owner or admin
 screenshots: [admin-clients.png]
 diagrams: [wf-09]
-related: [clients.contracts, clients.allocations, setup.customer-access, sites.archive, ts.duplicate-code]
+related:
+  [
+    clients.contracts,
+    clients.allocations,
+    setup.customer-access,
+    sites.archive,
+    ts.duplicate-code,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
-keywords: [client, customer, tenant, company client, individual, VAT, tax number, contact person]
+keywords:
+  [
+    client,
+    customer,
+    tenant,
+    company client,
+    individual,
+    VAT,
+    tax number,
+    contact person,
+  ]
 ---
 
 A **client** is a person or company you provide services to — a tenant, an owner association, a
@@ -36,10 +53,10 @@ contract or want a customer to use the customer portal.
 
 1. Open **Clients & contracts → Clients** and select **Add client**.
 2. Enter the **Code** (for example `CL-ACME`) and **Name**.
-3. Choose the **Client type**: *Individual* or *Company* (required).
+3. Choose the **Client type**: _Individual_ or _Company_ (required).
 4. Under **Contact**, enter the **Contact person**, **Phone**, **Email**, **Address**,
    **Country** and **Tax / VAT identifier** as needed.
-5. Select **Save client**. The message *Client created.* appears.
+5. Select **Save client**. The message _Client created._ appears.
 6. Continue with a [contract](article:clients.contracts) for the client.
 
 ![The clients list](screens/admin-clients.png)
@@ -48,16 +65,16 @@ contract or want a customer to use the customer portal.
 
 ## Expected result
 
-The client appears in **Clients** with status *Active*. Its page has a **Contracts** tab listing
+The client appears in **Clients** with status _Active_. Its page has a **Contracts** tab listing
 the client's contracts.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *This code is already reserved. Choose another code.* | Another client already uses the code. | Choose a different code. |
-| *Use uppercase letters, numbers, - or _* | The code contains other characters. | Use a code such as `CL-ACME`. |
-| *Archive or reassign active linked records first.* | You tried to archive a client that still has active contracts. | Archive the client's contracts first. |
+| Message                                               | Why                                                            | What to do                            |
+| ----------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------- |
+| _This code is already reserved. Choose another code._ | Another client already uses the code.                          | Choose a different code.              |
+| _Use uppercase letters, numbers, - or __              | The code contains other characters.                            | Use a code such as `CL-ACME`.         |
+| _Archive or reassign active linked records first._    | You tried to archive a client that still has active contracts. | Archive the client's contracts first. |
 
 ## Troubleshooting
 

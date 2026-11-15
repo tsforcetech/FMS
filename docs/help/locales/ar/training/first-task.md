@@ -15,12 +15,31 @@ prerequisites:
   - قام أحد المسؤولين بربط حساب الدخول الخاص بك بسجل الموظف الخاص بك
 screenshots: [phase5-04-my-day.png, phase5-05-task-detail.png]
 diagrams: [wf-36]
-related: [staff.my-day, staff.tasks, staff.checklist, train.first-checklist, staff.sign-in]
+related:
+  [
+    staff.my-day,
+    staff.tasks,
+    staff.checklist,
+    train.first-checklist,
+    staff.sign-in,
+  ]
 sources:
   - apps/staff-web/src/screens/MyDay.tsx
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: [first day, how to start, Start task, Mark as completed, My Day, اليوم الأول, كيف أبدأ, ابدأ المهمة, وضع علامة مكتملة, الرئيسية]
+keywords:
+  [
+    first day,
+    how to start,
+    Start task,
+    Mark as completed,
+    My Day,
+    اليوم الأول,
+    كيف أبدأ,
+    ابدأ المهمة,
+    وضع علامة مكتملة,
+    الرئيسية,
+  ]
 translationOf: train.first-task
 translatedFrom: '2026-11-15'
 translationStatus: draft
@@ -35,9 +54,9 @@ translationStatus: draft
 6. تحتاج إلى استراحة؟ اضغط **إيقاف مؤقت**، ثم اضغط **استئناف** لاحقًا.
 7. اضغط **مراجعة الإجابات** وصحّح أي شيء مُظلَّل.
 8. اضغط **إرسال للاعتماد** (إذا كان على مشرفك مراجعة العمل) أو **وضع علامة مكتملة**.
-9. ستظهر لك الرسالة *Submitted. Your supervisor will review it.* (تم الإرسال. سيراجعه مشرفك.) أو
-   *Task completed.* (اكتملت المهمة.)
-10. تحقّق من **التنبيهات** لاحقًا — إذا أُعيد العمل إليك فسترى *أُعيد العمل للتصحيح*.
+9. ستظهر لك الرسالة _Submitted. Your supervisor will review it._ (تم الإرسال. سيراجعه مشرفك.) أو
+   _Task completed._ (اكتملت المهمة.)
+10. تحقّق من **التنبيهات** لاحقًا — إذا أُعيد العمل إليك فسترى _أُعيد العمل للتصحيح_.
 
 ![الرئيسية (My Day) مع مهام اليوم](screens/phase5-04-my-day.png)
 

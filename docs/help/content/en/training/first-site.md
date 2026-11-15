@@ -13,7 +13,7 @@ description: Add a site with its time zone and working hours, then its first bui
 routes: [/sites, /locations]
 permissions:
   - Company owner or admin
-screenshots: [phase4-02-site-form.png, admin-locations.png]
+screenshots: [phase4-02-site-form.png, admin-locations.png, admin-sites.png]
 diagrams: [wf-08]
 related: [sites.create, sites.locations, setup.wizard, saas.plan-usage]
 sources:
@@ -30,7 +30,7 @@ keywords: [new site, building, property, add site, time zone, working hours]
 6. Add the **Contact person** and **Contact phone** if you have them, then save.
 7. Open **Property → Locations** and add the building, then its floors, then rooms, choosing the
    parent each time.
-8. Check the site appears in the list as *Active*.
+8. Check the site appears in the list as _Active_.
 
 ![The site form](screens/phase4-02-site-form.png)
 
@@ -40,3 +40,5 @@ keywords: [new site, building, property, add site, time zone, working hours]
 > see [Plan & usage](article:saas.plan-usage).
 
 Full guide: [Create a site](article:sites.create).
+
+![The Property → Sites screen](screens/admin-sites.png)

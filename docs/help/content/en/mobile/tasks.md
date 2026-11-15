@@ -13,12 +13,28 @@ description: Open, start and complete checklist tasks on the phone, with photo, 
 routes: [/, /tasks, /task/:id]
 screenshots: [phase6-04-evidence.png, phase6-05-offline-submit.png]
 diagrams: [wf-27, wf-39]
-related: [staff.checklist, mobile.qr, mobile.photos, mobile.gps, mobile.offline, staff.rework]
+related:
+  [
+    staff.checklist,
+    mobile.qr,
+    mobile.photos,
+    mobile.gps,
+    mobile.offline,
+    staff.rework,
+  ]
 sources:
   - apps/mobile/src/screens/Main.tsx
   - apps/mobile/src/screens/TaskRun.tsx
   - apps/mobile/src/offline/sync.ts
-keywords: ["mobile tasks", "checklist on phone", "evidence", "Saved on this device", "start task", "submit"]
+keywords:
+  [
+    'mobile tasks',
+    'checklist on phone',
+    'evidence',
+    'Saved on this device',
+    'start task',
+    'submit',
+  ]
 ---
 
 The mobile app shows the same tasks as the staff web. The bottom bar has **Home**, **My tasks**,
@@ -44,7 +60,7 @@ can keep working without a connection.
 ## Expected result
 
 - Online: the task is submitted at once.
-- Offline: you see *Saved on this device. It will be sent when you are online.* The top bar shows
+- Offline: you see _Saved on this device. It will be sent when you are online._ The top bar shows
   **Sync pending** until it is sent.
 
 ![Submitting while offline (Chromium runtime test)](screens/phase6-05-offline-submit.png)
@@ -60,11 +76,11 @@ and attendance need a connection.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Offline — your work is saved on this device and will sync when you reconnect.* | No connection. | Keep working; it syncs later. |
-| *You do not have permission for this. Ask your supervisor.* | The task is not yours, or it was never downloaded to this phone. | Go online and open it again; ask your supervisor. |
-| **Needs review** in Sync status | The task changed on the server while you were offline. | See [Sync conflicts](article:mobile.conflicts). |
+| Message                                                                         | Why                                                              | What to do                                        |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------- |
+| _Offline — your work is saved on this device and will sync when you reconnect._ | No connection.                                                   | Keep working; it syncs later.                     |
+| _You do not have permission for this. Ask your supervisor._                     | The task is not yours, or it was never downloaded to this phone. | Go online and open it again; ask your supervisor. |
+| **Needs review** in Sync status                                                 | The task changed on the server while you were offline.           | See [Sync conflicts](article:mobile.conflicts).   |
 
 ## Troubleshooting
 

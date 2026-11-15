@@ -17,20 +17,27 @@ sources:
   - packages/shared/src/tasks.ts
   - apps/mobile/src/screens/TaskRun.tsx
   - apps/mobile/src/platform.ts
-keywords: ["photo missing", "evidence pending", "upload", "Upload is pending activation", "Photo / QR / GPS evidence will be captured in the mobile app"]
+keywords:
+  [
+    'photo missing',
+    'evidence pending',
+    'upload',
+    'Upload is pending activation',
+    'Photo / QR / GPS evidence will be captured in the mobile app',
+  ]
 ---
 
 ## Symptom
 
 - A supervisor cannot see photos from a task.
-- The staff web shows *Photo / QR / GPS evidence will be captured in the mobile app; it is recorded
-  as pending.*
+- The staff web shows _Photo / QR / GPS evidence will be captured in the mobile app; it is recorded
+  as pending._
 - QR or GPS evidence taken on the phone is not visible on the web.
 
 ## Likely cause
 
-- **Photos are never uploaded yet.** They stay encrypted on the phone that took them: *Saved
-  encrypted on this device. Upload is pending activation (needs cloud storage).*
+- **Photos are never uploaded yet.** They stay encrypted on the phone that took them: _Saved
+  encrypted on this device. Upload is pending activation (needs cloud storage)._
 - The task was done on the staff web, which cannot capture evidence.
 - QR or GPS evidence was captured offline and has not synced.
 

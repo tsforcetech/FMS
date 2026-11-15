@@ -20,7 +20,19 @@ related: [setup.wizard, setup.company-settings, exports.overview]
 sources:
   - apps/admin-web/src/management/Onboarding.tsx
   - apps/admin-web/src/management/onboardingStore.ts
-keywords: [logo, branding, colour, color, currency, locale, date format, report header, report footer, Branding saved]
+keywords:
+  [
+    logo,
+    branding,
+    colour,
+    color,
+    currency,
+    locale,
+    date format,
+    report header,
+    report footer,
+    Branding saved,
+  ]
 ---
 
 The **Logo & preferences** step of **Administration → Company setup** stores the branding used on
@@ -49,22 +61,22 @@ footer line.
 
 ## Expected result
 
-- The message *Branding saved* appears and the step shows as done.
+- The message _Branding saved_ appears and the step shows as done.
 - New Excel and PDF exports use your branding.
 
 ![The export dialog that uses the branding](screens/phase8-04-export-dialog.png)
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose a PNG or JPEG image.* | The file is another format (for example SVG or WebP). | Save the logo as PNG or JPEG. |
-| *The image is larger than 5 MB.* | The file is too large to process. | Use a smaller file. |
-| *The image could not be read.* | The file is damaged or not really an image. | Export the logo again from your design tool. |
-| *The logo is too large. Use an image under about 40 KB.* | Even after shrinking, the stored logo is too big. | Use a simpler logo with fewer colours. |
-| *Use a PNG or JPEG logo.* | The stored logo is not PNG or JPEG. | Upload the logo again. |
-| *Choose a colour like #1D4ED8.* | The colour is not a six-digit hex value. | Enter `#` followed by six hex digits. |
-| *Use a three-letter currency code, e.g. AED.* | The currency is not three capital letters. | Enter a code such as AED, USD or EUR. |
+| Message                                                  | Why                                                   | What to do                                   |
+| -------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------- |
+| _Choose a PNG or JPEG image._                            | The file is another format (for example SVG or WebP). | Save the logo as PNG or JPEG.                |
+| _The image is larger than 5 MB._                         | The file is too large to process.                     | Use a smaller file.                          |
+| _The image could not be read._                           | The file is damaged or not really an image.           | Export the logo again from your design tool. |
+| _The logo is too large. Use an image under about 40 KB._ | Even after shrinking, the stored logo is too big.     | Use a simpler logo with fewer colours.       |
+| _Use a PNG or JPEG logo._                                | The stored logo is not PNG or JPEG.                   | Upload the logo again.                       |
+| _Choose a colour like #1D4ED8._                          | The colour is not a six-digit hex value.              | Enter `#` followed by six hex digits.        |
+| _Use a three-letter currency code, e.g. AED._            | The currency is not three capital letters.            | Enter a code such as AED, USD or EUR.        |
 
 ## Troubleshooting
 

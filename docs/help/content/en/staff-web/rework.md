@@ -17,7 +17,15 @@ related: [staff.checklist, staff.supervisor, tasks.approvals, ts.cannot-submit]
 sources:
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: ["rework", "Work returned for correction", "Reason from your supervisor", "Start correction", "Previous answers", "rejected"]
+keywords:
+  [
+    'rework',
+    'Work returned for correction',
+    'Reason from your supervisor',
+    'Start correction',
+    'Previous answers',
+    'rejected',
+  ]
 ---
 
 When a supervisor reviews your task they can approve it, return it for correction or reject it.
@@ -39,14 +47,14 @@ A task returned for correction appears in the **Rework** tile on Home and the **
 
 ## Expected result
 
-The task goes back to *Waiting for approval*. The old attempt stays in **Task history**; nothing is
+The task goes back to _Waiting for approval_. The old attempt stays in **Task history**; nothing is
 deleted.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| Task shows *Rejected* with a reason | The supervisor rejected the work instead of returning it. | A rejected task cannot be redone; ask your supervisor what to do next. |
+| Message                             | Why                                                       | What to do                                                             |
+| ----------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Task shows _Rejected_ with a reason | The supervisor rejected the work instead of returning it. | A rejected task cannot be redone; ask your supervisor what to do next. |
 
 ## Troubleshooting
 

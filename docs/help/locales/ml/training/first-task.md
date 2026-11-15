@@ -15,12 +15,31 @@ prerequisites:
   - ഒരു അഡ്മിനിസ്ട്രേറ്റർ നിങ്ങളുടെ ലോഗിൻ നിങ്ങളുടെ ജീവനക്കാരുടെ രേഖയുമായി ബന്ധിപ്പിച്ചിട്ടുണ്ട്
 screenshots: [phase5-04-my-day.png, phase5-05-task-detail.png]
 diagrams: [wf-36]
-related: [staff.my-day, staff.tasks, staff.checklist, train.first-checklist, staff.sign-in]
+related:
+  [
+    staff.my-day,
+    staff.tasks,
+    staff.checklist,
+    train.first-checklist,
+    staff.sign-in,
+  ]
 sources:
   - apps/staff-web/src/screens/MyDay.tsx
   - apps/staff-web/src/screens/TaskView.tsx
   - apps/staff-web/src/i18n.tsx
-keywords: [first day, how to start, Start task, Mark as completed, My Day, ആദ്യ ദിവസം, എങ്ങനെ തുടങ്ങാം, ജോലി ആരംഭിക്കുക, പൂർത്തിയായതായി അടയാളപ്പെടുത്തുക, ഹോം]
+keywords:
+  [
+    first day,
+    how to start,
+    Start task,
+    Mark as completed,
+    My Day,
+    ആദ്യ ദിവസം,
+    എങ്ങനെ തുടങ്ങാം,
+    ജോലി ആരംഭിക്കുക,
+    പൂർത്തിയായതായി അടയാളപ്പെടുത്തുക,
+    ഹോം,
+  ]
 translationOf: train.first-task
 translatedFrom: '2026-11-15'
 translationStatus: draft
@@ -37,9 +56,9 @@ translationStatus: draft
 7. **ഉത്തരങ്ങൾ പരിശോധിക്കുക** ടാപ്പ് ചെയ്ത്, ഹൈലൈറ്റ് ചെയ്ത എന്തും തിരുത്തുക.
 8. **അംഗീകാരത്തിനായി സമർപ്പിക്കുക** (നിങ്ങളുടെ സൂപ്പർവൈസർ ഇത് പരിശോധിക്കേണ്ടതാണെങ്കിൽ) അല്ലെങ്കിൽ
    **പൂർത്തിയായതായി അടയാളപ്പെടുത്തുക** ടാപ്പ് ചെയ്യുക.
-9. *Submitted. Your supervisor will review it.* (സമർപ്പിച്ചു. നിങ്ങളുടെ സൂപ്പർവൈസർ ഇത് പരിശോധിക്കും.) അല്ലെങ്കിൽ
-   *Task completed.* (ജോലി പൂർത്തിയായി.) എന്ന സന്ദേശം കാണാം.
-10. പിന്നീട് **അറിയിപ്പുകൾ** പരിശോധിക്കുക — ജോലി തിരികെ നൽകിയാൽ *തിരുത്താനായി തിരികെ നൽകി* എന്ന് കാണാം.
+9. _Submitted. Your supervisor will review it._ (സമർപ്പിച്ചു. നിങ്ങളുടെ സൂപ്പർവൈസർ ഇത് പരിശോധിക്കും.) അല്ലെങ്കിൽ
+   _Task completed._ (ജോലി പൂർത്തിയായി.) എന്ന സന്ദേശം കാണാം.
+10. പിന്നീട് **അറിയിപ്പുകൾ** പരിശോധിക്കുക — ജോലി തിരികെ നൽകിയാൽ _തിരുത്താനായി തിരികെ നൽകി_ എന്ന് കാണാം.
 
 ![ഇന്നത്തെ ജോലികളുള്ള ഹോം സ്ക്രീൻ (My Day)](screens/phase5-04-my-day.png)
 

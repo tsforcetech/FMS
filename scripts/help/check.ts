@@ -9,7 +9,9 @@ import { validate } from './lib.ts';
 const { problems, articles, diagrams } = validate();
 for (const p of problems) console.error(`✗ ${p.file}: ${p.message}`);
 const by = (a: string) => articles.filter((x) => x.meta.audience === a).length;
-console.log(`${articles.length} articles (public ${by('public')}, authenticated ${by('authenticated')}, internal ${by('internal')}), ${diagrams.length} diagrams.`);
+console.log(
+  `${articles.length} articles (public ${by('public')}, authenticated ${by('authenticated')}, internal ${by('internal')}), ${diagrams.length} diagrams.`,
+);
 if (problems.length) {
   console.error(`${problems.length} documentation problem(s).`);
   process.exit(1);

@@ -17,14 +17,33 @@ prerequisites:
   - Active employees to assign
 permissions:
   - Company owner or admin
-screenshots: [phase4-task-desktop.png]
+screenshots: [phase4-task-desktop.png, admin-tasks.png]
 diagrams: [wf-24]
-related: [templates.publish, tasks.lifecycle, tasks.execution, tasks.assignments, scheduling.recurring, ts.no-tasks]
+related:
+  [
+    templates.publish,
+    tasks.lifecycle,
+    tasks.execution,
+    tasks.assignments,
+    scheduling.recurring,
+    ts.no-tasks,
+  ]
 sources:
   - apps/admin-web/src/management/Tasks.tsx
   - apps/admin-web/src/management/tasksStore.ts
   - packages/shared/src/tasks.ts
-keywords: [new task, one-off task, manual task, filter tasks, cancel task, TSK, Choose a published template version, Assign at most 10 employees, The due time must be after the planned start]
+keywords:
+  [
+    new task,
+    one-off task,
+    manual task,
+    filter tasks,
+    cancel task,
+    TSK,
+    Choose a published template version,
+    Assign at most 10 employees,
+    The due time must be after the planned start,
+  ]
 ---
 
 The **task register** lists every task in the company — manual, recurring and preventive maintenance —
@@ -33,6 +52,8 @@ due time, assignees and history. Task references look like `TSK-261115-1CX3EL`.
 
 > **Note:** Tasks belong to physical sites, never to a client. Contracts and allocations decide which
 > client a site serves; the task itself is always tied to the site.
+
+![The Task management → Task register screen](screens/admin-tasks.png)
 
 ## Before you start
 
@@ -50,10 +71,10 @@ due time, assignees and history. Task references look like `TSK-261115-1CX3EL`.
 4. Set the **Priority**, the **Planned start** and the **due** time. The due time must be after the
    planned start.
 5. Under **Assign employees** add up to 10 active employees, or leave it empty. With no assignee the
-   task starts as *Pending* ("No assignee — starts as Pending") and waits in
+   task starts as _Pending_ ("No assignee — starts as Pending") and waits in
    [Task assignments](article:tasks.assignments).
 6. Add **Additional instructions** if the staff need more than the template says.
-7. Save. The toast *Task created.* confirms it and the task opens.
+7. Save. The toast _Task created._ confirms it and the task opens.
 
 ![A task opened from the task register with its checklist, timeline and reviews](screens/phase4-task-desktop.png)
 
@@ -61,8 +82,8 @@ due time, assignees and history. Task references look like `TSK-261115-1CX3EL`.
 
 ### Find tasks
 
-- Use the status filter (**All statuses** by default) and **Filter by** *Site*, *Department*,
-  *Priority* or *Assignee*.
+- Use the status filter (**All statuses** by default) and **Filter by** _Site_, _Department_,
+  _Priority_ or _Assignee_.
 - Open a task to see the tabs **Checklist**, **Submissions & reviews**, **Issues**, **Template & RACI**
   and **Timeline**.
 - Use **Export** to download the filtered list as Excel or PDF.
@@ -76,22 +97,22 @@ due time, assignees and history. Task references look like `TSK-261115-1CX3EL`.
 
 ## Expected result
 
-The task appears in the register with status *Assigned* (or *Pending* without an assignee). Assigned
+The task appears in the register with status _Assigned_ (or _Pending_ without an assignee). Assigned
 staff who are linked to a login receive an in-app notification and see the task in **My Day**.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Choose a published template version.* | The template has no published version. | Publish the template first. |
-| *Choose an active site.* | The site is archived or inactive. | Choose another site or reactivate it. |
-| *The selected location/facility/asset must be active and in this site.* | The place belongs to another site or is archived. | Pick a place from the chosen site. |
-| *Assign at most 10 employees.* | More than 10 people selected. | Remove some assignees. |
-| *Assign active employees only.* | An employee is inactive or archived. | Choose active employees. |
-| *The due time must be after the planned start.* | The due time is before the start. | Correct the times. |
-| *Enter a valid date and time.* | A date field is empty or invalid. | Fill in both dates. |
-| *Enter a reason for cancelling.* | Cancel was confirmed without a reason. | Type a reason. |
-| *This task was updated by someone else. It has been reloaded; please review and try again.* | Another person changed the task at the same time. | Check the reloaded task and repeat your action. |
+| Message                                                                                     | Why                                               | What to do                                      |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------- |
+| _Choose a published template version._                                                      | The template has no published version.            | Publish the template first.                     |
+| _Choose an active site._                                                                    | The site is archived or inactive.                 | Choose another site or reactivate it.           |
+| _The selected location/facility/asset must be active and in this site._                     | The place belongs to another site or is archived. | Pick a place from the chosen site.              |
+| _Assign at most 10 employees._                                                              | More than 10 people selected.                     | Remove some assignees.                          |
+| _Assign active employees only._                                                             | An employee is inactive or archived.              | Choose active employees.                        |
+| _The due time must be after the planned start._                                             | The due time is before the start.                 | Correct the times.                              |
+| _Enter a valid date and time._                                                              | A date field is empty or invalid.                 | Fill in both dates.                             |
+| _Enter a reason for cancelling._                                                            | Cancel was confirmed without a reason.            | Type a reason.                                  |
+| _This task was updated by someone else. It has been reloaded; please review and try again._ | Another person changed the task at the same time. | Check the reloaded task and repeat your action. |
 
 ## Troubleshooting
 

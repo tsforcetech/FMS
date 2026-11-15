@@ -12,12 +12,20 @@ owner: Support
 description: Short answers for customers using the customer portal.
 routes: []
 screenshots: []
-related: [customer.sign-in, customer.requests, customer.confirm, customer.locations, ts.allocation-expired]
+related:
+  [
+    customer.sign-in,
+    customer.requests,
+    customer.confirm,
+    customer.locations,
+    ts.allocation-expired,
+  ]
 sources:
   - apps/customer-web/src/App.tsx
   - apps/admin-web/src/management/customerStore.ts
   - docs/phase7-report.md
-keywords: ["FAQ", "customer questions", "tenant", "request", "emergency", "privacy"]
+keywords:
+  ['FAQ', 'customer questions', 'tenant', 'request', 'emergency', 'privacy']
 ---
 
 ## How do I get access?

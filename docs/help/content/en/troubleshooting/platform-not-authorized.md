@@ -1,6 +1,6 @@
 ---
 id: ts.platform-not-authorized
-title: "Not a Sharaco platform account"
+title: 'Not a Sharaco platform account'
 module: Troubleshooting
 category: technical-support
 audience: public
@@ -16,16 +16,22 @@ related: [gs.sign-in, saas.plan-usage, ts.access-denied]
 sources:
   - apps/platform-web/src/App.tsx
   - firebase/firestore.rules
-keywords: ["platform console", "Not a Sharaco platform account", "Your platform role needs a verified email address.", "super admin"]
+keywords:
+  [
+    'platform console',
+    'Not a Sharaco platform account',
+    'Your platform role needs a verified email address.',
+    'super admin',
+  ]
 ---
 
 ## Symptom
 
 The platform console shows **Not a Sharaco platform account** with either:
 
-- *This console is for Sharaco platform staff. Company administrators sign in to the FacilityOS
-  admin app instead — a company admin role never grants platform access.*, or
-- *Your platform role needs a verified email address.*
+- _This console is for Sharaco platform staff. Company administrators sign in to the FacilityOS
+  admin app instead — a company admin role never grants platform access._, or
+- _Your platform role needs a verified email address._
 
 ## Likely cause
 

@@ -29,7 +29,9 @@
   if (themeBtn)
     themeBtn.addEventListener('click', function () {
       var cur = document.documentElement.dataset.theme;
-      var dark = cur ? cur === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var dark = cur
+        ? cur === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
       var next = dark ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
       store.set('fos-help-theme', next);
@@ -50,15 +52,23 @@
     sel.addEventListener('change', function () {
       var l = sel.value;
       store.set('fos-help-lang', l);
-      location.href = root + (l === 'en' ? '' : l + '/') + page + location.search + location.hash;
+      location.href =
+        root +
+        (l === 'en' ? '' : l + '/') +
+        page +
+        location.search +
+        location.hash;
     });
 
   // Print
-  Array.prototype.forEach.call(document.querySelectorAll('[data-print]'), function (b) {
-    b.addEventListener('click', function () {
-      window.print();
-    });
-  });
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-print]'),
+    function (b) {
+      b.addEventListener('click', function () {
+        window.print();
+      });
+    },
+  );
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
@@ -117,14 +127,28 @@
         return b[0] - a[0];
       });
       var top = scored.slice(0, 40);
-      status.textContent = top.length ? scored.length + ' ' + (status.getAttribute('data-word') || 'results') : status.getAttribute('data-none') || 'No results.';
+      status.textContent = top.length
+        ? scored.length + ' ' + (status.getAttribute('data-word') || 'results')
+        : status.getAttribute('data-none') || 'No results.';
       list.innerHTML = top
         .map(function (x) {
           var d = x[1];
           var snippet = d.d;
           var bi = fold(d.b).indexOf(terms[0]);
           if (bi > 40) snippet = '…' + d.b.slice(bi - 40, bi + 140) + '…';
-          return '<li><a href="' + root + prefix + d.u + '">' + escapeHtml(d.t) + '</a><p>' + escapeHtml(d.m) + ' — ' + escapeHtml(snippet) + '</p></li>';
+          return (
+            '<li><a href="' +
+            root +
+            prefix +
+            d.u +
+            '">' +
+            escapeHtml(d.t) +
+            '</a><p>' +
+            escapeHtml(d.m) +
+            ' — ' +
+            escapeHtml(snippet) +
+            '</p></li>'
+          );
         })
         .join('');
     };
@@ -157,10 +181,16 @@
       })
       .then(function (map) {
         var id = null;
-        if (kind === 'id') id = map.helpIds[rest] || (map.restricted.indexOf(rest) >= 0 ? rest : null);
+        if (kind === 'id')
+          id =
+            map.helpIds[rest] ||
+            (map.restricted.indexOf(rest) >= 0 ? rest : null);
         else if (map.screens[kind]) {
           var screens = map.screens[kind];
-          var key = kind === 'admin' ? rest.replace(/^\//, '') : '/' + rest.replace(/^\//, '');
+          var key =
+            kind === 'admin'
+              ? rest.replace(/^\//, '')
+              : '/' + rest.replace(/^\//, '');
           id = screens[key];
           if (!id && kind !== 'admin') {
             // match route patterns such as /task/:id
@@ -173,9 +203,16 @@
         if (id && map.public.indexOf(id) >= 0) {
           location.replace(root + prefix + 'a/' + id + '.html');
         } else if (id && map.restricted.indexOf(id) >= 0) {
-          goStatus.textContent = goStatus.getAttribute('data-restricted') || 'This topic is documented in a restricted manual.';
+          goStatus.textContent =
+            goStatus.getAttribute('data-restricted') ||
+            'This topic is documented in a restricted manual.';
         } else {
-          location.replace(root + prefix + 'search.html?q=' + encodeURIComponent(rest.replace(/[/:.-]+/g, ' ').trim()));
+          location.replace(
+            root +
+              prefix +
+              'search.html?q=' +
+              encodeURIComponent(rest.replace(/[/:.-]+/g, ' ').trim()),
+          );
         }
       });
   }

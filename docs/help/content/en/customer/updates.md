@@ -15,7 +15,7 @@ screenshots: [customer-updates.png]
 related: [customer.confirm, customer.requests, customer.sign-in]
 sources:
   - apps/customer-web/src/App.tsx
-keywords: ["Updates", "notifications", "replies", "unread", "badge", "email"]
+keywords: ['Updates', 'notifications', 'replies', 'unread', 'badge', 'email']
 ---
 
 **Updates** shows the latest changes on your requests — new statuses and replies from the team —
@@ -40,6 +40,6 @@ browser only, so another device shows them as new again.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
+| Message    | Why                               | What to do     |
+| ---------- | --------------------------------- | -------------- |
 | No updates | Nothing changed on your requests. | Nothing to do. |

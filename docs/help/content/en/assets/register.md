@@ -17,21 +17,60 @@ prerequisites:
   - Asset categories (and suppliers, if you record purchases)
 permissions:
   - Company owner or admin
-screenshots: [admin-assets.png, admin-asset-categories.png, phase4-04-asset-qr.png]
+screenshots:
+  [
+    admin-assets.png,
+    admin-asset-categories.png,
+    phase4-04-asset-qr.png,
+    admin-furniture.png,
+    admin-equipment.png,
+    admin-suppliers.png,
+  ]
 diagrams: [wf-16]
-related: [assets.qr, assets.transfer, sites.facilities, maintenance.asset-history, maintenance.pm, import.overview, sites.archive]
+related:
+  [
+    assets.qr,
+    assets.transfer,
+    sites.facilities,
+    maintenance.asset-history,
+    maintenance.pm,
+    import.overview,
+    sites.archive,
+  ]
 sources:
   - apps/admin-web/src/management/Records.tsx
   - apps/admin-web/src/management/Assets.tsx
   - apps/admin-web/src/management/store.ts
   - packages/shared/src/operations.ts
-keywords: [asset, equipment, furniture, fixture, tool, IT equipment, vehicle, batch, serial number, warranty, custodian, asset code, category, supplier]
+keywords:
+  [
+    asset,
+    equipment,
+    furniture,
+    fixture,
+    tool,
+    IT equipment,
+    vehicle,
+    batch,
+    serial number,
+    warranty,
+    custodian,
+    asset code,
+    category,
+    supplier,
+  ]
 ---
 
 The **asset register** holds the things you maintain or track: equipment, tools, IT equipment,
 vehicles, furniture and fixtures. Each asset has a permanent **Asset code** (used on its QR label),
 lives at a physical location — never "at a client" — and keeps a history of condition changes and
 transfers.
+
+![The Assets → Furniture & fixtures screen](screens/admin-furniture.png)
+
+![The Assets → Equipment screen](screens/admin-equipment.png)
+
+![The Materials & inventory → Suppliers screen](screens/admin-suppliers.png)
 
 ## Before you start
 
@@ -56,8 +95,8 @@ transfers.
    Critical), the **Custodian** (employee) and the **Responsible department**.
 6. **Purchase:** optionally the **Supplier**, **Purchase date**, **Purchase cost** (in the
    company's accounting currency), **Warranty end date** and **Description**.
-7. Choose the **Status** (*In service* or *In storage* for new assets) and select **Save asset**
-   (*Asset created.*).
+7. Choose the **Status** (_In service_ or _In storage_ for new assets) and select **Save asset**
+   (_Asset created._).
 
 ![The asset register](screens/admin-assets.png)
 
@@ -65,8 +104,8 @@ transfers.
 
 ## Expected result
 
-- The asset appears in the register with its code, location and status (*In service*,
-  *In storage*, *Under maintenance*, *Out of service*, *Disposed* or *Archived*).
+- The asset appears in the register with its code, location and status (_In service_,
+  _In storage_, _Under maintenance_, _Out of service_, _Disposed_ or _Archived_).
 - The asset page offers **QR label** and **Transfer**, and tabs **Overview**, **History** and
   **Transfers**.
 
@@ -74,21 +113,21 @@ transfers.
 
 ## Common errors
 
-| Message | Why | What to do |
-| --- | --- | --- |
-| *Individually tracked assets have quantity 1* | Tracking is individual but quantity is not 1. | Set quantity 1, or use batch tracking. |
-| *Batches are not serialised. Track serialised items individually.* | A batch has a serial number. | Remove the serial number, or register each item individually. |
-| *Warranty must end after purchase* | The warranty end date is before the purchase date. | Correct the dates. |
-| *Use Transfer to move an asset so its movement history is recorded.* | You changed the site or location in the edit form. | Close the form and use **Transfer**. |
-| *Tracking cannot change after creation. Create a new record instead.* | You changed individual/batch on a saved asset. | Create a new asset with the right tracking. |
-| *This code is already reserved. Choose another code.* | The asset code is used by another asset. | Choose another code. |
-| *Your plan allows N assets. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available.* | The plan's asset limit is reached. | Archive disposed assets or ask about a larger plan. |
+| Message                                                                                                                 | Why                                                | What to do                                                    |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------- |
+| _Individually tracked assets have quantity 1_                                                                           | Tracking is individual but quantity is not 1.      | Set quantity 1, or use batch tracking.                        |
+| _Batches are not serialised. Track serialised items individually._                                                      | A batch has a serial number.                       | Remove the serial number, or register each item individually. |
+| _Warranty must end after purchase_                                                                                      | The warranty end date is before the purchase date. | Correct the dates.                                            |
+| _Use Transfer to move an asset so its movement history is recorded._                                                    | You changed the site or location in the edit form. | Close the form and use **Transfer**.                          |
+| _Tracking cannot change after creation. Create a new record instead._                                                   | You changed individual/batch on a saved asset.     | Create a new asset with the right tracking.                   |
+| _This code is already reserved. Choose another code._                                                                   | The asset code is used by another asset.           | Choose another code.                                          |
+| _Your plan allows N assets. Archive unused records or ask Sharaco to upgrade your plan. Existing data stays available._ | The plan's asset limit is reached.                 | Archive disposed assets or ask about a larger plan.           |
 
 ## Troubleshooting
 
 - **Lots of assets:** import them with **Administration → Import data** (see
   [Bulk import](article:import.overview)).
-- **The asset has been scrapped:** set **Status** to *Disposed*; archive it later. Disposed and
+- **The asset has been scrapped:** set **Status** to _Disposed_; archive it later. Disposed and
   archived assets cannot be opened by scanning.
 - **Maintenance history:** work orders and PM tasks for the asset appear in
   [Asset history](article:maintenance.asset-history).
