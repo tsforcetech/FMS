@@ -70,6 +70,8 @@ export type Task = {
   attempt: number;
   draftAnswers: Record<string, string>;
   occurrenceKey: string;
+  startedAt?: Timestamp | null;
+  submittedAt?: Timestamp | null;
   scheduleId?: string;
   origin?: 'manual' | 'schedule' | 'maintenance';
   cancelReason: string;
@@ -477,6 +479,10 @@ export async function transitionTask(
       assigneeIds,
       attempt,
       ...(action === 'restart' ? { draftAnswers: {} } : {}),
+      // Phase 7: actual start of the current attempt (first start, or restart after rework).
+      ...(action === 'restart' || (action === 'start' && !t.startedAt)
+        ? { startedAt: serverTimestamp() }
+        : {}),
       ...(action === 'cancel'
         ? { cancelReason: options.note!.trim().slice(0, 500) }
         : {}),
@@ -583,6 +589,7 @@ export async function submitTask(
       draftAnswers: {},
       exceptionCount: t.exceptionCount + result.exceptions.length,
       evidencePending: result.evidencePending.length > 0,
+      submittedAt: serverTimestamp(),
       ...(to === 'completed' ? { completedAt: serverTimestamp() } : {}),
       revision,
       updatedAt: serverTimestamp(),

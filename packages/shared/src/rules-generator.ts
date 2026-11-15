@@ -360,5 +360,9 @@ export function generatedIndexes(): Index[] {
   // Phase 6 attendance.
   add('attendance', [asc('employeeId'), desc('date')]);
   add('attendance', [asc('siteId'), desc('date')]);
+  // Phase 7 customer service requests.
+  add('serviceRequests', [asc('clientId'), desc('createdAt')]);
+  add('serviceRequests', [asc('allocationId'), desc('createdAt')]);
+  add('serviceRequests', [asc('status'), desc('createdAt')]);
   return out;
 }

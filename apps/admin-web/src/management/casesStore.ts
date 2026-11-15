@@ -18,6 +18,8 @@ import {
 import {
   caseDefinitions,
   caseNumber,
+  customerStatus,
+  customerStepLabels,
   linkedCaseId,
   parseWorkingDays,
   pickPolicy,
@@ -383,6 +385,57 @@ export async function createCase(
   return { id, created };
 }
 
+/**
+ * Phase 7: complaints raised from a customer service request keep the
+ * customer-facing request in step. Only a fixed customer-safe label, the
+ * customer status and the resolution text are copied — never internal notes,
+ * assignees or costs.
+ */
+type RequestSnap = Awaited<ReturnType<Transaction['get']>>;
+function syncRequest(
+  tx: Transaction,
+  uid: string,
+  snap: RequestSnap | null,
+  patch: {
+    status?: string;
+    label?: string;
+    resolution?: string;
+    workOrderId?: string;
+  },
+) {
+  if (!snap?.exists()) return;
+  const d = snap.data() as {
+    revision: number;
+    timeline: unknown[];
+    status: string;
+  };
+  tx.update(snap.ref, {
+    ...(patch.status ? { status: patch.status } : {}),
+    ...(patch.label
+      ? {
+          timeline: [
+            ...d.timeline,
+            { label: patch.label, at: Timestamp.now() },
+          ].slice(-40),
+        }
+      : {}),
+    ...(patch.resolution !== undefined
+      ? { resolutionSummary: patch.resolution.slice(0, 2000) }
+      : {}),
+    ...(patch.workOrderId ? { workOrderId: patch.workOrderId } : {}),
+    revision: d.revision + 1,
+    updatedAt: serverTimestamp(),
+    updatedBy: uid,
+  });
+}
+const requestRef = (
+  db: Firestore,
+  c: string,
+  x: { sourceType: string; sourceId: string },
+) =>
+  x.sourceType === 'service_request' && x.sourceId
+    ? ref(db, c, 'serviceRequests', x.sourceId)
+    : null;
 /** Creates (once) a work order from a complaint and links it on the complaint. */
 export async function workOrderFromComplaint(
   db: Firestore,
@@ -417,10 +470,16 @@ export async function workOrderFromComplaint(
     const existing = await tx.get(ref(db, c, 'workOrders', id));
     const data = cmp.data() as CaseRecord;
     if (existing.exists() && data.workOrderId) return false;
+    const rq = requestRef(db, c, data);
+    const req = rq ? await tx.get(rq) : null;
     if (!existing.exists())
       await writeCase(tx, db, c, uid, 'workOrders', id, input, sla);
     if (!data.workOrderId) {
       const revision = data.revision + 1;
+      syncRequest(tx, uid, req, {
+        label: 'Work order created',
+        workOrderId: id,
+      });
       tx.update(ref(db, c, 'complaints', complaint.id), {
         workOrderId: id,
         revision,
@@ -507,6 +566,8 @@ export async function transitionCase(
         )
           throw new UserError('Assign active employees only.');
       }
+    const rq = record.kind === 'complaints' ? requestRef(db, c, fresh) : null;
+    const req = rq ? await tx.get(rq) : null;
     const revision = fresh.revision + 1;
     const assigneeIds =
       a.assigns && opts.assigneeIds
@@ -516,6 +577,12 @@ export async function transitionCase(
       ? opts.targetDepartmentId!
       : fresh.targetDepartmentId;
     const to = a.to || fresh.status;
+    if (action !== 'note')
+      syncRequest(tx, uid, req, {
+        status: customerStatus(to),
+        label: customerStepLabels[action] || 'Updated by the service team',
+        ...(a.resolves ? { resolution: note } : {}),
+      });
     tx.update(ref(db, c, record.kind, record.id), {
       status: to,
       assigneeIds,
