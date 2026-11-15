@@ -131,3 +131,4 @@ export * from './inventory';
 export * from './tasks';
 export * from './schedule';
 export * from './cases';
+export * from './field';

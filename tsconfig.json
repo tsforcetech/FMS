@@ -22,6 +22,9 @@
     "apps/admin-web/vite.config.ts",
     "apps/staff-web/src",
     "apps/staff-web/vite.config.ts",
+    "apps/mobile/src",
+    "apps/mobile/vite.config.ts",
+    "apps/mobile/capacitor.config.ts",
     "packages",
     "firebase/tests",
     "vitest*.ts"

@@ -357,5 +357,8 @@ export function generatedIndexes(): Index[] {
   );
   add('workOrders', [asc('createdBy'), desc('createdAt')]);
   add('taskExceptions', [asc('detectedBy'), desc('detectedAt')]);
+  // Phase 6 attendance.
+  add('attendance', [asc('employeeId'), desc('date')]);
+  add('attendance', [asc('siteId'), desc('date')]);
   return out;
 }

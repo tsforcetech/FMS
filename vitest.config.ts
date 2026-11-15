@@ -1,2 +1,10 @@
 import { defineConfig } from 'vitest/config';
-export default defineConfig({ test: { include: ['packages/**/*.test.ts'] } });
+import { fileURLToPath } from 'node:url';
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@admin': fileURLToPath(new URL('./apps/admin-web/src', import.meta.url)),
+    },
+  },
+  test: { include: ['packages/**/*.test.ts', 'apps/mobile/src/**/*.test.ts'] },
+});

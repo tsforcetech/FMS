@@ -83,18 +83,54 @@ export function useOnline() {
   return online;
 }
 
+/**
+ * Identity resolution used by the session. The mobile app supplies an
+ * offline-aware version (last verified identity from its encrypted vault);
+ * the web uses the live lookups directly.
+ */
+export type Resolver = {
+  companies: (db: FirebaseServices['db'], uid: string) => Promise<string[]>;
+  resolve: (
+    db: FirebaseServices['db'],
+    c: string,
+    uid: string,
+  ) => Promise<StaffAccess | StaffDenied>;
+  /** Called when access is denied (e.g. revoked) so cached data can be purged. */
+  onDenied?: (uid: string) => void | Promise<void>;
+};
+const liveResolver: Resolver = {
+  companies: staffCompanies,
+  resolve: resolveStaff,
+};
 export default function App({ services }: { services: FirebaseServices }) {
+  return <StaffApp services={services} Shell={Shell} />;
+}
+export function StaffApp({
+  services,
+  Shell: ShellComponent,
+  resolver = liveResolver,
+}: {
+  services: FirebaseServices;
+  Shell: () => ReactNode;
+  resolver?: Resolver;
+}) {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   useEffect(() => onAuthStateChanged(services.auth, setUser), [services]);
   if (user === undefined) return <Splash />;
   if (!user) return <Login services={services} />;
   return (
     <HashRouter>
-      <Session key={user.uid} services={services} user={user} />
+      <Session
+        key={user.uid}
+        services={services}
+        user={user}
+        Shell={ShellComponent}
+        resolver={resolver}
+      />
     </HashRouter>
   );
 }
-function Splash() {
+export function Splash() {
   return (
     <div className="s-center" aria-busy="true">
       <div className="s-logo">F</div>
@@ -105,9 +141,13 @@ function Splash() {
 function Session({
   services,
   user,
+  Shell: ShellComponent,
+  resolver,
 }: {
   services: FirebaseServices;
   user: User;
+  Shell: () => ReactNode;
+  resolver: Resolver;
 }) {
   const { t } = useT();
   const [state, setState] = useState<{
@@ -125,22 +165,24 @@ function Session({
   useEffect(() => {
     let live = true;
     (async () => {
-      const companies = await staffCompanies(services.db, user.uid).catch(
-        () => [] as string[],
-      );
+      const companies = await resolver
+        .companies(services.db, user.uid)
+        .catch(() => [] as string[]);
       const order =
         pick && companies.includes(pick)
           ? [pick, ...companies.filter((c) => c !== pick)]
           : companies;
       let denied: StaffDenied | undefined;
       for (const c of order) {
-        const r = await resolveStaff(services.db, c, user.uid);
+        const r = await resolver.resolve(services.db, c, user.uid);
         if ('link' in r) {
           if (live) setState({ access: r, companies });
           return;
         }
         denied ??= r;
       }
+      if (denied && denied.reason !== 'error')
+        await resolver.onDenied?.(user.uid);
       if (live)
         setState({
           denied: denied || { companyId: '', reason: 'no-link' },
@@ -150,7 +192,7 @@ function Session({
     return () => {
       live = false;
     };
-  }, [services, user.uid, pick]);
+  }, [services, user.uid, pick, resolver]);
   const switchTo = useCallback((c: string) => {
     try {
       sessionStorage.setItem('fos-staff-company', c);
@@ -206,13 +248,13 @@ function Session({
   }
   return (
     <StaffCtx.Provider value={staff}>
-      <Shell />
+      <ShellComponent />
     </StaffCtx.Provider>
   );
 }
 
 /* ================================================================ login */
-function Login({ services }: { services: FirebaseServices }) {
+export function Login({ services }: { services: FirebaseServices }) {
   const { t } = useT();
   const [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
