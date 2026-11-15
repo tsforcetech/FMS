@@ -43,7 +43,9 @@
     "help:pdf": "tsx scripts/help/pdf.ts",
     "help:screens": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs && npx tsx scripts/staff-browser-test.ts && npx tsx scripts/phase7-browser-test.ts && npx tsx scripts/help/capture-screens.ts\"",
     "dev:help": "npm run help:build && npm run preview -w @facilityos/help-web",
-    "test:help": "tsx scripts/phase9-help-test.ts"
+    "test:help": "tsx scripts/phase9-help-test.ts",
+    "build:functions": "node scripts/build-functions.mjs",
+    "test:scheduler-function": "node scripts/build-functions.mjs && cd functions && npm ci --no-audit --no-fund && cd .. && firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs > /dev/null && node scripts/scheduler-function-test.mjs\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

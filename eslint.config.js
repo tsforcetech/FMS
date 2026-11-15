@@ -13,6 +13,8 @@ export default tseslint.config(
       'apps/mobile/ios/**',
       'apps/help-web/pdf/**',
       'docs/help/.restricted/**',
+      'functions/lib/**',
+      'functions/node_modules/**',
     ],
   },
   js.configs.recommended,

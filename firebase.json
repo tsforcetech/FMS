@@ -49,5 +49,14 @@
       "enabled": false
     },
     "singleProjectMode": true
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22",
+      "ignore": ["src", "node_modules", ".gitignore", "*.log"],
+      "predeploy": ["node scripts/build-functions.mjs"]
+    }
+  ]
 }
