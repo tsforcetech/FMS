@@ -603,6 +603,8 @@ service cloud.firestore {
   }
   // ------------------------------------------------------------------ Phase 7 customers, costs, compliance
   // A customer login (role "customer") is linked by an admin to one client; optional allocationIds narrow it further.
+  // Customers never read internal master data: the link carries an admin-curated snapshot of the places they may see,
+  // and request creation is checked against the real allocation server-side.
   function clink(c){return get(/databases/$(database)/documents/companies/$(c)/customerLinks/$(request.auth.uid)).data;}
   function customerOk(c,m,l){return signedIn() && m.uid==request.auth.uid && m.companyId==c && m.status=='active' && m.role=='customer'
     && l.uid==request.auth.uid && l.status=='active' && get(/databases/$(database)/documents/companies/$(c)/clients/$(l.clientId)).data.status!='archived' && activeCompany(c);}
@@ -636,7 +638,7 @@ service cloud.firestore {
   function requestCustomerUpdate(c,m,l,d,b){
    return customerOk(c,m,l) && requestShape(c,d) && b.clientId==l.clientId && customerScope(l,b.allocationId) && d.revision==b.revision+1
     && d.diff(b).affectedKeys().hasOnly(['remarks','status','confirmedAt','timeline','revision','updatedAt','updatedBy'])
-    && d.remarks.size()<=b.remarks.size()+1 && d.remarks[0:b.remarks.size()]==b.remarks
+    && d.remarks.size()<=b.remarks.size()+1 && (b.remarks.size()==0 || d.remarks[0:b.remarks.size()]==b.remarks)
     && (d.remarks.size()==b.remarks.size() || (d.remarks[b.remarks.size()].by=='customer' && d.remarks[b.remarks.size()].text is string && d.remarks[b.remarks.size()].text.size()>0 && d.remarks[b.remarks.size()].text.size()<=500))
     && d.timeline.size()<=b.timeline.size()+1 && d.timeline[0:b.timeline.size()]==b.timeline
     && (d.status==b.status || (b.status in ['resolved','closed'] && d.status=='reopen_requested' && d.remarks.size()==b.remarks.size()+1))
@@ -645,12 +647,13 @@ service cloud.firestore {
   function requestTeamUpdate(c,d,b){
    return requestShape(c,d) && d.revision==b.revision+1 && d.clientId==b.clientId && d.allocationId==b.allocationId && d.createdBy==b.createdBy && d.createdAt==b.createdAt
     && d.diff(b).affectedKeys().hasOnly(['status','complaintId','workOrderId','timeline','resolutionSummary','remarks','revision','updatedAt','updatedBy'])
-    && d.remarks[0:b.remarks.size()]==b.remarks && d.timeline[0:b.timeline.size()]==b.timeline;
+    && (b.remarks.size()==0 || d.remarks[0:b.remarks.size()]==b.remarks) && d.timeline[0:b.timeline.size()]==b.timeline;
   }
   function linkCustomerShape(c,uid,d){
-   return d.keys().hasOnly(['companyId','schemaVersion','uid','clientId','contactName','allocationIds','siteNames','status','createdAt','createdBy','updatedAt','updatedBy','revision'])
+   return d.keys().hasOnly(['companyId','schemaVersion','uid','clientId','clientName','contactName','allocationIds','places','status','createdAt','createdBy','updatedAt','updatedBy','revision'])
     && d.companyId==c && d.schemaVersion==1 && d.uid==uid && d.clientId is string && d.clientId.matches('^[a-zA-Z0-9_-]{1,128}$')
-    && d.contactName is string && d.contactName.size()<=120 && d.allocationIds is list && d.allocationIds.size()<=10 && d.siteNames is map && d.siteNames.size()<=20
+    && d.contactName is string && d.contactName.size()<=120 && d.allocationIds is list && d.allocationIds.size()<=10
+    && d.clientName is string && d.clientName.size()<=160 && d.places is list && d.places.size()<=40
     && d.status in ['active','revoked'] && d.revision is int && d.updatedAt==request.time && d.updatedBy==request.auth.uid
     && get(/databases/$(database)/documents/companies/$(c)/members/$(uid)).data.role=='customer'
     && get(/databases/$(database)/documents/companies/$(c)/clients/$(d.clientId)).data.status!='archived';
@@ -860,9 +863,6 @@ service cloud.firestore {
     allow read: if (known(kind) || known2(kind)) && admin(companyId) && activeCompany(companyId);
     allow read: if kind in ['sites','locations','facilities','assets','employees','shiftAssignments','siteAssignments','leaveRecords','teamMembers','departments','designations','teams','shifts','holidays','taskCategories','slaPolicies']
      && staffMasterRead(companyId,kind,id,resource.data);
-    // Phase 7: customers read their own client, its contracts and the allocations made to it.
-    allow read: if kind in ['clients','contracts','contractAllocations'] && customer(companyId)
-     && (kind=='clients' ? id==clink(companyId).clientId : kind=='contracts' ? resource.data.clientId==clink(companyId).clientId : resource.data.clientIdSnapshot==clink(companyId).clientId);
     allow create: if known(kind) && admin(companyId) && activeCompany(companyId)
      && business(companyId,kind,id) && (kind!='sites'||request.resource.data.schemaVersion==2)
      && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid
@@ -1035,7 +1035,7 @@ service cloud.firestore {
    }
    // ---------------------------------------------------------------- Phase 7
    match /customerLinks/{uid} {
-    allow get: if signedIn() && request.auth.uid==uid && resource.data.uid==uid;
+    allow get: if signedIn() && request.auth.uid==uid && (resource==null || resource.data.uid==uid);
     allow read: if admin(companyId) && activeCompany(companyId);
     allow create: if admin(companyId) && activeCompany(companyId) && linkCustomerShape(companyId,uid,request.resource.data)
      && request.resource.data.status=='active' && request.resource.data.revision==1 && request.resource.data.createdAt==request.time && request.resource.data.createdBy==request.auth.uid;

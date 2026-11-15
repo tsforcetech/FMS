@@ -391,6 +391,8 @@ export async function createCase(
  * customer status and the resolution text are copied — never internal notes,
  * assignees or costs.
  */
+// Staff cannot read service requests: their transitions skip the sync and the
+// admin Service Requests page reconciles the status from the complaint.
 type RequestSnap = Awaited<ReturnType<Transaction['get']>>;
 function syncRequest(
   tx: Transaction,
@@ -411,12 +413,12 @@ function syncRequest(
   };
   tx.update(snap.ref, {
     ...(patch.status ? { status: patch.status } : {}),
-    ...(patch.label
+    ...(patch.label && d.timeline.length < 40
       ? {
           timeline: [
             ...d.timeline,
             { label: patch.label, at: Timestamp.now() },
-          ].slice(-40),
+          ],
         }
       : {}),
     ...(patch.resolution !== undefined
@@ -471,7 +473,7 @@ export async function workOrderFromComplaint(
     const data = cmp.data() as CaseRecord;
     if (existing.exists() && data.workOrderId) return false;
     const rq = requestRef(db, c, data);
-    const req = rq ? await tx.get(rq) : null;
+    const req = rq ? await tx.get(rq).catch(() => null) : null;
     if (!existing.exists())
       await writeCase(tx, db, c, uid, 'workOrders', id, input, sla);
     if (!data.workOrderId) {
@@ -567,7 +569,7 @@ export async function transitionCase(
           throw new UserError('Assign active employees only.');
       }
     const rq = record.kind === 'complaints' ? requestRef(db, c, fresh) : null;
-    const req = rq ? await tx.get(rq) : null;
+    const req = rq ? await tx.get(rq).catch(() => null) : null;
     const revision = fresh.revision + 1;
     const assigneeIds =
       a.assigns && opts.assigneeIds
