@@ -90,6 +90,7 @@ export type ServiceRequest = {
   createdBy: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  updatedBy: string;
   revision: number;
 };
 export const requestCategories = [

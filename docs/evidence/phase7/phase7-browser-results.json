@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "Admin links a provisioned customer login to one client, restricted to Office 201",
+    "Staff logins are refused by the customer portal",
+    "Customer sees only the allocated Office 201, never Office 202",
+    "Customer raises a service request for their active location",
+    "A different tenant in the same building cannot open or list the request",
+    "Admin takes the request into the complaint workflow (assigned, resolved)",
+    "Customer sees progress and the resolution, never internal notes, staff names or costs, and confirms",
+    "Customer portal has no horizontal overflow at 320–1024 px",
+    "All report, monitoring, audit, retention and backup screens load without errors",
+    "Admin records an append-only maintenance cost"
+  ],
+  "environment": "local demo emulators only"
+}

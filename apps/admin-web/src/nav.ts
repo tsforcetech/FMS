@@ -34,7 +34,6 @@ import {
   History,
   Settings,
   KeyRound,
-  SlidersHorizontal,
   CalendarDays,
   CalendarRange,
   Repeat,
@@ -48,6 +47,19 @@ import {
   BellRing,
   Server,
   ScrollText,
+  PieChart,
+  TrendingUp,
+  UserRound,
+  MapPinned,
+  Coins,
+  PackageSearch,
+  Fingerprint,
+  FileCheck2,
+  Activity,
+  Archive,
+  DatabaseBackup,
+  Contact,
+  Inbox,
   type LucideIcon,
 } from 'lucide-react';
 import type { Kind } from '@facilityos/shared';
@@ -90,7 +102,23 @@ export type Page = {
     | 'notificationCenter'
     | 'notificationSettings'
     | 'schedulerMonitor'
-    | 'staffAccess';
+    | 'staffAccess'
+    | 'mgmtDashboard'
+    | 'taskReport'
+    | 'staffReport'
+    | 'siteReport'
+    | 'maintenanceReport'
+    | 'assetReport'
+    | 'inventoryReport'
+    | 'attendanceReport'
+    | 'slaReport'
+    | 'complianceReport'
+    | 'operations'
+    | 'auditHistory'
+    | 'retention'
+    | 'backup'
+    | 'customerAccess'
+    | 'serviceRequests';
   /** Not yet available: shown with a phase label. */
   phase?: number;
   description?: string;
@@ -392,6 +420,12 @@ export const groups: Group[] = [
         screen: 'complaints',
       },
       {
+        id: 'service-requests',
+        label: 'Customer requests',
+        icon: Inbox,
+        screen: 'serviceRequests',
+      },
+      {
         id: 'escalations',
         label: 'Escalations',
         icon: Megaphone,
@@ -430,6 +464,72 @@ export const groups: Group[] = [
     ],
   },
   {
+    id: 'reports',
+    label: 'Reports & analytics',
+    pages: [
+      {
+        id: 'management',
+        label: 'Management dashboard',
+        icon: PieChart,
+        screen: 'mgmtDashboard',
+      },
+      {
+        id: 'report-tasks',
+        label: 'Task performance',
+        icon: TrendingUp,
+        screen: 'taskReport',
+      },
+      {
+        id: 'report-staff',
+        label: 'Staff productivity',
+        icon: UserRound,
+        screen: 'staffReport',
+      },
+      {
+        id: 'report-sites',
+        label: 'Site performance',
+        icon: MapPinned,
+        screen: 'siteReport',
+      },
+      {
+        id: 'report-maintenance',
+        label: 'Maintenance & costs',
+        icon: Coins,
+        screen: 'maintenanceReport',
+      },
+      {
+        id: 'report-assets',
+        label: 'Asset performance',
+        icon: Boxes,
+        screen: 'assetReport',
+      },
+      {
+        id: 'report-inventory',
+        label: 'Inventory reconciliation',
+        icon: PackageSearch,
+        screen: 'inventoryReport',
+      },
+      {
+        id: 'report-attendance',
+        label: 'Attendance',
+        icon: Fingerprint,
+        screen: 'attendanceReport',
+      },
+      {
+        id: 'report-sla',
+        label: 'SLA performance',
+        icon: ShieldAlert,
+        screen: 'slaReport',
+      },
+      {
+        id: 'compliance',
+        label: 'Compliance & inspections',
+        icon: FileCheck2,
+        screen: 'complianceReport',
+      },
+    ],
+  },
+  {
     id: 'admin',
     label: 'Administration',
     pages: [
@@ -453,10 +553,34 @@ export const groups: Group[] = [
         screen: 'schedulerMonitor',
       },
       {
-        id: 'system',
-        label: 'System settings',
-        icon: SlidersHorizontal,
-        phase: 7,
+        id: 'customer-access',
+        label: 'Customer access',
+        icon: Contact,
+        screen: 'customerAccess',
+      },
+      {
+        id: 'operations',
+        label: 'Operational monitoring',
+        icon: Activity,
+        screen: 'operations',
+      },
+      {
+        id: 'audit',
+        label: 'Audit history',
+        icon: ScrollText,
+        screen: 'auditHistory',
+      },
+      {
+        id: 'retention',
+        label: 'Data retention',
+        icon: Archive,
+        screen: 'retention',
+      },
+      {
+        id: 'backup',
+        label: 'Backup & recovery',
+        icon: DatabaseBackup,
+        screen: 'backup',
       },
     ],
   },

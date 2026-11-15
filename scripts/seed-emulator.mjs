@@ -13,6 +13,8 @@ for (const [uid, email, name] of [
   ['local-staff', 'staff@example.test', 'Local Staff'],
   ['local-supervisor', 'supervisor@example.test', 'Local Supervisor'],
   ['localtech', 'tech@example.test', 'Local Technician'],
+  ['localcust1', 'customer1@example.test', 'Alpha Front Desk'],
+  ['localcust2', 'customer2@example.test', 'Beta Office'],
 ]) {
   try {
     await auth.getUser(uid);
@@ -30,7 +32,9 @@ for (const [uid, email, name] of [
   await db.doc(`users/${uid}`).set({ ...meta, uid, displayName: name });
   // The supervisor is an admin of company A only, so approvals can be reviewed
   // by someone other than the submitter.
-  for (const companyId of uid === 'local-supervisor' || uid === 'localtech'
+  for (const companyId of uid === 'local-supervisor' ||
+  uid === 'localtech' ||
+  uid.startsWith('localcust')
     ? ['local-company-a']
     : ['local-company-a', 'local-company-b']) {
     const batch = db.batch();
@@ -55,7 +59,9 @@ for (const [uid, email, name] of [
             ? 'admin'
             : uid === 'localtech'
               ? 'technician'
-              : 'staff',
+              : uid.startsWith('localcust')
+                ? 'customer'
+                : 'staff',
       status: 'active',
     });
     batch.set(db.doc(`users/${uid}/companyAccess/${companyId}`), { companyId });
@@ -63,5 +69,5 @@ for (const [uid, email, name] of [
   }
 }
 console.log(
-  'Local emulators seeded. Test accounts: owner@example.test, supervisor@example.test (admin, company A), staff@example.test; password: Local-only-123!',
+  'Local emulators seeded. Test accounts: owner@example.test, supervisor@example.test (admin, company A), staff@example.test, customer1@example.test / customer2@example.test (customer role, not linked until an admin links them); password: Local-only-123!',
 );

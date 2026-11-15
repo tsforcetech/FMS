@@ -1,0 +1,38 @@
+/* Customer portal additions on top of the staff portal styles. */
+.c-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.c-steps li {
+  border-left: 3px solid var(--blue-line);
+  padding: 2px 0 2px 12px;
+}
+.c-steps li.done {
+  border-left-color: var(--green);
+}
+.c-msg {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--blue-soft);
+  margin: 6px 0;
+}
+.c-msg.mine {
+  background: var(--violet-soft);
+  margin-left: 24px;
+}
+.c-form {
+  display: grid;
+  gap: 8px;
+}
+.c-form textarea {
+  min-height: 110px;
+}
+.c-place {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}

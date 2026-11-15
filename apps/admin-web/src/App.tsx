@@ -65,6 +65,27 @@ import {
 } from '@facilityos/shared';
 import type { FirebaseServices } from './firebase';
 import { loadAccess, loadProfile } from './data';
+import { ReportsArea, type ReportScreen } from './management/Reports';
+import {
+  AuditHistory,
+  BackupStatus,
+  CustomerAccess,
+  DataRetention,
+  OperationalMonitoring,
+  ServiceRequests,
+} from './management/Operations';
+const reportScreens: Record<string, true> = {
+  mgmtDashboard: true,
+  taskReport: true,
+  staffReport: true,
+  siteReport: true,
+  maintenanceReport: true,
+  assetReport: true,
+  inventoryReport: true,
+  attendanceReport: true,
+  slaReport: true,
+  complianceReport: true,
+};
 import { groups, pageForPath } from './nav';
 import { Overview } from './management/Overview';
 import { RecordPage } from './management/Records';
@@ -889,6 +910,24 @@ function Screen({
         <SchedulerMonitor context={context} />
       ) : page.screen === 'staffAccess' ? (
         <StaffAccessPage context={context} />
+      ) : page.screen === 'operations' ? (
+        <OperationalMonitoring context={context} />
+      ) : page.screen === 'auditHistory' ? (
+        <AuditHistory context={context} />
+      ) : page.screen === 'retention' ? (
+        <DataRetention context={context} />
+      ) : page.screen === 'backup' ? (
+        <BackupStatus />
+      ) : page.screen === 'customerAccess' ? (
+        <CustomerAccess context={context} />
+      ) : page.screen === 'serviceRequests' ? (
+        <ServiceRequests context={context} />
+      ) : page.screen && page.screen in reportScreens ? (
+        <ReportsArea
+          key={page.id}
+          context={context}
+          screen={page.screen as ReportScreen}
+        />
       ) : (
         <CompanySettings
           key={access.company.updatedAt.toMillis()}
