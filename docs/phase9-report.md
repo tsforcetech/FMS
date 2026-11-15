@@ -134,17 +134,20 @@ newest _What's new_ entry. Every page footer and PDF cover shows the version, pu
 
 ## Tests
 
-| Suite                                | Result                                                                                 |
-| ------------------------------------ | -------------------------------------------------------------------------------------- |
-| format:check, lint, typecheck        | pass                                                                                   |
-| Unit tests (`npm test`)              | 100 passed                                                                             |
-| `help:check`                         | pass — 164 articles, 45 diagrams, all links/screenshots/routes/coverage/help ids valid |
-| `test:help` (Phase 9 browser test)   | **19/19** (`docs/evidence/phase9/checks.txt`) — items 1–19 of the brief                |
-| Phase 1–4 browser (`test:browser`)   | 20/20 on the Phase 9 code (incl. phone overflow check)                                 |
-| Staff browser (`test:staff-browser`) | 10/10                                                                                  |
-| Phase 7 browser                      | 10/10                                                                                  |
-| Phase 8 browser, mobile runtime      | see the regression run below                                                           |
-| Rules (`test:rules`), migration      | see the regression run below                                                           |
+| Suite                                                                 | Result                                                                                                            |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| format:check, lint, typecheck                                         | pass                                                                                                              |
+| Unit tests (`npm test`)                                               | 100 passed                                                                                                        |
+| `help:check`                                                          | pass — 164 articles, 45 diagrams, all links/screenshots/routes/coverage/help ids valid                            |
+| `test:help` (Phase 9 browser test)                                    | **19/19** (`docs/evidence/phase9/checks.txt`) — items 1–19 of the brief                                           |
+| Phase 1–4 browser (`test:browser`)                                    | 20/20 on the Phase 9 code (incl. phone overflow check)                                                            |
+| Staff browser (`test:staff-browser`)                                  | 10/10                                                                                                             |
+| Phase 7 browser                                                       | 10/10                                                                                                             |
+| Phase 8 browser                                                       | 8/8                                                                                                               |
+| Mobile runtime                                                        | 8/8 (after fixing a time-of-day flake in the test: tasks due "now + 3 h" fell on tomorrow after 21:00 Dubai time) |
+| Rules (`test:rules`)                                                  | 117 passed                                                                                                        |
+| Migration (`test:migration`)                                          | pass                                                                                                              |
+| `npm run check` (lint, typecheck, unit, all builds incl. Help Center) | pass                                                                                                              |
 
 Phase 9 test items: 1 loads · 2 search (title, exact error message, nonsense) · 3 categories · 4 every internal link and asset
 in all ~970 pages resolves · 5 breadcrumbs · 6 contextual help for admin/staff/mobile/customer/help ids and the restricted

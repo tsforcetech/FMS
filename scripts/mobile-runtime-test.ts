@@ -239,6 +239,10 @@ try {
   await saveDraft(db, C, owner, v, v.content, true);
   const local = (h: number) =>
     new Date(Date.now() + h * 3600000).toISOString().slice(0, 16);
+  // Keep both demo tasks on today's date in the company time zone (Asia/Dubai,
+  // UTC+4): late in the evening "+3 h" would fall on tomorrow and leave My Day.
+  const dubaiHour = (new Date().getUTCHours() + 4) % 24;
+  const [h1, h2] = dubaiHour >= 20 ? [-2, -1] : [2, 3];
   const base = {
     versionId: vid,
     siteId: site,
@@ -255,13 +259,13 @@ try {
     ...base,
     assetId: ahu,
     title: 'AHU-02 inspection',
-    dueAt: local(2),
+    dueAt: local(h1),
   });
   const t2 = await createTask(db, C, owner, {
     ...base,
     assetId: ahu,
     title: 'Plant room round',
-    dueAt: local(3),
+    dueAt: local(h2),
   });
   await linkStaff(db, C, owner, {
     uid: 'localtech',
