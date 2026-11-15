@@ -143,3 +143,10 @@ Screenshots: `docs/evidence/phase8/`.
 ## 21–22. Phase 9 readiness and roadmap
 
 Phase 9 (Help Center & documentation) and Phase 10 (interactive tutorials & tours) are listed as planned in `docs/development-roadmap.md` and were **not started**. Prepared hooks: onboarding step metadata with stable `setup.*` help ids rendered as `data-help` attributes, and the read-only/plan banners use stable text for future help links.
+
+## Release record
+
+- 2026-11-15 08:52 UTC — Firestore rules released (ruleset `7c3f589d…`); the live ruleset matches `firebase/firestore.rules` byte for byte. Indexes unchanged.
+- `main` fast-forwarded to `6ae26c3`. GitHub Actions: FacilityOS checks ✔, Publish admin test site ✔, Android app ✔.
+- Live: `/FMS/`, `/FMS/staff/`, `/FMS/customer/` and the new `/FMS/platform/` all return 200; the admin bundle contains the Phase 8 screens.
+- Quotas apply only to companies with a `plan`. Existing companies (e.g. GBH) keep working unchanged until a plan is assigned, and `usage-reconcile --apply` must run before that.
