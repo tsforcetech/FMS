@@ -4,9 +4,9 @@
 flowchart TD
   S([Start]) --> A["[Admin] Task categories exist"]:::admin
   A --> B["Task templates: add template<br/>(code, name, category)"]:::admin
-  B --> C["Open builder: draft version"]:::admin
-  C --> D["Sections and questions<br/>(yes/no, pass/fail, number, photo...)"]:::admin
-  D --> E["Conditions, expected ranges,<br/>required evidence, estimate"]:::admin
+  B --> C["Open builder: draft version<br/>(one draft at a time)"]:::admin
+  C --> D["Sections and questions<br/>yes/no, pass/fail, number...;<br/>photo, QR, GPS cannot be required"]:::admin
+  D --> E["Conditions, expected and critical<br/>ranges, evidence type, estimate"]:::admin
   E --> F["Approval required?<br/>RACI roles"]:::admin
   F --> G["Save draft"]:::admin --> X([Ready to publish])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a

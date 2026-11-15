@@ -1,6 +1,6 @@
 %% title: Staff invitation and account linking
 %% articles: setup.invitations,setup.staff-access,staff.sign-in,ts.not-linked
-%% sources: apps/admin-web/src/management/tenantSaas.ts,apps/admin-web/src/Join.tsx,apps/admin-web/src/management/staffStore.ts,firebase/firestore.rules
+%% sources: apps/admin-web/src/management/tenantSaas.ts,apps/admin-web/src/Join.tsx,apps/admin-web/src/management/staffStore.ts,apps/admin-web/src/management/StaffAccess.tsx,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["[Admin] Invitations<br/>Invite someone: email + role"]:::admin
   A --> B{"Role allowed?<br/>admin only by owner,<br/>never owner"}
@@ -8,13 +8,15 @@ flowchart TD
   B -- Yes --> C["Invitation pending<br/>expires in 1-14 days"]:::system
   C --> D["[Admin] Copies link and<br/>sends it (email pending activation)"]:::admin
   D --> F["[Staff] Opens link, signs in<br/>or creates account"]:::staff
-  F --> G{"Email verified and<br/>matches invitation?"}
-  G -- No --> E2["Cannot accept:<br/>verify or use invited email"]:::stop --> F
-  G -- Yes --> H{"Invitation still pending<br/>and not expired?"}
+  F --> G{"Email verified?"}
+  G -- No --> E2["Verify email first"]:::stop --> F
+  G -- Yes --> H{"Invitation pending,<br/>not revoked or expired?"}
   H -- No --> E3["Ask admin for a new link"]:::stop --> X
-  H -- Yes --> I["[System] Membership created<br/>with exactly the invited role"]:::system
+  H -- Yes --> H2{"Signed in with the<br/>invited email?"}
+  H2 -- No --> E5["Sign in with invited email"]:::stop --> F
+  H2 -- Yes --> I["[System] Membership created<br/>with exactly the invited role"]:::system
   I --> J["[Admin] Staff access:<br/>link login to employee + sites"]:::admin
-  J --> K{"Employee active and<br/>not linked elsewhere?"}
+  J --> K{"Active non-customer member,<br/>active employee, neither linked<br/>elsewhere, within plan limit?"}
   K -- No --> E4["Link refused"]:::stop --> J
   K -- Yes --> L([Staff can use staff web / mobile])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a

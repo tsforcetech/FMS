@@ -1,13 +1,13 @@
 %% title: Preventive maintenance
 %% articles: maintenance.pm,scheduling.recurring
-%% sources: apps/admin-web/src/management/Schedules.tsx,apps/admin-web/src/management/scheduling.ts
+%% sources: apps/admin-web/src/management/Schedules.tsx,apps/admin-web/src/management/scheduling.ts,apps/staff-web/src/screens/Issues.tsx
 flowchart TD
   S([Start]) --> A["[Admin] Maintenance > Preventive plans<br/>New PM plan"]:::admin
   A --> B["Asset or facility, published<br/>inspection template, frequency"]:::admin
-  B --> C["Assignment to technicians"]:::admin
+  B --> C["Assignment strategy and pool"]:::admin
   C --> D["Plan saved (maintenance purpose)"]:::system
-  D --> E["Scheduler creates PM tasks<br/>(manual run; automatic pending activation)"]:::system
-  E --> F["[Technician] Executes checklist"]:::staff
+  D --> E["Scheduler creates PM tasks;<br/>admins get maintenance due in-app<br/>(manual run; automatic pending activation)"]:::system
+  E --> F["[Technician / Staff] Executes checklist"]:::staff
   F --> G{"Fault found?"}
   G -- Yes --> H["Report problem / work order"]:::staff --> X([End])
   G -- No --> I["Completed; visible in<br/>Asset maintenance history"]:::system --> X

@@ -1,16 +1,17 @@
 %% title: Checklist publishing
 %% articles: templates.publish
-%% sources: apps/admin-web/src/management/tasksStore.ts,packages/shared/src/tasks.ts
+%% sources: apps/admin-web/src/management/tasksStore.ts,apps/admin-web/src/management/TemplateBuilder.tsx,packages/shared/src/tasks.ts,apps/admin-web/src/management/scheduling.ts
 flowchart TD
   S([Start]) --> A["[Admin] Open draft version"]:::admin
   A --> B["Publish"]:::admin
-  B --> C{"Content valid? questions,<br/>RACI R; A when approval"}
+  B --> C{"Content valid? questions,<br/>RACI R; A when approval;<br/>no required photo/QR/GPS"}
   C -- No --> E1["Fix first issue shown"]:::stop --> A
   C -- Yes --> D["Version published<br/>and locked"]:::system
-  D --> F["New tasks and schedules<br/>use this version"]:::system
+  D --> F["Selectable for new tasks and<br/>new or edited schedules"]:::system
   F --> G{"Need changes later?"}
-  G -- Yes --> H["Create new draft;<br/>existing tasks keep old version"]:::admin --> A
+  G -- Yes --> H["Create new draft;<br/>existing tasks keep their snapshot"]:::admin --> A
   G -- No --> X([End])
+  D --> R["Optional: retire version;<br/>schedules still on it stop<br/>with an error until edited"]:::admin --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

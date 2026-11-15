@@ -1,15 +1,19 @@
 %% title: Contract allocation
 %% articles: clients.allocations,ts.allocation-expired
-%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/allocations.ts,firebase/firestore.rules
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/allocations.ts,packages/shared/src/operations.ts,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["[Admin] Contract allocations<br/>Add allocation"]:::admin
-  A --> B["Contract, site, optional space,<br/>type, dates (one calendar year)"]:::admin
-  B --> C{"Dates inside contract?"}
-  C -- No --> E1["Choose dates within<br/>the contract"]:::stop --> B
-  C -- Yes --> D{"Overlaps an exclusive<br/>occupancy of same space?"}
-  D -- Yes --> E2["Refused: overlap"]:::stop --> B
+  A --> B["Contract, site, optional space,<br/>type, start and end dates"]:::admin
+  B --> C{"Contract active and<br/>dates inside it?"}
+  C -- No --> E1["Choose an active contract<br/>and dates within it"]:::stop --> B
+  C -- Yes --> T{"Allocation type?"}
+  T -- Service coverage --> F
+  T -- Exclusive or shared occupancy --> Y{"Space chosen and dates<br/>in one calendar year?"}
+  Y -- No --> E3["Choose a space;<br/>split into annual allocations"]:::stop --> B
+  Y -- Yes --> D{"On activation: overlaps an<br/>exclusive allocation of the space,<br/>or 12 per space-year reached?"}
+  D -- Yes --> E2["Refused: overlap or limit"]:::stop --> B
   D -- No --> F["Saved as draft or active<br/>client copied from contract"]:::system
-  F --> G["Lifecycle: draft > active ><br/>terminated / expired > archived"]:::system
+  F --> G["Lifecycle: draft > active or archived;<br/>active > terminated / expired > archived"]:::system
   G --> X([End])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a

@@ -1,18 +1,19 @@
 %% title: Company suspension and reactivation
 %% articles: platform.subscriptions,saas.read-only,ts.read-only
-%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,firebase/firestore.rules
+%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,apps/platform-web/src/App.tsx,scripts/subscription-sweep.ts,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["[Platform billing] Suspend<br/>(or sweep finds expiry)"]:::platform
+  S([Start]) --> A["[Platform staff, owner or billing]<br/>Suspend or Cancel<br/>(or sweep finds expiry)"]:::platform
   A --> B["[System] Company status read_only<br/>audit event recorded"]:::system
   B --> C["[Tenant users] Can view and<br/>export all data"]:::admin
   B --> D["Every write refused by rules"]:::stop
-  C --> E{"Payment or decision<br/>to restore?"}
+  C --> E{"Decision to restore?"}
   D --> E
-  E -- No --> F{"Cancel?"}
-  F -- Yes --> G["Cancelled: stays read-only<br/>data never deleted"]:::stop --> X([End])
-  F -- No --> E
-  E -- Yes --> H["[Platform billing] Reactivate"]:::platform
-  H --> I["Company active again<br/>writes allowed"]:::system --> X
+  E -- No --> F["Stays read-only<br/>data never deleted"]:::stop --> X([End])
+  E -- Suspended or cancelled --> H["[Platform staff] Reactivate"]:::platform
+  E -- Expired --> H2["[Platform staff] Renew"]:::platform
+  H --> I["Snapshot recomputed from dates:<br/>company active if not expired"]:::system
+  H2 --> I
+  I --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

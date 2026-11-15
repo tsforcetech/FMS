@@ -1,13 +1,15 @@
 %% title: Automatic task generation
 %% articles: scheduling.generation,ts.scheduler-not-active,ts.no-eligible-staff
-%% sources: apps/admin-web/src/management/scheduling.ts,scripts/scheduler.ts,.github/workflows/scheduler.yml
+%% sources: apps/admin-web/src/management/scheduling.ts,apps/admin-web/src/management/Notifications.tsx,packages/shared/src/schedule.ts,scripts/scheduler.ts,.github/workflows/scheduler.yml
 flowchart TD
   S([Start]) --> A{"Trigger"}
   A -- Manual --> B["[Admin] Scheduler monitor<br/>Run scheduler now"]:::admin
   A -- Automatic --> C["Server job every 30 min<br/>(pending activation)"]:::system
-  B --> D["[System] For each active schedule:<br/>occurrences in window"]:::system
+  B --> D["[System] For each active schedule:<br/>occurrences up to 7 days ahead"]:::system
   C --> D
-  D --> E{"Holiday or non-working day?"}
+  D --> V{"Template version<br/>still published?"}
+  V -- No --> VE["Schedule error recorded;<br/>retried next run"]:::stop --> R
+  V -- Yes --> E{"Holiday or non-working day?"}
   E -- Skip --> F["No task"]:::system
   E -- Next working day --> G["Move date"]:::system --> H
   E -- No / generate --> H{"Task for this occurrence<br/>already exists?"}
@@ -15,8 +17,8 @@ flowchart TD
   H -- No --> J["Resolve assignee by strategy"]:::system
   J --> K{"Eligible person?"}
   K -- Yes --> L["Task assigned<br/>in-app notification"]:::system
-  K -- No --> M["Task unassigned<br/>with reason"]:::stop
-  F --> R["Run recorded:<br/>created, existing, unassigned"]:::system
+  K -- "No, or strategy unassigned" --> M["Task pending (unassigned)<br/>with reason"]:::stop
+  F --> R["Run recorded: created,<br/>existing, unassigned;<br/>due, overdue, SLA notifications"]:::system
   I --> R
   L --> R
   M --> R

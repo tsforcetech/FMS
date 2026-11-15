@@ -1,6 +1,6 @@
 %% title: Staff checklist execution
 %% articles: staff.checklist,mobile.tasks,train.first-checklist
-%% sources: apps/staff-web/src/screens/TaskView.tsx,packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts
+%% sources: apps/staff-web/src/screens/TaskView.tsx,apps/mobile/src/screens/TaskRun.tsx,packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts
 flowchart TD
   S([Start]) --> A["[Staff] My Day: open task"]:::staff
   A --> B{"Status?"}
@@ -11,9 +11,9 @@ flowchart TD
   C2 --> D
   C3 --> D
   D --> E{"Answer out of range<br/>or fail?"}
-  E -- Yes --> F["Exception flagged;<br/>may report a problem"]:::staff --> G
+  E -- Yes --> F["Exception shown, recorded<br/>on submit; may report a problem"]:::staff --> G
   E -- No --> G["Save progress<br/>(can pause)"]:::staff
-  G --> H{"All required answers<br/>and evidence?"}
+  G --> H{"All required answers<br/>given and valid?"}
   H -- No --> D
   H -- Yes --> I["Review and submit"]:::staff --> X([See Task submission])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a

@@ -1,17 +1,18 @@
 %% title: Rework and resubmission
 %% articles: staff.rework,tasks.approvals,tasks.lifecycle
-%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts
+%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts,apps/staff-web/src/screens/MyDay.tsx,apps/staff-web/src/screens/TaskView.tsx
 flowchart TD
   S([Start]) --> A["Task rework_required<br/>with reviewer reason"]:::system
   A --> B["[Staff] Sees Work returned<br/>banner in My Day"]:::staff
-  B --> C["Restart: attempt + 1,<br/>in_progress"]:::staff
-  C --> D["Correct answers and evidence"]:::staff
+  B --> C["Restart: attempt + 1, in_progress;<br/>previous answers shown for reference"]:::staff
+  C --> D["Answer again and correct"]:::staff
   D --> E["Submit again"]:::staff
   E --> F["awaiting_approval"]:::system
   F --> G{"Reviewer decision"}
   G -- Approve --> H([completed])
   G -- Rework again --> A
   G -- Reject --> I([rejected])
+  A -. "[Admin] Cancel with reason" .-> J([cancelled])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

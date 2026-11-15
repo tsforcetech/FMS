@@ -1,16 +1,20 @@
 %% title: QR-based inspection
 %% articles: mobile.qr,ts.qr-invalid
-%% sources: apps/mobile/src/screens/Scan.tsx,apps/admin-web/src/management/fieldStore.ts,firebase/firestore.rules
+%% sources: apps/mobile/src/screens/Scan.tsx,apps/mobile/src/screens/TaskRun.tsx,apps/mobile/src/offline/executor.ts,apps/admin-web/src/management/fieldStore.ts,packages/shared/src/field.ts,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["[Staff] Mobile: Scan QR"]:::staff
-  A --> B{"Camera permission?"}
-  B -- No --> E1["Allow camera in settings"]:::stop --> X([End])
-  B -- Yes --> C["Read FacilityOS QR"]:::staff
-  C --> D{"Known asset, location<br/>or facility?"}
-  D -- No --> E2["Invalid QR"]:::stop --> X
-  D -- Yes --> E{"Matches the task's<br/>asset/location/facility?"}
+  S([Start]) --> A["[Staff] Mobile: Scan tab,<br/>or QR on a task question"]:::staff
+  A --> B{"Camera available<br/>and allowed?"}
+  B -- No --> E1["Camera off: allow it<br/>(web: type the code)"]:::stop --> X([End])
+  B -- Yes --> C["Read QR"]:::staff
+  C --> D{"Valid FacilityOS code?"}
+  D -- No --> E2["Invalid code"]:::stop --> X
+  D -- Yes --> P{"Where scanned?"}
+  P -- Scan tab --> L{"Record exists and<br/>in your site scope?"}
+  L -- No --> E4["Unknown or<br/>not authorised"]:::stop --> X
+  L -- Yes --> M["Show record and my<br/>open tasks there"]:::staff --> X
+  P -- Task question --> E{"Matches the task's<br/>asset/location/facility?"}
   E -- No --> E3["Evidence refused"]:::stop --> X
-  E -- Yes --> F["QR evidence recorded<br/>for the question"]:::system --> X
+  E -- Yes --> F["QR evidence queued;<br/>saved as verified on sync"]:::system --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

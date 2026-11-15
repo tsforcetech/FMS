@@ -1,19 +1,23 @@
 %% title: Complaint handling
 %% articles: cases.complaints,cases.customer-requests
-%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts,apps/admin-web/src/management/Cases.tsx,apps/admin-web/src/management/customerStore.ts,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["Complaint registered<br/>(admin, staff, client, task exception,<br/>customer request intake)"]:::admin
-  A --> B["open: SLA targets set<br/>from matching policy"]:::system
+  S([Start]) --> A["[Admin] Register complaint<br/>source: admin, staff, client, inspection;<br/>or Take in a customer request"]:::admin
+  A --> B["open: SLA targets set<br/>if a policy matches"]:::system
   B --> C["[Admin] Assign"]:::admin
-  C --> D["[Assignee] Start"]:::staff
-  D --> E{"Needs repair work?"}
-  E -- Yes --> F["Create work order<br/>(linked, once)"]:::admin --> G
-  E -- No --> G["Resolve with note"]:::staff
+  C --> C2["assigned"]:::system
+  C2 --> D["[Admin] Start"]:::admin
+  D --> D2["in_progress"]:::system
+  D2 --> E{"Needs repair work?"}
+  E -- Yes --> F["[Admin] Create work order<br/>(linked, once)"]:::admin --> G
+  E -- No --> G["[Admin] Resolve with note"]:::admin
+  C2 -- Resolve directly --> G
   G --> H["resolved"]:::system
   H --> I{"Satisfied?"}
-  I -- Yes --> J["Close"]:::admin --> X([End])
-  I -- No --> K["Reopen with reason"]:::admin --> D
-  B --> L["Cancel with reason"]:::stop --> X
+  I -- Yes --> J["[Admin] Close"]:::admin --> X([End])
+  I -- No --> K["[Admin] Reopen with reason<br/>(from resolved or closed)"]:::admin --> D2
+  B --> L["[Admin] Cancel with reason<br/>(open or assigned)"]:::stop --> X
+  C2 --> L
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

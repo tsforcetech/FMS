@@ -3,13 +3,13 @@
 %% sources: packages/shared/src/onboarding.ts,apps/admin-web/src/management/Onboarding.tsx,apps/admin-web/src/management/onboardingStore.ts
 flowchart TD
   S([Start]) --> A["[Admin] Open Administration<br/>Company setup"]:::admin
-  A --> B["[System] Progress read from<br/>real records + marked steps"]:::system
+  A --> B["[System] Progress read from<br/>real records + steps marked done"]:::system
   B --> C["Company info and<br/>logo & preferences"]:::admin
   C --> D["First site, then<br/>buildings, floors, rooms"]:::admin
-  D --> E["Departments, employees<br/>(form or Import data)"]:::admin
+  D --> E["Departments, employees<br/>(form or Import data);<br/>roles step optional"]:::admin
   E --> F["Assets and facilities"]:::admin
   F --> G{"Use a starter pack?"}
-  G -- Yes --> H["Install pack: departments,<br/>categories, DRAFT checklists"]:::admin
+  G -- Yes --> H["Install pack: departments,<br/>designations, categories,<br/>DRAFT checklists; existing skipped"]:::admin
   G -- No --> I["Build templates manually"]:::admin
   H --> J["Review and publish checklists"]:::admin
   I --> J

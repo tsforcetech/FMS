@@ -1,21 +1,22 @@
 %% title: Offline synchronization and conflict resolution
 %% articles: mobile.conflicts,mobile.offline,ts.sync-conflict,ts.account-revoked
-%% sources: apps/mobile/src/offline/sync.ts,apps/mobile/src/offline/executor.ts
+%% sources: apps/mobile/src/offline/sync.ts,apps/mobile/src/offline/executor.ts,apps/mobile/src/core.tsx,apps/mobile/src/screens/Main.tsx
 flowchart TD
-  S([Start]) --> A["Sync now or automatic<br/>on reconnect"]:::system
+  S([Start]) --> A["Sync: after each change, on<br/>reconnect, every 2 min, or Sync now"]:::system
   A --> B{"Access still valid?"}
-  B -- No --> R["All pending ops blocked;<br/>device data cleared"]:::stop --> X([End])
+  B -- Network error --> W["Stop; ops stay pending"]:::system --> X([End])
+  B -- No --> R["All pending ops blocked;<br/>device data wiped"]:::stop --> X
   B -- Yes --> C["Next pending operation"]:::system
-  C --> D{"Earlier op on same task failed?"}
+  C --> D{"Earlier op on same task<br/>conflicted or failed?"}
   D -- Yes --> K["Marked conflict"]:::stop --> C
-  D -- No --> E["Apply: server re-reads record<br/>and re-checks rules"]:::system
+  D -- No --> E["Apply: server re-reads task<br/>and re-checks rules"]:::system
   E --> F{"Result"}
   F -- Applied --> G["done"]:::system --> C
   F -- Already applied --> H["done (duplicate)"]:::system --> C
   F -- Network error --> I["pending, stop for now"]:::system --> X
-  F -- Server changed --> K
+  F -- Server changed or refused --> K
   F -- Other error --> L["failed"]:::stop --> C
-  K --> M["[Staff] Opens task online;<br/>server version wins"]:::staff
+  K --> M["[Staff] Needs review: server<br/>version shown; dismiss"]:::staff
   C -- none left --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a

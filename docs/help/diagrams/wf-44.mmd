@@ -1,13 +1,13 @@
 %% title: Excel/PDF export
 %% articles: exports.overview,exports.limits,train.export,ts.export-limit
-%% sources: apps/admin-web/src/management/exportStore.ts,apps/admin-web/src/ui/ExportMenu.tsx,packages/shared/src/exporting.ts
+%% sources: apps/admin-web/src/management/exportStore.ts,apps/admin-web/src/ui/ExportMenu.tsx,apps/admin-web/src/management/planGate.ts,packages/shared/src/exporting.ts
 flowchart TD
   S([Start]) --> A["[User] Export on a list or report"]:::admin
-  A --> B["Format, scope, columns"]:::admin
+  A --> B["Format (Excel, CSV, PDF),<br/>scope (this page or all), columns"]:::admin
   B --> C{"Plan includes exports?"}
   C -- No --> E1["Upgrade message"]:::stop --> X([End])
   C -- Yes --> D["Read rows in pages<br/>(no display cap)"]:::system
-  D --> E{"Over format limit?<br/>Excel 100k, PDF 10k"}
+  D --> E{"Over format limit?<br/>Excel/CSV 100k, PDF 10k"}
   E -- Yes --> E2["Stopped: narrow filters"]:::stop --> X
   E -- No --> F["Drop sensitive/internal columns,<br/>neutralise formulas"]:::system
   F --> G["Audit entry (metadata only)"]:::system

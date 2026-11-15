@@ -1,12 +1,12 @@
 %% title: Plan upgrade/downgrade
 %% articles: platform.subscriptions,platform.plans,saas.plan-usage
-%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,apps/platform-web/src/App.tsx
+%% sources: packages/shared/src/saas.ts,apps/platform-web/src/store.ts,apps/platform-web/src/App.tsx,apps/admin-web/src/management/usage.ts,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["[Platform billing] Open company<br/>choose new plan version"]:::platform
+  S([Start]) --> A["[Platform staff, owner or billing]<br/>Open company, choose new plan version"]:::platform
   A --> B["Upgrade / downgrade"]:::platform
   B --> C{"Subscription exists?"}
   C -- No --> E1["Assign a plan first"]:::stop --> X([End])
-  C -- Yes --> D["[System] Subscription keeps dates,<br/>takes new version terms"]:::system
+  C -- Yes --> D["[System] Subscription keeps dates<br/>and status, takes new version terms"]:::system
   D --> F["Same batch: audit event +<br/>company entitlement snapshot"]:::system
   F --> G{"Usage above new limits?"}
   G -- Yes --> H["Existing data kept and readable;<br/>new creates over limit refused"]:::stop

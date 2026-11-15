@@ -1,18 +1,20 @@
 %% title: Shared site / multiple client occupancy
 %% articles: clients.allocations,customer.locations
-%% sources: packages/shared/src/allocations.ts,apps/admin-web/src/management/store.ts,firebase/firestore.rules
+%% sources: packages/shared/src/allocations.ts,apps/admin-web/src/management/store.ts,apps/admin-web/src/management/customerStore.ts,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["One site, several spaces"]:::system
   A --> B["[Admin] Client A: exclusive<br/>allocation of Office 201"]:::admin
   A --> C["[Admin] Client B: exclusive<br/>allocation of Office 202"]:::admin
   A --> D["[Admin] Service coverage for<br/>whole site (no space)"]:::admin
-  B --> E{"Second exclusive on<br/>Office 201, same dates?"}
-  E -- Yes --> F["Refused"]:::stop
-  E -- No --> G["Shared/shared allowed"]:::system
-  B --> H["[Customer A] sees only Office 201"]:::customer
-  C --> I["[Customer B] sees only Office 202"]:::customer
+  B --> E{"Another occupancy of Office 201<br/>overlapping dates?"}
+  E -- Yes --> F["Refused: an exclusive<br/>allocation cannot overlap"]:::stop
+  E -- No --> G["Allowed; two shared<br/>allocations may overlap"]:::system
+  D --> K["Coverage is not checked<br/>against occupancy"]:::system
+  B --> H["[Customer A] sees only places<br/>in the customer link"]:::customer
+  C --> I["[Customer B] sees only places<br/>in the customer link"]:::customer
   F --> X([End])
   G --> X
+  K --> X
   H --> X
   I --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a

@@ -1,11 +1,12 @@
 %% title: Offline task execution
 %% articles: mobile.offline,ts.sync-pending
-%% sources: apps/mobile/src/offline/sync.ts,apps/mobile/src/offline/repo.ts,apps/mobile/src/offline/vault.ts
+%% sources: apps/mobile/src/offline/sync.ts,apps/mobile/src/offline/repo.ts,apps/mobile/src/offline/vault.ts,apps/mobile/src/core.tsx,apps/mobile/src/screens/TaskRun.tsx
 flowchart TD
-  S([Start]) --> A["[Staff] Opens task while online<br/>(cached in encrypted store)"]:::staff
+  S([Start]) --> A["[Staff] My tasks synced while online<br/>(cached in encrypted store)"]:::staff
   A --> B["Goes offline"]:::system
-  B --> C["Start, save progress, evidence,<br/>submit, report issue"]:::staff
+  B --> C["Start, pause, resume, restart,<br/>save progress, QR/GPS evidence,<br/>submit, report issue"]:::staff
   C --> D["Each change queued as an<br/>operation (pending)"]:::system
+  C --> P["Photos kept on device<br/>(upload pending activation)"]:::system
   D --> E["Screen shows local result<br/>and Sync pending"]:::staff
   E --> F{"Back online?"}
   F -- No --> C

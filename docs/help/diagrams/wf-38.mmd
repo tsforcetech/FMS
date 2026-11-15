@@ -1,19 +1,21 @@
 %% title: Mobile attendance
 %% articles: mobile.attendance,reports.attendance
-%% sources: apps/mobile/src/screens/Attendance.tsx,apps/admin-web/src/management/fieldStore.ts,firebase/firestore.rules
+%% sources: apps/mobile/src/screens/Attendance.tsx,apps/admin-web/src/management/fieldStore.ts,packages/shared/src/field.ts,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["[Staff] Attendance: Check in"]:::staff
-  A --> B{"Location permission?"}
+  S([Start]) --> O{"Online?"}
+  O -- No --> E0["Needs a connection"]:::stop --> X([End])
+  O -- Yes --> A["[Staff] Attendance: Check in<br/>(shown once per day)"]:::staff
+  A --> B{"Location available?"}
   B -- Yes --> C["GPS reading attached"]:::system
   B -- No --> D["Check in without location"]:::system
-  C --> E{"Already checked in today?"}
+  C --> E{"Record for today exists?"}
   D --> E
-  E -- Yes --> E1["Refused: once per day"]:::stop --> X([End])
+  E -- Yes --> E1["Existing record kept:<br/>one per employee per day"]:::system --> X
   E -- No --> F["Server time recorded,<br/>late minutes from shift"]:::system
   F --> G["[Staff] Check out later"]:::staff
   G --> H["checked_out"]:::system
   H --> I{"Error in record?"}
-  I -- Yes --> J["[Supervisor] Correct with reason"]:::admin --> X
+  I -- Yes --> J["[Supervisor in scope or Admin]<br/>correct with reason<br/>(data layer and rules only; no screen yet)"]:::admin --> X
   I -- No --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a

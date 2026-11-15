@@ -1,13 +1,13 @@
 %% title: Employee setup
 %% articles: people.employees,people.departments,train.add-employee,import.overview
-%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/operations.ts,apps/admin-web/src/management/importStore.ts,apps/admin-web/src/management/usage.ts
 flowchart TD
   S([Start]) --> A["[Admin] Departments and<br/>designations exist"]:::admin
   A --> B{"Many employees?"}
   B -- Yes --> C["Import data: Employees<br/>(dry run first)"]:::admin
   B -- No --> D["Employees: Add employee"]:::admin
   C --> E{"Rows valid?"}
-  E -- No --> E1["Error report, fix file"]:::stop --> C
+  E -- No --> E1["Invalid rows not imported:<br/>error report, fix file"]:::stop --> C
   E -- Yes --> F
   D --> F{"Plan employee limit?"}
   F -- Reached --> E2["Refused: limit"]:::stop --> X([End])

@@ -1,15 +1,15 @@
 %% title: Customer request resolution
 %% articles: customer.confirm,cases.customer-requests,customer.updates
-%% sources: apps/admin-web/src/management/customerStore.ts,apps/admin-web/src/management/casesStore.ts
+%% sources: apps/admin-web/src/management/customerStore.ts,apps/admin-web/src/management/casesStore.ts,apps/admin-web/src/management/Operations.tsx,apps/customer-web/src/App.tsx,packages/shared/src/reports.ts
 flowchart TD
-  S([Start]) --> A["Complaint progresses:<br/>assign, start, work order"]:::admin
-  A --> B["[System] Request timeline gets<br/>customer-safe labels only"]:::system
-  B --> C["[Team] Optional reply message"]:::admin
-  C --> D["Complaint resolved with note"]:::admin
+  S([Start]) --> A["[Admin] Complaint progresses:<br/>assign, start, work order"]:::admin
+  A --> B["[System] Request status and timeline<br/>get customer-safe labels only"]:::system
+  B --> C["[Admin] Optional reply message;<br/>customer may add messages"]:::admin
+  C --> D["[Admin] Complaint resolved with note"]:::admin
   D --> E["Request resolved;<br/>resolution summary shown"]:::system
   E --> F{"[Customer] Satisfied?"}
   F -- Yes --> G["Confirm (once)"]:::customer --> X([End])
-  F -- No --> H["Ask to reopen with reason"]:::customer
+  F -- No --> H["Ask to reopen with reason:<br/>reopen_requested"]:::customer
   H --> I["[Admin] Reopens complaint"]:::admin --> A
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a

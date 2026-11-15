@@ -1,17 +1,16 @@
 %% title: Inventory receipt
 %% articles: inventory.movements,inventory.balances
-%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/inventory.ts
+%% sources: apps/admin-web/src/management/store.ts,packages/shared/src/inventory.ts,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["[Admin] Stock transactions<br/>New transaction: Receipt"]:::admin
   A --> B["Material, destination store,<br/>quantity, date, reference"]:::admin
-  B --> C{"Quantity valid for unit?"}
-  C -- No --> E1["Fix quantity"]:::stop --> B
-  C -- Yes --> D["[System] Movement + balance<br/>in one transaction"]:::system
-  D --> F{"Same movement ID<br/>already posted?"}
+  B --> C{"Quantity valid for unit,<br/>material and store active?"}
+  C -- No --> E1["Fix the entry"]:::stop --> B
+  C -- Yes --> F{"Same movement ID<br/>already posted?"}
   F -- Yes --> G["Not posted again"]:::system
-  F -- No --> H["Balance increased"]:::system
+  F -- No --> D["[System] Movement + balance<br/>increase in one transaction"]:::system
   G --> X([End])
-  H --> X
+  D --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

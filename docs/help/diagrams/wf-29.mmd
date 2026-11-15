@@ -1,8 +1,8 @@
 %% title: Supervisor approval
 %% articles: tasks.approvals,staff.supervisor,train.approve-inspection
-%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts,apps/staff-web/src/screens/Approvals.tsx
+%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts,apps/staff-web/src/screens/Approvals.tsx,apps/staff-web/src/screens/TaskView.tsx,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["[Supervisor/Admin] Pending approvals<br/>open submission"]:::admin
+  S([Start]) --> A["[Supervisor, Site or Dept manager<br/>in scope, or Admin]<br/>Pending approvals: open submission"]:::admin
   A --> B{"Reviewer is the submitter?"}
   B -- Yes --> E1["Refused: another person<br/>must review"]:::stop --> X([End])
   B -- No --> C{"Decision"}

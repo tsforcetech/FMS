@@ -4,14 +4,16 @@
 flowchart TD
   S([Start]) --> A["[Admin] Import data: module,<br/>download template"]:::admin
   A --> B["Upload .xlsx/.csv"]:::admin
-  B --> C{"Type, size, rows OK?"}
+  B --> C{"Type, size 5 MB,<br/>rows OK?"}
   C -- No --> E1["File refused"]:::stop --> B
   C -- Yes --> D["Map columns"]:::admin
   D --> E["Validate (dry run):<br/>nothing written"]:::system
   E --> F["Preview: new, match, update,<br/>duplicate, invalid, skipped"]:::admin
-  F --> G{"Errors to fix?"}
-  G -- Yes --> H["Download error report"]:::admin --> B
-  G -- No --> I["Confirm import"]:::admin
+  F --> G{"Invalid or duplicate rows?"}
+  G -- Yes --> H["Download error report;<br/>those rows are not imported"]:::admin
+  H -- Fix file --> B
+  H -- Import the rest --> I
+  G -- No --> I["Import new rows, and updates<br/>if chosen (max 2,000)"]:::admin
   I --> J["Rows saved one by one<br/>with normal checks"]:::system
   J --> K{"Stopped or rows failed?"}
   K -- Yes --> L["Status partial: re-upload<br/>same file to resume"]:::stop --> B

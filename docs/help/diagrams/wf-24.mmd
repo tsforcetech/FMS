@@ -1,16 +1,18 @@
 %% title: Manual task assignment
 %% articles: tasks.register,tasks.assignments
-%% sources: apps/admin-web/src/management/tasksStore.ts,apps/admin-web/src/management/Tasks.tsx
+%% sources: apps/admin-web/src/management/tasksStore.ts,apps/admin-web/src/management/Tasks.tsx,packages/shared/src/tasks.ts,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["[Admin] Task register: New task"]:::admin
-  A --> B["Published version, title, site,<br/>location, assignees, due time"]:::admin
+  A --> B["Published version, title, site,<br/>location, up to 10 assignees, due time"]:::admin
   B --> C{"Valid?"}
   C -- No --> E1["Fix and retry"]:::stop --> B
   C -- Yes --> D{"Assignees chosen?"}
-  D -- Yes --> F["Status assigned<br/>in-app notification"]:::system
+  D -- Yes --> F["Status assigned<br/>(no notification on create)"]:::system
   D -- No --> G["Status pending<br/>(unassigned queue)"]:::system
-  G --> H["[Supervisor/Admin] Assign later"]:::admin --> F
+  G --> H["[Admin] Assign later"]:::admin
+  H --> F2["Status assigned<br/>in-app notification"]:::system
   F --> X([Appears in staff My Day])
+  F2 --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

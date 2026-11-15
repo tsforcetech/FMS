@@ -1,14 +1,15 @@
 %% title: Staff site assignment
 %% articles: people.employees,setup.staff-access,ts.wrong-site
-%% sources: apps/admin-web/src/management/staffStore.ts,firebase/firestore.rules
+%% sources: apps/admin-web/src/management/staffStore.ts,apps/admin-web/src/management/StaffAccess.tsx,apps/admin-web/src/management/scheduling.ts,firebase/firestore.rules
 flowchart TD
   S([Start]) --> A["[Admin] Employees: add<br/>site assignment (dates)"]:::admin
-  A --> B["[Admin] Staff access: choose<br/>sites or all sites"]:::admin
-  B --> C{"10 sites or fewer,<br/>or all sites?"}
-  C -- No --> E1["Choose at most 10<br/>or allow all"]:::stop --> B
+  A --> A2["Used by the scheduler's<br/>site assignment pool"]:::system
+  A2 --> B["[Admin] Staff access: choose<br/>sites or all sites"]:::admin
+  B --> C{"1-10 sites,<br/>or all sites?"}
+  C -- No --> E1["Choose 1 to 10 sites<br/>or allow all"]:::stop --> B
   C -- Yes --> D["Link scope saved"]:::system
-  D --> E["[Staff] Sees own tasks"]:::staff
-  D --> F["[Supervisor] also sees work<br/>in scoped sites"]:::staff
+  D --> E["[Staff / Technician] Sees and runs<br/>own tasks in scoped sites"]:::staff
+  D --> F["[Supervisor, Site or Dept manager]<br/>also sees work in scoped sites"]:::staff
   E --> X([End])
   F --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a

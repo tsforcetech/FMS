@@ -1,16 +1,18 @@
 %% title: Task submission
 %% articles: staff.checklist,tasks.lifecycle,ts.cannot-submit,ts.evidence-missing
-%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts
+%% sources: packages/shared/src/tasks.ts,apps/admin-web/src/management/tasksStore.ts,apps/admin-web/src/management/notifyStore.ts
 flowchart TD
   S([Start]) --> A["[Staff] Submit from in_progress"]:::staff
   A --> B{"Required or invalid<br/>answers left?"}
   B -- Yes --> E1["Refused: complete N answers"]:::stop --> X([End])
-  B -- No --> C["[System] Submission saved,<br/>submittedAt server time"]:::system
+  B -- No --> C["[System] Submission saved,<br/>submittedAt server time;<br/>photo/QR/GPS marked evidence pending"]:::system
   C --> D{"Template needs approval?"}
-  D -- Yes --> F["awaiting_approval<br/>reviewers notified in-app"]:::system
+  D -- Yes --> F["awaiting_approval<br/>owners and admins notified in-app"]:::system
   D -- No --> G["completed"]:::system
+  C --> H["Out-of-range or failed answers<br/>recorded as reported issues"]:::system
   F --> X
   G --> X
+  H --> X
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

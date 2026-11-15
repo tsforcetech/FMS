@@ -1,14 +1,15 @@
 %% title: Work order lifecycle
 %% articles: maintenance.work-orders,train.work-order,staff.work-orders
-%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts,apps/admin-web/src/management/Cases.tsx,apps/staff-web/src/screens/WorkOrders.tsx,apps/staff-web/src/screens/Issues.tsx,firebase/firestore.rules
 stateDiagram-v2
-  [*] --> reported: Created (manual, task, complaint, inspection)
+  [*] --> reported: Created (manual, task issue, staff report, complaint)
   reported --> reviewed: Review
   reported --> assigned: Assign
   reviewed --> assigned: Assign
+  assigned --> assigned: Reassign
   assigned --> in_progress: Start
-  assigned --> on_hold: Hold
-  in_progress --> on_hold: Hold
+  assigned --> on_hold: Hold (reason)
+  in_progress --> on_hold: Hold (reason)
   on_hold --> in_progress: Resume
   on_hold --> assigned: Assign
   in_progress --> resolved: Resolve (note required)
@@ -25,6 +26,7 @@ stateDiagram-v2
   closed --> [*]
   cancelled --> [*]
   note right of in_progress
-    materials issued against the work order
-    post stock movements; SLA targets stored
+    assignees: start, hold, resume, resolve, add update;
+    admins and in-scope supervisors: all actions;
+    materials issued post stock movements; SLA targets stored
   end note

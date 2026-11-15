@@ -1,18 +1,20 @@
 %% title: Issue escalation
 %% articles: cases.escalations,cases.reported-issues
-%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts
+%% sources: packages/shared/src/cases.ts,apps/admin-web/src/management/casesStore.ts,apps/admin-web/src/management/Cases.tsx,firebase/firestore.rules
 flowchart TD
-  S([Start]) --> A["Escalation raised to a department<br/>(from case or task exception)"]:::admin
-  A --> B["raised"]:::system
+  S([Start]) --> A["[Admin] Raise escalation to a department<br/>manual, from a reported issue,<br/>or Escalate on an open case"]:::admin
+  A --> B["raised; admins notified in-app"]:::system
   B --> C{"Right department?"}
-  C -- No --> D["Reassign department<br/>(reason)"]:::admin --> B
-  C -- Yes --> E["Acknowledge + assign"]:::admin
-  E --> F["Start"]:::staff
-  F --> G["Resolve (reason)"]:::staff
+  C -- No --> D["[Admin] Reassign department<br/>with reason: back to raised"]:::admin --> B
+  C -- Yes --> E["[Admin] Acknowledge + assign"]:::admin
+  E --> F["[Admin] Start"]:::admin
+  F --> G["[Admin] Resolve with reason"]:::admin
   E --> G
-  G --> H["Close"]:::admin --> X([End])
+  E -- Wrong department --> D
+  F -- Wrong department --> D
+  G --> H["[Admin] Close"]:::admin --> X([End])
   F --> I{"Needs higher level?"}
-  I -- Yes --> J["Escalate further:<br/>new linked escalation"]:::admin --> B
+  I -- Yes --> J["[Admin] Escalate further:<br/>new linked escalation, level + 1"]:::admin --> B
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
   classDef staff fill:#ecfdf5,stroke:#047857,color:#0f172a
   classDef customer fill:#fdf4ff,stroke:#a21caf,color:#0f172a

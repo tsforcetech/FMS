@@ -1,17 +1,17 @@
 %% title: New company registration
 %% articles: platform.companies,platform.overview,setup.invitations,ops.grant-role
-%% sources: apps/platform-web/src/store.ts,firebase/firestore.rules,scripts/grant-platform-role.mjs
+%% sources: apps/platform-web/src/store.ts,apps/platform-web/src/App.tsx,apps/admin-web/src/management/tenantSaas.ts,apps/admin-web/src/Join.tsx,firebase/firestore.rules,scripts/grant-platform-role.mjs
 flowchart TD
-  S([Start]) --> A["[Platform owner] Open Companies<br/>Register company"]:::platform
+  S([Start]) --> A["[Platform staff, owner role]<br/>Companies: Register company"]:::platform
   A --> B{"Company ID free<br/>and inputs valid?"}
   B -- No --> E1["Error shown<br/>fix ID, name, email"]:::stop --> A
   B -- Yes --> C["[System] One audited batch:<br/>company, zero usage,<br/>optional plan, owner invite"]:::system
   C --> D{"Rules check:<br/>platform owner claim<br/>+ audit event?"}
   D -- No --> E2["Write refused"]:::stop --> X([End])
   D -- Yes --> F["Invitation link shown<br/>(email delivery pending activation)"]:::platform
-  F --> G["[Platform owner] Sends link<br/>to owner manually"]:::platform
+  F --> G["[Platform staff] Sends link<br/>to owner manually"]:::platform
   G --> H["[Owner] Signs in or creates<br/>account, verifies email"]:::admin
-  H --> I["[Owner] Accepts invitation"]:::admin
+  H --> I["[Owner] Accepts invitation<br/>within 14 days"]:::admin
   I --> J["Membership role owner<br/>company access added"]:::system
   J --> K([Company ready for setup])
   classDef admin fill:#e8f0fe,stroke:#1d4ed8,color:#0f172a
