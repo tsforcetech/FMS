@@ -39,6 +39,8 @@ jobs:
       - run: npm run test:rules
       - run: npm run test:migration
       - run: npx playwright install --with-deps chromium
+      # pdftotext/pdfinfo: the PDF generator verifies contents-page numbers with them.
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - run: npm run test:browser
       - run: npm run test:staff-browser
       - run: npm run test:phase7-browser

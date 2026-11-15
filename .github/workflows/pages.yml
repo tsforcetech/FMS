@@ -37,6 +37,8 @@ jobs:
       # Phase 9: the Help Center (public articles only) with its generated PDF manuals at /FMS/help/.
       # Restricted (authenticated/internal) manuals are never generated into the site.
       - run: npx playwright install --with-deps chromium
+      # pdftotext/pdfinfo: the PDF generator verifies contents-page numbers with them.
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - run: npm run help:pdf
       - run: npm run help:build
       - run: cp -r apps/help-web/dist apps/admin-web/dist/help
