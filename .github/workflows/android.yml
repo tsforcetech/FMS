@@ -30,7 +30,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
+      # GitHub's Ubuntu runners include the Android SDK (ANDROID_HOME) with licenses accepted.
+      - run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
       - run: npm ci
       - run: cp .env.live.example .env.production.local
       - run: npm run build -w @facilityos/mobile
