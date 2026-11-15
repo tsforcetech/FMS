@@ -6,3 +6,7 @@ docs/evidence
 apps/mobile/android
 apps/mobile/ios
 apps/mobile/dist-test
+docs/help/diagrams/svg
+docs/help/.restricted
+apps/help-web/pdf
+apps/help-web/.pdf-tmp

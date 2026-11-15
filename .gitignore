@@ -16,3 +16,6 @@ credentials/
 *.key
 .DS_Store
 apps/mobile/dist-test
+docs/help/.restricted/
+apps/help-web/pdf/
+apps/help-web/.pdf-tmp/

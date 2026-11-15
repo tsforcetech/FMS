@@ -202,10 +202,12 @@ const en = {
   late: '{n} min late',
   openWorkOrders: 'Open work orders',
   savedOnDevice: 'Saved on device',
+  help: 'Help',
 };
 export type Key = keyof typeof en;
 type Dict = Partial<Record<Key, string>>;
 const ml: Dict = {
+  help: 'സഹായം',
   scan: 'സ്കാൻ',
   issues: 'പ്രശ്നങ്ങൾ',
   syncPending: 'സിങ്ക് ബാക്കി',
@@ -258,6 +260,7 @@ const ml: Dict = {
   myShift: 'എന്റെ ഷിഫ്റ്റ്',
 };
 const hi: Dict = {
+  help: 'सहायता',
   scan: 'स्कैन',
   issues: 'समस्याएँ',
   syncPending: 'सिंक बाकी',
@@ -310,6 +313,7 @@ const hi: Dict = {
   myShift: 'मेरी शिफ़्ट',
 };
 const ar: Dict = {
+  help: 'مساعدة',
   scan: 'مسح',
   issues: 'المشكلات',
   syncPending: 'بانتظار المزامنة',

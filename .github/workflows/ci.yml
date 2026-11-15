@@ -12,6 +12,7 @@ on:
         feature/phase4-scheduling-maintenance,
         feature/phase5-staff-web,
         feature/phase6-mobile-apps,
+        feature/phase9-help-documentation,
       ]
   pull_request:
 permissions:
@@ -32,6 +33,8 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npm run format:check
+      # Phase 9: documentation must match the apps (links, ids, screenshots, routes, coverage).
+      - run: npm run help:check
       - run: npm run check
       - run: npm run test:rules
       - run: npm run test:migration
@@ -41,10 +44,16 @@ jobs:
       - run: npm run test:phase7-browser
       - run: npm run test:phase8-browser
       - run: npm run test:mobile-runtime
+      # Phase 9: PDF manuals + Help Center site, then its browser test.
+      - run: npm run help:pdf
+      - run: npm run help:build
+      - run: npm run test:help
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: browser-evidence
-          path: docs/evidence/
+          path: |
+            docs/evidence/
+            apps/help-web/pdf/
           if-no-files-found: ignore
 # This workflow validates only. Production Pages deployment remains tied to main.

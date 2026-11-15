@@ -8,6 +8,7 @@
     "apps/staff-web",
     "apps/customer-web",
     "apps/platform-web",
+    "apps/help-web",
     "apps/mobile",
     "packages/*"
   ],
@@ -16,7 +17,7 @@
   },
   "scripts": {
     "dev": "npm run dev -w @facilityos/admin-web",
-    "build": "npm run build -w @facilityos/admin-web && npm run build -w @facilityos/staff-web && npm run build -w @facilityos/customer-web && npm run build -w @facilityos/platform-web && npm run build -w @facilityos/mobile",
+    "build": "npm run build -w @facilityos/admin-web && npm run build -w @facilityos/staff-web && npm run build -w @facilityos/customer-web && npm run build -w @facilityos/platform-web && npm run build -w @facilityos/mobile && npm run build -w @facilityos/help-web",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -35,7 +36,14 @@
     "test:staff-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/staff-browser-test.ts\"",
     "test:phase7-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/phase7-browser-test.ts\"",
     "test:phase8-browser": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/phase8-browser-test.ts\"",
-    "test:mobile-runtime": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/mobile-runtime-test.ts\""
+    "test:mobile-runtime": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"npx tsx scripts/mobile-runtime-test.ts\"",
+    "help:diagrams": "tsx scripts/help/diagrams.ts",
+    "help:check": "tsx scripts/help/check.ts",
+    "help:build": "npm run build -w @facilityos/help-web",
+    "help:pdf": "tsx scripts/help/pdf.ts",
+    "help:screens": "firebase emulators:exec --project demo-facilityos --only auth,firestore \"node scripts/phase1-browser-test.mjs && npx tsx scripts/staff-browser-test.ts && npx tsx scripts/phase7-browser-test.ts && npx tsx scripts/help/capture-screens.ts\"",
+    "dev:help": "npm run help:build && npm run preview -w @facilityos/help-web",
+    "test:help": "tsx scripts/phase9-help-test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

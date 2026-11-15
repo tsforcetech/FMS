@@ -575,8 +575,9 @@ export function QrDialog({
         <div className="tag">{asset.values.code}</div>
         <p className="muted">{asset.values.name}</p>
         <p className="muted small" style={{ marginTop: 12 }}>
-          Mobile scanning arrives with the staff app. Today, any phone camera
-          opens the asset page, which still requires an authorised FacilityOS
+          Staff scan this label with Scan in the FacilityOS mobile app to see
+          their open tasks here or prove a visit. Any other phone camera opens
+          the asset page, which still requires an authorised FacilityOS
           sign-in.
         </p>
       </div>

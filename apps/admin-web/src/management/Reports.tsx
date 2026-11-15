@@ -276,7 +276,8 @@ function Truncated({ on }: { on: boolean }) {
   return on ? (
     <Banner tone="amber" title="Partial period">
       This period holds more records than an interactive report reads at once.
-      Narrow the dates or choose a site; full exports arrive in Phase 8.
+      Narrow the dates or choose a site, or use Export to get every matching
+      record.
     </Banner>
   ) : null;
 }

@@ -23,7 +23,9 @@ Commands:
 | `npm run help:build` | Validates content and writes the website data (`apps/help-web/src/generated`) for the **public** audience |
 | `npm run help:check` | Validation only — fails on broken links, missing/duplicate ids, missing screenshots/diagrams, unknown routes, uncovered screens |
 | `npm run help:pdf` | Generates the PDF manuals from the same articles (public manuals into the website, restricted manuals into the git-ignored `docs/help/.restricted/`) |
-| `npm run help:screens` | Re-captures screenshots from the apps running on the local emulators with demo data |
+| `npm run help:screens` | Re-captures screenshots from the apps running on the local emulators with demo data (runs the Phase 1/5/7 browser suites first to create realistic demo records) |
+| `npm run test:help` | Browser test of the built Help Center (search, navigation, contextual help, restricted-content exclusion, PDFs and their contents pages, RTL, fallback, reproducibility, CI link check) |
+| `npm run dev:help` | Builds and serves the Help Center locally on port 5178 |
 
 ## Article file
 
@@ -104,3 +106,29 @@ explained in the role guides and mapped onto these roles — they are not separa
 `translationOf`, `translatedFrom` (English `reviewed` date) and `translationStatus: draft | reviewed`.
 Missing translations fall back to English with a visible notice; `draft` translations show a
 "not yet reviewed" notice. Arabic pages are rendered right-to-left.
+
+## Contextual help in the applications
+
+The apps never link to article URLs directly. They link to the Help Center's resolver page with
+`helpScreenUrl(app, route)` or `helpUrl(helpId)` from `@facilityos/shared`:
+
+```
+/FMS/help/go.html#admin/recurring-tasks      → the article mapped to that admin page in site.yaml `screens`
+/FMS/help/go.html#staff/task/abc123          → route patterns such as /task/:id match too
+/FMS/help/ar/go.html#id/ts.sync-conflict     → a help id (an article id or any id in an article's helpIds)
+```
+
+Where the help links are: the **?** button in the admin top bar (current page), the onboarding
+wizard's **Help for this step** (`setup.*` help ids), the help button in the staff web, mobile app and
+customer portal headers (in the user's language), **Help** next to a sync conflict in the mobile app,
+and the platform console (which explains that platform documentation is in the restricted manual).
+`help:check` fails when an app screen has no entry in `screens`, when an entry points to a missing
+article, or when a help id used in the code has no article — so a renamed screen or article cannot
+silently break the links.
+
+## Versioning
+
+`site.yaml` `version`/`versionLabel` name the FacilityOS version the documentation describes; the
+check fails if it differs from the newest *What's new* entry. Every page footer and every PDF cover
+shows the version, the publication date and the build commit, and `build-info.json` records the
+counts. Each article carries `version` (first version it applies to) and `reviewed`.

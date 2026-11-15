@@ -52,6 +52,7 @@ import {
   EyeOff,
   Hourglass,
   type LucideIcon,
+  CircleHelp,
 } from 'lucide-react';
 import {
   canOpenAdmin,
@@ -62,6 +63,7 @@ import {
   type Company,
   type Membership,
   type UserProfile,
+  helpScreenUrl,
 } from '@facilityos/shared';
 import type { FirebaseServices } from './firebase';
 import { loadAccess, loadProfile } from './data';
@@ -712,6 +714,21 @@ function Workspace({ services }: { services: FirebaseServices }) {
             )}
           </nav>
           <div className="top-actions">
+            <a
+              className="icon-btn"
+              href={helpScreenUrl(
+                'admin',
+                page?.id || '',
+                import.meta.env.VITE_HELP_URL,
+              )}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Help for ${page?.id ? page.label : 'Home'} (opens the Help Center)`}
+              title="Help for this page"
+              data-help-link
+            >
+              <CircleHelp />
+            </a>
             <button
               className="icon-btn hide-sm"
               aria-label="Search modules"

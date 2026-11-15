@@ -11,6 +11,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useParams,
 } from 'react-router-dom';
@@ -33,6 +34,7 @@ import {
   ScrollText,
   Settings,
   ShieldAlert,
+  CircleHelp,
 } from 'lucide-react';
 import type { FirebaseServices } from '@admin/firebase';
 import {
@@ -49,6 +51,7 @@ import {
   type LifecycleAction,
   type PlanTerms,
   type PlatformRole,
+  helpScreenUrl,
 } from '@facilityos/shared';
 import {
   Banner,
@@ -250,6 +253,7 @@ const nav: [string, string, ReactNode][] = [
   ['/settings', 'Configuration', <Settings key="g" />],
 ];
 function Shell({ s }: { s: Session }) {
+  const location = useLocation();
   return (
     <div className="p-shell">
       <aside className="p-side">
@@ -267,6 +271,19 @@ function Shell({ s }: { s: Session }) {
         <div className="p-who">
           <strong>{s.user.email}</strong>
           <span>{platformRoleLabels[s.role]}</span>
+          <a
+            className="link-btn"
+            href={helpScreenUrl(
+              'platform',
+              location.pathname,
+              import.meta.env.VITE_HELP_URL,
+            )}
+            target="_blank"
+            rel="noopener"
+            data-help-link
+          >
+            <CircleHelp size={14} /> Help (Sharaco platform manual)
+          </a>
           <button
             className="link-btn"
             onClick={() => void signOut(s.services.auth)}

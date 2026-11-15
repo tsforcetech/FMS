@@ -20,10 +20,12 @@ import {
   UserRound,
   CheckCircle2,
   AlertTriangle,
+  CircleHelp,
 } from 'lucide-react';
 import type { FirebaseServices } from '@admin/firebase';
 import { StaffApp, useStaff } from '@staff/App';
 import { useT, type Key } from '@staff/i18n';
+import { helpScreenUrl } from '@facilityos/shared';
 import { MyIssues, ReportIssue } from '@staff/screens/Issues';
 import { WorkOrderList, WorkOrderView } from '@staff/screens/WorkOrders';
 import { StaffCalendar } from '@staff/screens/StaffCalendar';
@@ -104,7 +106,7 @@ function SyncPill() {
 function Frame() {
   const staff = useStaff();
   const m = useMobile();
-  const { t } = useT();
+  const { t, lang } = useT();
   const location = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -127,6 +129,22 @@ function Frame() {
           </div>
         </div>
         <SyncPill />
+        <a
+          className="s-bell s-help"
+          href={helpScreenUrl(
+            'mobile',
+            location.pathname,
+            import.meta.env.VITE_HELP_URL,
+            lang,
+          )}
+          target="_blank"
+          rel="noopener"
+          aria-label={t('help')}
+          title={t('help')}
+          data-help-link
+        >
+          <CircleHelp />
+        </a>
         <NavLink
           to="/notifications"
           className="s-bell"

@@ -55,8 +55,28 @@ export type Site = {
   home: { popular: string[]; gettingStarted: string[]; workflows: string[] };
   whatsNew: { version: string; date: string; text: string; articles: string[] }[];
   screens: Record<string, Record<string, string>>;
+  order: string[];
+  baseUrl: string;
 };
-export type Manual = { id: string; title: string; subtitle: string; audience: Audience; file: string; sections: { title: string; articles?: string[]; modules?: string[]; diagrams?: string[] | 'all'; roles?: string[] }[] };
+export type Manual = { id: string; title: string; subtitle: string; audience: Audience; file: string; sections: { title: string; articles?: string[]; modules?: string[]; diagrams?: string[] | 'all' }[] };
+const rank: Record<Audience, number> = { public: 0, authenticated: 1, internal: 2 };
+/** May content of audience `a` appear in a publication for audience `pub`? */
+export const visibleIn = (a: Audience, pub: Audience) => rank[a] <= rank[pub];
+/** Articles sorted by site.yaml `order` (unlisted last, by id). */
+export function sortArticles<T extends { meta: Meta }>(list: T[], order: string[]) {
+  const pos = (id: string) => { const i = order.indexOf(id); return i < 0 ? 1e6 : i; };
+  return [...list].sort((a, b) => pos(a.meta.id) - pos(b.meta.id) || a.meta.id.localeCompare(b.meta.id));
+}
+/** Resolves a manual into ordered articles and diagrams for its audience. */
+export function manualContents(man: Manual, articles: Article[], diagrams: Diagram[], order: string[]) {
+  const byId = new Map(articles.map((a) => [a.meta.id, a]));
+  return man.sections.map((s) => {
+    const fromModules = sortArticles(articles.filter((a) => (s.modules || []).includes(a.meta.module)), order);
+    const list = [...fromModules, ...(s.articles || []).map((id) => byId.get(id)!).filter(Boolean)].filter((a) => visibleIn(a.meta.audience, man.audience));
+    const ds = s.diagrams === 'all' ? diagrams : diagrams.filter((d) => (s.diagrams || []).includes(d.id));
+    return { title: s.title, articles: [...new Map(list.map((a) => [a.meta.id, a])).values()], diagrams: ds };
+  });
+}
 
 function walk(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -208,7 +228,15 @@ export function validate() {
   for (const id of usedHelpIds()) if (!articles.some((a) => a.meta.id === id || (a.meta.helpIds || []).includes(id))) p('apps', `contextual help id has no article: ${id}`);
   // Manuals.
   for (const man of loadManuals())
-    for (const s of man.sections) for (const id of s.articles || []) if (!byId.has(id)) p('docs/help/manuals.yaml', `${man.id}: unknown article ${id}`);
+    for (const s of man.sections) {
+      for (const id of s.articles || []) if (!byId.has(id)) p('docs/help/manuals.yaml', `${man.id}: unknown article ${id}`);
+      else if (!visibleIn(byId.get(id)!.meta.audience, man.audience)) p('docs/help/manuals.yaml', `${man.id} (${man.audience}) lists ${byId.get(id)!.meta.audience} article ${id}`);
+      for (const mod of s.modules || []) if (!site.modules.includes(mod)) p('docs/help/manuals.yaml', `${man.id}: unknown module ${mod}`);
+      for (const d of Array.isArray(s.diagrams) ? s.diagrams : []) if (!diagrams.some((x) => x.id === d)) p('docs/help/manuals.yaml', `${man.id}: unknown diagram ${d}`);
+    }
+  if (site.whatsNew[0]?.version !== site.version) p('docs/help/site.yaml', `version ${site.version} does not match the latest what's new entry ${site.whatsNew[0]?.version}`);
+  for (const id of site.order) if (!byId.has(id)) p('docs/help/site.yaml', `order lists missing article ${id}`);
+  for (const a of articles) if (!site.order.includes(a.meta.id)) p(a.file, 'article is not listed in site.yaml order');
   // Translations.
   for (const lang of site.languages.filter((l) => l.id !== 'en'))
     for (const t of loadArticles(lang.id)) {
@@ -227,18 +255,23 @@ export function usedHelpIds() {
         if (!['node_modules', 'dist', 'android', 'ios', 'generated'].includes(f)) scan(p);
       } else if (/\.(tsx?|ts)$/.test(f)) {
         const s = readFileSync(p, 'utf8');
-        for (const m of s.matchAll(/(?:helpArticle|helpUrl)\(\s*'([a-z0-9.-]+)'/g)) ids.add(m[1]);
+        for (const m of s.matchAll(/(?:helpArticle|helpUrl|helpId:|helpId=)\(?\s*'([a-z0-9.-]+)'/g)) ids.add(m[1]);
       }
     }
   };
   for (const app of ['admin-web', 'staff-web', 'mobile', 'customer-web', 'platform-web']) scan(path.join(root, 'apps', app, 'src'));
+  scan(path.join(root, 'packages/shared/src'));
   return ids;
 }
 
 /* ------------------------------------------------------------------ rendering */
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 export function slug(s: string) {
-  return s.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^a-z0-9؀-ۿऀ-ॿഀ-ൿ]+/g, '-').replace(/^-|-$/g, '');
+  return s
+    .toLowerCase()
+    .replace(/<[^>]+>/g, '')
+    .replace(/[^\p{L}\p{N}\p{M}]+/gu, '-')
+    .replace(/^-|-$/g, '');
 }
 export type Rendered = { html: string; headings: { id: string; text: string; level: number }[]; text: string };
 /**
@@ -286,3 +319,9 @@ export function renderMarkdown(body: string, o: { link: (id: string) => string; 
   const text = html.replace(/<svg[\s\S]*?<\/svg>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ').trim();
   return { html, headings, text };
 }
+
+/** Chromium launch options (CI uses Playwright's own browser; sandboxes may point at a preinstalled one). */
+export const chromiumOptions = () => ({
+  headless: true,
+  ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}),
+});

@@ -1,0 +1,139 @@
+# PDF manuals. Each is generated from the same articles as the Help Center by
+# `npm run help:pdf`. A section lists `modules` (all articles of that module the
+# manual's audience may see, in site.yaml `order`), explicit `articles`, and/or
+# `diagrams` (ids, or `all`). Public manuals are published on the Help Center;
+# restricted ones (authenticated/internal) are written to docs/help/.restricted/
+# only and are never part of the public website.
+manuals:
+  - id: complete
+    title: FacilityOS Complete System Manual
+    subtitle: Every module of the administration, staff, mobile and customer applications
+    audience: public
+    file: FacilityOS-Complete-System-Manual.pdf
+    sections:
+      - { title: Getting started, modules: [Getting Started] }
+      - { title: Company setup, modules: [Company Setup] }
+      - { title: Sites and locations, modules: [Sites & Locations] }
+      - { title: Clients and contracts, modules: [Clients & Contracts] }
+      - { title: Employees and teams, modules: [Employees & Teams] }
+      - { title: Assets and inventory, modules: [Assets & Inventory] }
+      - { title: Task management, modules: [Task Management] }
+      - { title: Task templates, modules: [Task Templates] }
+      - { title: Recurring scheduling, modules: [Recurring Scheduling] }
+      - { title: Task calendar, modules: [Task Calendar] }
+      - { title: Maintenance and work orders, modules: [Maintenance & Work Orders] }
+      - { title: Complaints and escalations, modules: [Complaints & Escalations] }
+      - { title: Staff web portal, modules: [Staff Web] }
+      - { title: Mobile application, modules: [Mobile Application] }
+      - { title: Customer portal, modules: [Customer Portal] }
+      - { title: Reports and analytics, modules: [Reports & Analytics] }
+      - { title: Excel and PDF exports, modules: [Excel & PDF Exports] }
+      - { title: Bulk import, modules: [Bulk Import] }
+      - { title: Plans and subscriptions, modules: [SaaS Plans & Subscriptions] }
+      - { title: Role guides, modules: [Role Guides] }
+      - { title: Troubleshooting, modules: [Troubleshooting] }
+      - { title: Frequently asked questions, modules: [FAQs] }
+      - { title: Reference, modules: [Reference] }
+
+  - id: administrator
+    title: FacilityOS Administrator Manual
+    subtitle: For company owners, administrators and facility managers using the admin web application
+    audience: public
+    file: FacilityOS-Administrator-Manual.pdf
+    sections:
+      - { title: Getting started, modules: [Getting Started] }
+      - { title: Company setup, modules: [Company Setup] }
+      - { title: Sites and locations, modules: [Sites & Locations] }
+      - { title: Clients and contracts, modules: [Clients & Contracts] }
+      - { title: Employees and teams, modules: [Employees & Teams] }
+      - { title: Assets and inventory, modules: [Assets & Inventory] }
+      - { title: Task management, modules: [Task Management] }
+      - { title: Task templates, modules: [Task Templates] }
+      - { title: Recurring scheduling, modules: [Recurring Scheduling] }
+      - { title: Task calendar, modules: [Task Calendar] }
+      - { title: Maintenance and work orders, modules: [Maintenance & Work Orders] }
+      - { title: Complaints and escalations, modules: [Complaints & Escalations] }
+      - { title: Reports and analytics, modules: [Reports & Analytics] }
+      - { title: Excel and PDF exports, modules: [Excel & PDF Exports] }
+      - { title: Bulk import, modules: [Bulk Import] }
+      - { title: Plans and subscriptions, modules: [SaaS Plans & Subscriptions] }
+      - title: Administrator role guides
+        articles: [role.owner-admin, role.facility-manager, role.site-manager]
+      - title: Troubleshooting
+        articles: [ts.not-linked, ts.access-denied, ts.no-tasks, ts.no-eligible-staff, ts.scheduler-not-active, ts.task-overdue, ts.index-pending, ts.export-limit, ts.import-failed, ts.duplicate-code, ts.read-only, ts.allocation-expired, ts.account-revoked]
+      - { title: Reference, articles: [faq.general, faq.billing, ref.raci-matrix, ref.glossary, ref.whats-new] }
+
+  - id: staff
+    title: FacilityOS Staff Web User Manual
+    subtitle: For supervisors, technicians, housekeeping and security staff using the staff web portal
+    audience: public
+    file: FacilityOS-Staff-Web-Manual.pdf
+    sections:
+      - { title: Staff web portal, modules: [Staff Web] }
+      - title: Role guides
+        articles: [role.supervisor, role.technician, role.housekeeping, role.security]
+      - title: Quick starts
+        articles: [train.first-task, train.first-checklist, train.report-ac, train.approve-inspection]
+      - title: Troubleshooting
+        articles: [ts.not-linked, ts.access-denied, ts.no-tasks, ts.task-overdue, ts.cannot-submit, ts.evidence-missing, ts.account-revoked]
+      - { title: Questions, articles: [faq.staff, ref.glossary] }
+
+  - id: mobile
+    title: FacilityOS Mobile Application Manual
+    subtitle: Android and iOS app for field staff — QR scanning, photos, GPS, attendance and offline work
+    audience: public
+    file: FacilityOS-Mobile-App-Manual.pdf
+    sections:
+      - { title: Mobile application, modules: [Mobile Application] }
+      - title: Working on tasks
+        articles: [staff.my-day, staff.checklist, staff.rework, staff.report-issue, staff.work-orders]
+      - title: Troubleshooting
+        articles: [ts.not-linked, ts.cannot-submit, ts.evidence-missing, ts.qr-invalid, ts.wrong-site, ts.sync-conflict, ts.sync-pending, ts.permissions-denied]
+      - { title: Questions, articles: [faq.staff, ref.glossary] }
+
+  - id: customer
+    title: FacilityOS Customer Portal Guide
+    subtitle: For tenants and client contacts — service requests, updates and history
+    audience: public
+    file: FacilityOS-Customer-Portal-Guide.pdf
+    sections:
+      - { title: Customer portal, modules: [Customer Portal] }
+      - { title: Your role, articles: [role.customer, train.customer-request] }
+      - { title: Questions, articles: [faq.customer] }
+
+  - id: workflows
+    title: FacilityOS Workflow and Process Reference
+    subtitle: The 45 implemented business workflows, with responsibilities (RACI)
+    audience: public
+    file: FacilityOS-Workflow-Reference.pdf
+    sections:
+      - { title: Responsibilities, articles: [ref.raci-matrix] }
+      - { title: Workflow diagrams, diagrams: all }
+
+  - id: quick-start
+    title: FacilityOS Quick Start Guides
+    subtitle: Printable one-task training sheets for new users
+    audience: public
+    file: FacilityOS-Quick-Start-Guides.pdf
+    sections:
+      - { title: Introduction, articles: [gs.overview, gs.sign-in] }
+      - { title: Quick starts, modules: [Training & Quick Starts] }
+
+  - id: platform
+    title: Sharaco Platform Administration Manual
+    subtitle: For Sharaco platform staff — restricted, not published on the public Help Center
+    audience: authenticated
+    file: Sharaco-Platform-Admin-Manual.pdf
+    sections:
+      - { title: Platform console, modules: [Sharaco Platform Administration] }
+      - { title: Role guide, articles: [role.platform-admin] }
+      - { title: Troubleshooting, articles: [ts.platform-not-authorized, ts.read-only] }
+
+  - id: operations
+    title: FacilityOS Operator Runbook
+    subtitle: Internal Sharaco procedures — restricted, never published
+    audience: internal
+    file: FacilityOS-Operator-Runbook.pdf
+    sections:
+      - { title: Platform operations, modules: [Sharaco Platform Administration] }
+      - { title: Backup and recovery, articles: [setup.backup] }

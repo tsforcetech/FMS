@@ -419,7 +419,7 @@ export function DataRetention({ context }: { context: Context }) {
         These periods record your company’s retention policy. On the free
         Firebase plan there is no server job to purge data, so expired records
         are not removed automatically. Purging will need an approved server
-        process (or the Phase 8 export-and-purge tool).
+        process; export what you need with Export to Excel or PDF first.
       </Banner>
       <section className="card card-pad rise">
         {err && (

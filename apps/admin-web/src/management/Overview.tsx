@@ -245,9 +245,9 @@ export function Overview({
         confidence: 'Healthy',
         title: 'Your workspace is fully set up',
         reason:
-          'Sites, people, assets and inventory are all in place. Operations modules arrive in the next phase.',
-        to: '/assets',
-        cta: 'Open asset register',
+          'Sites, people, assets and inventory are all in place. Next, set up recurring tasks so daily work is generated automatically.',
+        to: '/recurring-tasks',
+        cta: 'Open recurring tasks',
         icon: Sparkles,
       });
     return list.slice(0, 3);

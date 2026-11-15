@@ -137,7 +137,7 @@ export function PlanUsage({ context }: { context: Context }) {
         )}
         <p className="muted small">
           Usage counts go up as records are created. Archived records are
-          removed from the count by Sharaco’s daily usage reconciliation.
+          removed from the count when Sharaco runs the usage reconciliation.
           Reaching a limit never blocks viewing or exporting existing data.
         </p>
         <div className="toolbar" style={{ flexWrap: 'wrap' }}>

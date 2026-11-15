@@ -17,6 +17,7 @@ jobs:
       VITE_STAFF_BASE_PATH: /FMS/staff/
       VITE_CUSTOMER_BASE_PATH: /FMS/customer/
       VITE_PLATFORM_BASE_PATH: /FMS/platform/
+      VITE_HELP_URL: /FMS/help/
       VITE_ROUTER_MODE: hash
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +34,12 @@ jobs:
       - run: cp -r apps/customer-web/dist apps/admin-web/dist/customer
       # Phase 8: the Sharaco platform console is published at /FMS/platform/.
       - run: cp -r apps/platform-web/dist apps/admin-web/dist/platform
+      # Phase 9: the Help Center (public articles only) with its generated PDF manuals at /FMS/help/.
+      # Restricted (authenticated/internal) manuals are never generated into the site.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run help:pdf
+      - run: npm run help:build
+      - run: cp -r apps/help-web/dist apps/admin-web/dist/help
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/admin-web/dist

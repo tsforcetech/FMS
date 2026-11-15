@@ -1,0 +1,11 @@
+{
+  "name": "@facilityos/help-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "FacilityOS Help Center — a static site generated from docs/help by scripts/help/build.ts.",
+  "scripts": {
+    "build": "tsx ../../scripts/help/build.ts",
+    "preview": "npx --yes serve@14.2.4 dist -l 5178"
+  }
+}

@@ -11,6 +11,8 @@ export default tseslint.config(
       '.firebase/**',
       'apps/mobile/android/**',
       'apps/mobile/ios/**',
+      'apps/help-web/pdf/**',
+      'docs/help/.restricted/**',
     ],
   },
   js.configs.recommended,

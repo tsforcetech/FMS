@@ -8,6 +8,7 @@ import {
   PackagePlus,
   Rocket,
   Save,
+  CircleHelp,
 } from 'lucide-react';
 import {
   onboardingSteps,
@@ -16,6 +17,7 @@ import {
   stepDone,
   type SetupFacts,
   type StarterPack,
+  helpUrl,
 } from '@facilityos/shared';
 import type { Context } from './context';
 import {
@@ -157,6 +159,17 @@ export function OnboardingWizard({ context }: { context: Context }) {
           </ol>
         </nav>
         <section className="card card-pad rise" data-help={current?.helpId}>
+          {current && (
+            <a
+              className="btn btn-ghost btn-sm"
+              style={{ float: 'right' }}
+              href={helpUrl(current.helpId, import.meta.env.VITE_HELP_URL)}
+              target="_blank"
+              rel="noopener"
+            >
+              <CircleHelp /> Help for this step
+            </a>
+          )}
           {!current ? (
             <>
               <h2>Welcome to FacilityOS</h2>

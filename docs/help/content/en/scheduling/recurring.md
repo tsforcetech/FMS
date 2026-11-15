@@ -89,8 +89,10 @@ normal task with its own due time, assignee, checklist and history.
 ## What happens when nobody is available
 
 When the scheduler creates an occurrence it checks every candidate in the pool. People who are
-inactive, **on approved leave** that day or **without a shift covering that weekday** are not
-eligible. If nobody is eligible the task is still created but **left unassigned** with the reason
+inactive or **on approved leave** that day are not eligible. People who have shift assignments are
+only eligible on days one of their shifts covers; people with no shift assignment at all count as
+available every day — except when the pool is a **Shift**, where only members of that shift on that
+day qualify. If nobody is eligible the task is still created but **left unassigned** with the reason
 (*No eligible employee (leave, shift or inactive)* or *No employees match the assignment rule*). It
 never falls back to someone who is not eligible. Unassigned tasks appear in **Task management → Task
 assignments** and on the dashboard so a supervisor can assign them by hand.

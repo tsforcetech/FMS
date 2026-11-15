@@ -154,3 +154,4 @@ export * from './exportFiles';
 export * from './importing';
 export * from './saas';
 export * from './onboarding';
+export * from './help';

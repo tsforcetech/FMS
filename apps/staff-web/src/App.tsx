@@ -33,8 +33,9 @@ import {
   UserRound,
   WifiOff,
   ShieldCheck,
+  CircleHelp,
 } from 'lucide-react';
-import type { Company } from '@facilityos/shared';
+import { helpScreenUrl, type Company } from '@facilityos/shared';
 import type { FirebaseServices } from '@admin/firebase';
 import type { Context } from '@admin/management/context';
 import { clearLabelCache } from '@admin/management/context';
@@ -339,7 +340,7 @@ export function Login({ services }: { services: FirebaseServices }) {
 /* ================================================================ shell */
 function Shell() {
   const staff = useStaff();
-  const { t } = useT();
+  const { t, lang } = useT();
   const online = useOnline();
   const location = useLocation();
   const [unread, setUnread] = useState(0);
@@ -387,6 +388,22 @@ function Shell() {
             <span>{staff.employee.name}</span>
           </div>
         </div>
+        <a
+          className="s-bell s-help"
+          href={helpScreenUrl(
+            'staff',
+            location.pathname,
+            import.meta.env.VITE_HELP_URL,
+            lang,
+          )}
+          target="_blank"
+          rel="noopener"
+          aria-label={t('help')}
+          title={t('help')}
+          data-help-link
+        >
+          <CircleHelp />
+        </a>
         <NavLink
           to="/notifications"
           className="s-bell"

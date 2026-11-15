@@ -35,8 +35,9 @@ import {
   Plus,
   ShieldCheck,
   UserRound,
+  CircleHelp,
 } from 'lucide-react';
-import { toLocal } from '@facilityos/shared';
+import { helpScreenUrl, toLocal } from '@facilityos/shared';
 import type { FirebaseServices } from '@admin/firebase';
 import {
   addRemark,
@@ -381,6 +382,21 @@ function Shell() {
               <span>{s.companyName}</span>
             </div>
           </div>
+          <a
+            className="s-bell s-help"
+            href={helpScreenUrl(
+              'customer',
+              location.pathname,
+              import.meta.env.VITE_HELP_URL,
+            )}
+            target="_blank"
+            rel="noopener"
+            aria-label="Help"
+            title="Help"
+            data-help-link
+          >
+            <CircleHelp />
+          </a>
           <NavLink
             to="/updates"
             className="s-bell"

@@ -1284,10 +1284,10 @@ function EvidenceStep({ content, set }: StepProps) {
   return (
     <div>
       <Banner tone="blue" title="Evidence capture">
-        Photo upload needs file storage (Phase 4); QR and GPS proof need the
-        mobile app (Phase 6). You can mark which questions will need evidence
-        now. Until then, submissions record the evidence as{' '}
-        <strong>pending</strong>, never as captured.
+        QR, GPS and photo evidence are captured in the FacilityOS mobile app.
+        Photos stay encrypted on the phone until cloud file storage is
+        activated, so they are recorded as <strong>pending</strong> upload —
+        never as captured.
       </Banner>
       {!content.questions.length && <Empty title="Add questions first" />}
       <div className="table-wrap" style={{ marginTop: 12 }}>
@@ -1482,9 +1482,8 @@ function AssignmentStep({
   return (
     <div>
       <Banner tone="blue" title="Defaults for new tasks">
-        These defaults pre-fill the assignment when a task is created. Automatic
-        daily or weekly generation arrives with the Phase 4 scheduler; in Phase
-        3 tasks are created manually.
+        These defaults pre-fill the assignment when a task is created by hand.
+        Recurring schedules use their own assignment strategy.
       </Banner>
       <div className="form-grid" style={{ marginTop: 12 }}>
         <div className="field wide">

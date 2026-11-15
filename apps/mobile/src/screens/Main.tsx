@@ -22,7 +22,7 @@ import {
 } from '@facilityos/shared';
 import { myWorkOrders } from '@admin/management/staffStore';
 import { getAttendance, type Attendance } from '@admin/management/fieldStore';
-import { attendanceId } from '@facilityos/shared';
+import { attendanceId, helpUrl } from '@facilityos/shared';
 import { Pill, useToast } from '@admin/ui/kit';
 import { useStaff } from '@staff/App';
 import { useT, type Key } from '@staff/i18n';
@@ -315,7 +315,7 @@ export function Tasks() {
 export function SyncCenter() {
   const m = useMobile();
   const staff = useStaff();
-  const { t } = useT();
+  const { t, lang } = useT();
   const label: Record<string, string> = {
     start: t('start'),
     pause: t('pause'),
@@ -389,6 +389,20 @@ export function SyncCenter() {
               >
                 {t('dismiss')}
               </button>
+            )}
+            {o.status === 'conflict' && (
+              <a
+                className="btn btn-ghost btn-sm"
+                href={helpUrl(
+                  'ts.sync-conflict',
+                  import.meta.env.VITE_HELP_URL,
+                  lang,
+                )}
+                target="_blank"
+                rel="noopener"
+              >
+                {t('help')}
+              </a>
             )}
           </div>
         ))}
