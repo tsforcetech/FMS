@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#2f6fb3"/><path d="M9 23V9h13v3.2h-9.4v2.6h8.2V18h-8.2v5z" fill="#fff"/><circle cx="23" cy="22" r="2.4" fill="#7fd1ae"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FacilityOS">
+  <title>FacilityOS</title>
+  <defs>
+    <linearGradient id="fosg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b7bff"/>
+      <stop offset="1" stop-color="#2457c9"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#fosg)"/>
+  <g transform="translate(128 128) scale(10.6667)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/>
+    <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/>
+    <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>
+  </g>
+</svg>

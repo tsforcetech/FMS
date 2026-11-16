@@ -32,7 +32,6 @@ import {
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import {
-  Layers,
   Menu,
   LogOut,
   ArrowRight,
@@ -131,6 +130,7 @@ import {
   ToastProvider,
   type Tone,
 } from './ui/kit';
+import { BrandMark, Wordmark as BrandWordmark } from '@facilityos/ui';
 
 type Access = { company: Company; member: Membership };
 type Session = {
@@ -248,19 +248,10 @@ function SessionProvider({
   );
 }
 function Logo() {
-  return (
-    <span className="logo" aria-hidden>
-      <Layers />
-    </span>
-  );
+  return <BrandMark size={42} />;
 }
 function Wordmark() {
-  return (
-    <div className="wordmark">
-      Facility<span>OS</span>
-      <small>BY SHARACO</small>
-    </div>
-  );
+  return <BrandWordmark />;
 }
 function StateCard({
   title,

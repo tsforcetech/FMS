@@ -88,6 +88,7 @@ import {
   type PlanRow,
   type VersionRow,
 } from './store';
+import { BrandLockup, BrandMark, Wordmark } from '@facilityos/ui';
 
 type Session = {
   services: FirebaseServices;
@@ -202,6 +203,9 @@ function Login({ services }: { services: FirebaseServices }) {
         onSubmit={submit}
         noValidate
       >
+        <div style={{ marginBottom: 14 }}>
+          <BrandLockup size={44} sub="PLATFORM" />
+        </div>
         <p className="eyebrow">Sharaco Technologies</p>
         <h1>FacilityOS platform console</h1>
         <div className="field">
@@ -258,7 +262,8 @@ function Shell({ s }: { s: Session }) {
     <div className="p-shell">
       <aside className="p-side">
         <div className="p-brand">
-          FacilityOS <span>Platform</span>
+          <BrandMark size={34} shadow={false} />
+          <Wordmark sub="PLATFORM" tone="light" size={16} />
         </div>
         <nav aria-label="Platform">
           {nav.map(([to, label, icon]) => (

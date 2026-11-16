@@ -55,6 +55,7 @@ import { WorkOrderList, WorkOrderView } from './screens/WorkOrders';
 import { StaffCalendar } from './screens/StaffCalendar';
 import { StaffNotifications, Profile } from './screens/Profile';
 import { Approvals } from './screens/Approvals';
+import { BrandMark } from '@facilityos/ui';
 
 /* ================================================================ session */
 export type Staff = StaffAccess & {
@@ -134,7 +135,7 @@ export function StaffApp({
 export function Splash() {
   return (
     <div className="s-center" aria-busy="true">
-      <div className="s-logo">F</div>
+      <BrandMark size={56} />
       <div className="spinner" />
     </div>
   );
@@ -278,7 +279,7 @@ export function Login({ services }: { services: FirebaseServices }) {
   return (
     <main className="s-login">
       <div className="s-login-card">
-        <div className="s-logo">F</div>
+        <BrandMark size={56} />
         <p className="s-brand">{t('appName')}</p>
         <h1>{t('signInTitle')}</h1>
         <p className="muted">{t('signInHelp')}</p>
@@ -382,7 +383,7 @@ function Shell() {
     <div className="s-shell">
       <header className="s-top">
         <div className="s-top-brand">
-          <span className="s-logo sm">F</span>
+          <BrandMark size={36} shadow={false} />
           <div>
             <strong>{staff.companyName}</strong>
             <span>{staff.employee.name}</span>

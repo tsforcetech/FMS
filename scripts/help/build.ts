@@ -175,7 +175,7 @@ ${o.noindex ? '<meta name="robots" content="noindex" />' : ''}
 <a class="skip" href="#main">${esc(t.skip)}</a>
 <header class="top">
   <button class="menu-btn" type="button" aria-label="${esc(t.menu)}" aria-expanded="false" aria-controls="side">☰</button>
-  <a class="brand" href="${h(lp + 'index.html')}"><img src="${h('assets/favicon.svg')}" alt="" width="28" height="28" /><span><strong>${esc(site.product)}</strong> ${esc(t.helpCenter)}</span></a>
+  <a class="brand" href="${h(lp + 'index.html')}"><img src="${h('assets/favicon.svg')}" alt="" width="28" height="28" /><span><strong>Facility<span class="os">OS</span></strong> ${esc(t.helpCenter)}</span></a>
   <form class="top-search" action="${h(lp + 'search.html')}" role="search">
     <input type="search" name="q" placeholder="${esc(t.searchPlaceholder)}" aria-label="${esc(t.search)}" autocomplete="off" />
   </form>

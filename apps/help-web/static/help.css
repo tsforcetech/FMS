@@ -120,6 +120,9 @@ img {
   background: var(--surface);
   border-block-end: 1px solid var(--line);
 }
+.brand .os {
+  color: var(--brand);
+}
 .brand {
   display: flex;
   align-items: center;

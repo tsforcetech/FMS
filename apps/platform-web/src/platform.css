@@ -15,8 +15,9 @@
   height: 100vh;
 }
 .p-brand {
-  font-weight: 800;
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 0 8px;
 }
 .p-brand span {

@@ -38,6 +38,7 @@ import { TaskRun } from './screens/TaskRun';
 import { Scan } from './screens/Scan';
 import { Attendance } from './screens/Attendance';
 import { platformName } from './platform';
+import { BrandMark } from '@facilityos/ui';
 
 export default function MobileApp({
   services,
@@ -122,7 +123,7 @@ function Frame() {
     <div className={'s-shell m-shell platform-' + platformName}>
       <header className="s-top">
         <div className="s-top-brand">
-          <span className="s-logo sm">F</span>
+          <BrandMark size={36} shadow={false} />
           <div>
             <strong>{staff.companyName}</strong>
             <span>{staff.employee.name}</span>

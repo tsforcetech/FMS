@@ -60,6 +60,7 @@ import {
 import { Pill, friendly, useToast, type Tone } from '@admin/ui/kit';
 import { ExportMenu } from '@admin/ui/ExportMenu';
 import type { Dataset } from '@admin/management/exportStore';
+import { BrandMark } from '@facilityos/ui';
 
 /** Customer-safe export: only fields the customer already sees in the portal. */
 function historyDataset(
@@ -167,7 +168,7 @@ export default function App({ services }: { services: FirebaseServices }) {
 function Splash() {
   return (
     <div className="s-center" aria-busy="true">
-      <div className="s-logo">F</div>
+      <BrandMark size={56} />
       <div className="spinner" />
     </div>
   );
@@ -273,7 +274,7 @@ function Login({ services }: { services: FirebaseServices }) {
   return (
     <main className="s-login">
       <div className="s-login-card">
-        <div className="s-logo">F</div>
+        <BrandMark size={56} />
         <p className="s-brand">FacilityOS customer portal</p>
         <h1>Sign in</h1>
         <p className="muted">
@@ -376,7 +377,7 @@ function Shell() {
       <div className="s-shell">
         <header className="s-top">
           <div className="s-top-brand">
-            <span className="s-logo sm">F</span>
+            <BrandMark size={36} shadow={false} />
             <div>
               <strong>{s.link.clientName}</strong>
               <span>{s.companyName}</span>
